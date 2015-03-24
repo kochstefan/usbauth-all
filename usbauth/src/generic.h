@@ -41,4 +41,9 @@ struct match_ret {
 	bool match_cond:1;
 };
 
+struct auth_ret {
+	bool match;
+	bool allowed;
+};
+
 #endif /* GENERIC_H_ */

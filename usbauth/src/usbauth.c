@@ -8,7 +8,6 @@
  ============================================================================
  */
 
-
 #include "generic.h"
 #include "../../usbauth_configparser/src/usbauth_configparser.h"
 #include <stdio.h>
@@ -102,11 +101,11 @@ void serialize_dbus(struct udev_device *udevdev) {
 
 	DBusError error;
 	dbus_error_init(&error);
-	DBusConnection *bus = dbus_bus_get(DBUS_BUS_SESSION, &error);
+	DBusConnection *bus = dbus_bus_get(DBUS_BUS_SYSTEM, &error);
 
 	chkerr(&error);
 
-	dbus_bus_request_name(bus, "test.signal.source", DBUS_NAME_FLAG_REPLACE_EXISTING, &error);
+	//dbus_bus_request_name(bus, "test.signal.source", DBUS_NAME_FLAG_REPLACE_EXISTING, &error);
 
 	chkerr(&error);
 
@@ -127,10 +126,29 @@ void authorize_interface_libudev(struct udev_device *udevdev, bool authorize, bo
 	const char* path = udev_device_get_devpath(udevdev);
 	unsigned cl = strtoul(udev_device_get_sysattr_value(udevdev, "bInterfaceClass"), NULL, 16);
 	fprintf(logfile, "USB Interface with class %02x\n", cl);
-	fprintf(logfile, "/sys%s/interface_authorized %u\n", path, authorize);
+	unsigned value = authorize ? 1 : 0;
+	char v[16];
+	strcpy(v, "");
+	sprintf(v, "%x", value);
+	fprintf(logfile, "/sys%s/interface_authorized %u\n", path, value);
 	if (dbus && authorize)
 		serialize_dbus(udevdev);
-	//udev_device_set_sysattr_value(udevdev, "interface_authorized", authorize);
+	udev_device_set_sysattr_value(udevdev, "interface_authorized", v);
+}
+
+void authorize_device_libudev(struct udev_device *udevdev, bool authorize, bool dbus) {
+	const char* path = udev_device_get_devpath(udevdev);
+	unsigned cl = strtoul(udev_device_get_sysattr_value(udevdev, "bDeviceClass"), NULL, 16);
+	unsigned val = strtoul(udev_device_get_sysattr_value(udevdev, "bNumInterfaces"), NULL, 16);
+	fprintf(logfile, "USB Interface with class %02x\n", cl);
+	unsigned value = authorize ? val : 0;
+	char v[16];
+	strcpy(v, "");
+	sprintf(v, "%x", value);
+	fprintf(logfile, "/sys%s/interface_authorization_mask %u\n", path, value);
+	if (dbus && authorize)
+		serialize_dbus(udevdev);
+	udev_device_set_sysattr_value(udevdev, "interface_authorization_mask", v);
 }
 
 void authorize_interface_libusb(struct libusb_device *dev, const struct libusb_interface_descriptor *intf, bool authorize) {
@@ -340,7 +358,7 @@ bool auth_match_interface_libusb(struct auth *a, struct libusb_device *dev, cons
 	return ret;
 }
 
-bool parse_udev_environment_vars() {
+bool parse_udev_environment_vars(struct auth *a, size_t len) {
 	struct udev *udev;
 	struct udev_device *udevdev;
 
@@ -356,20 +374,98 @@ bool parse_udev_environment_vars() {
 		fprintf(logfile, "path %s %s\n", path, type);
 		const char* cl = udev_device_get_sysattr_value(udevdev, "bInterfaceClass");
 		fprintf(logfile, "class %s\n", cl);
+		struct udev_device *par = udev_device_get_parent(udevdev);
+		interface_match_auth_udev(par, a, len);
 	}
 
 	return true;
+}
+
+struct auth_ret intffunct(struct udev_device *udevdev, struct auth *a, size_t len) {
+	struct auth_ret ret;
+	ret.match = false;
+	ret.allowed = false;
+	int i;
+	for (i = 0; i < len; i++) {
+		if (!a[i].cond && auth_match_interface_libudev(&a[i], udevdev).match_attrs) {
+
+			bool ruleMatched = true;
+			int j = 0;
+			for (j = 0; j < len; j++) {
+				struct match_ret r;
+				if (a[j].cond) {
+					r = auth_match_interface_libudev(&a[j], udevdev);
+					if (r.match_attrs && r.match_cond && a[i].allowed) // count only if allowed for conditions
+						a[j].count++;
+					else if (r.match_attrs && !r.match_cond) // only if interface matched properties and condition complies
+						ruleMatched = false;
+				}
+			}
+
+			if (ruleMatched) { // if current/iterated rule matched
+				a[i].count++;
+				ret.match |= true;
+				ret.allowed = a[i].allowed;
+			}
+		}
+	}
+	return ret;
+}
+
+void interface_match_auth_udev(struct udev_device *udevdev, struct auth *a, size_t len) {
+	const char *type = udev_device_get_devtype(udevdev);
+	const char *path = udev_device_get_syspath(udevdev);
+
+	if (strcmp(type, "usb_device") == 0) {
+		struct udev *udev;
+		struct udev_enumerate *enumerate;
+		struct udev_list_entry *devices, *entry;
+
+		udev = udev_new();
+
+		enumerate = udev_enumerate_new(udev);
+		udev_enumerate_add_match_parent(enumerate, udevdev);
+		udev_enumerate_scan_devices(enumerate);
+		devices = udev_enumerate_get_list_entry(enumerate);
+
+		unsigned val = strtoul(udev_device_get_sysattr_value(udevdev, "bDeviceClass"), NULL, 16);
+		bool genMatch = true;
+		bool genAllowed = true;
+		udev_list_entry_foreach(entry, devices)
+		{
+			const char *path = udev_list_entry_get_name(entry);
+			struct udev_device *udevdev = udev_device_new_from_syspath(udev, path);
+			const char *type = udev_device_get_devtype(udevdev);
+
+			if (type && strcmp(type, "usb_interface") == 0) {
+				if(val == 0) {
+					fprintf(logfile, "path %s %s\n", path, type);
+
+					struct auth_ret r = intffunct(udevdev, a, len);
+
+					if (r.match) // if one rule has matched
+						authorize_interface_libudev(udevdev, r.allowed, true);
+				}
+				else {
+					fprintf(logfile, "path %s %s\n", path, type);
+
+					struct auth_ret r = intffunct(udevdev, a, len);
+					genMatch &= r.match;
+					genAllowed &= r.allowed;
+				}
+			}
+		}
+		if (val != 0 && genMatch)  // if one rule has matched
+			authorize_device_libudev(udevdev, genAllowed, true);
+	}
 }
 
 void interfaces_enumerate_libudev(struct auth *a, size_t len) {
 	struct udev *udev;
 	struct udev_enumerate *enumerate;
 	struct udev_list_entry *devices, *entry;
-	struct udev_device *udevdev;
 
 	udev = udev_new();
-
-	udevdev = udev_device_new_from_environment(udev);
 
 	enumerate = udev_enumerate_new(udev);
 	udev_enumerate_add_match_subsystem(enumerate, "usb");
@@ -378,46 +474,9 @@ void interfaces_enumerate_libudev(struct auth *a, size_t len) {
 
 	udev_list_entry_foreach(entry, devices)
 	{
-		const char *path;
-		const char *type;
-
-		path = udev_list_entry_get_name(entry);
-		udevdev = udev_device_new_from_syspath(udev, path);
-		type = udev_device_get_devtype(udevdev);
-
-		if (strcmp(type, "usb_interface") == 0) {
-			fprintf(logfile, "path %s %s\n", path, type);
-
-			bool match = false;
-			bool allowed = false;
-			int i;
-			for (i = 0; i < len; i++) {
-				if (!a[i].cond && auth_match_interface_libudev(&a[i], udevdev).match_attrs) {
-
-					bool ruleMatched = true;
-					int j = 0;
-					for (j = 0; j < len; j++) {
-						struct match_ret r;
-						if (a[j].cond) {
-							r = auth_match_interface_libudev(&a[j], udevdev);
-							if (r.match_attrs && r.match_cond && a[i].allowed) // count only if allowed for conditions
-								a[j].count++;
-							else if (r.match_attrs && !r.match_cond) // only if interface matched properties and condition complies
-								ruleMatched = false;
-						}
-					}
-
-					if (ruleMatched) { // if current/iterated rule matched
-						a[i].count++;
-						match |= true;
-						allowed = a[i].allowed;
-					}
-				}
-			}
-			if (match) // if one rule has matched
-				authorize_interface_libudev(udevdev, allowed, true);
-		}
-
+		const char *path = udev_list_entry_get_name(entry);
+		struct udev_device *udevdev = udev_device_new_from_syspath(udev, path);
+		interface_match_auth_udev(udevdev, a, len);
 	}
 }
 
@@ -556,17 +615,20 @@ bool chk_args(const char *p1, const char *p2) {
 	if(!p1 || !p2)
 		return false;
 
-	struct udev_device *udevdev = udev_device_new_from_syspath(udev, p1);
+	struct udev_device *udevdev = udev_device_new_from_syspath(udev, p2);
 
 	if(!udevdev) {
-		printf("hallo");
 		return false;
 	}
 
-	bool allw = strcmp(p2, "allow") == 0 ? true : false;
+	bool allw = strcmp(p1, "allow") == 0 ? true : false;
 	authorize_interface_libudev(udevdev, allw, false);
 
 	return true;
+}
+
+void init() {
+
 }
 
 int main(int argc, char **argv) {
@@ -574,42 +636,26 @@ int main(int argc, char **argv) {
 	logfile = fopen(LOG_FILE, "w");
 	FILE *config = fopen(CONFIG_FILE, "r");
 
-	if(argc > 2) {
-		chk_args(argv[1], argv[2]);
-		printf("exit");
-		return 0;
-	}
-
-	char *str = NULL;
-	size_t line_len = 0;
-
-	size_t line_cnt = file_get_line_count(config);
-	struct auth *a = NULL;
-	if (line_cnt)
-		a = (struct auth*) calloc(line_cnt, sizeof(struct auth));
-
-	int i;
-	for (i = 0; i < line_cnt; i++) {
-		getline(&str, &line_len, config);
-		rule_parse_params(str, &a[i]);
-	}
-
-	interfaces_enumerate_libudev(a, line_cnt);
-//	interfaces_enumerate_libusb(a, line_cnt);
-
-	parse_udev_environment_vars();
-
-	for (i = 0; i < line_cnt; i++) {
-		free(a[i].attr_array);
-	}
-	free(a);
-
 	usbauth_config_read();
 	unsigned length;
 	struct auth *auths;
 	usbauth_config_get_auths(&auths, &length);
-	interfaces_enumerate_libudev(auths, length);
 
+	if (argc <= 1) {
+		parse_udev_environment_vars(auths, length);
+	} else if (strcmp(argv[1], "allow") == 0 || strcmp(argv[1], "deny") == 0) {
+		chk_args(argv[1], argv[2]);
+		printf("exit");
+		return 0;
+	} else if(strcmp(argv[1], "init") == 0) {
+		interfaces_enumerate_libudev(auths, length);
+	}
+
+	unsigned i;
+	for (i = 0; i < length; i++) {
+		free(auths[i].attr_array);
+	}
+	free(auths);
 
 	return 0;
 }

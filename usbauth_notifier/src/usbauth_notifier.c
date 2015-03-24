@@ -56,7 +56,7 @@ void dbus_init() {
 
 	dbus_error_init(&error);
 
-	bus = dbus_bus_get(DBUS_BUS_SESSION, &error);
+	bus = dbus_bus_get(DBUS_BUS_SYSTEM, &error);
 	chkerr(&error);
 
 	dbus_bus_request_name(bus, "test.signal.target", DBUS_NAME_FLAG_REPLACE_EXISTING, &error);
@@ -165,7 +165,7 @@ void actioncb(NotifyNotification *callback, char* action, gpointer user_data) {
 
 	printf("usbauth notifyid %u action %s\n", 1, authstr);
 
-	snprintf(cmd, sizeof(cmd), "usbauth %s %s", udev_device_get_syspath(udevdev), authstr);
+	snprintf(cmd, sizeof(cmd), "pkexec usbauth %s %s", authstr, udev_device_get_syspath(udevdev));
 	printf(cmd);
 	system(cmd);
 
@@ -196,6 +196,9 @@ int get_val_libudev(int param, struct udev_device *udevdev) {
 	case bInterfaceClass:
 		val = strtoul(udev_device_get_sysattr_value(udevdev, "bInterfaceClass"), NULL, 16);
 		break;
+	case bDeviceClass:
+		val = strtoul(udev_device_get_sysattr_value(udevdev, "bDeviceClass"), NULL, 16);
+		break;
 	default:
 		break;
 	}
@@ -211,8 +214,15 @@ int main(void) {
 
 	while(1) {
 		udevdev = deserialize_dbus();
+		const char *type = udev_device_get_devtype(udevdev);
 
-		unsigned cl = get_val_libudev(bInterfaceClass, udevdev);
+		unsigned cl = 255;
+		if (strcmp(type, "usb_interface") == 0) {
+			cl = get_val_libudev(bInterfaceClass, udevdev);
+		} else if (strcmp(type, "usb_device") == 0) {
+			cl = get_val_libudev(bDeviceClass, udevdev);
+		}
+
 		uint16_t vId = get_val_libudev(idVendor, udevdev);
 		uint16_t pId = get_val_libudev(idProduct, udevdev);
 		uint16_t busn = get_val_libudev(busnum, udevdev);
