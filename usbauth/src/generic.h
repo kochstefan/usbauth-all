@@ -14,7 +14,7 @@
 #include <stdbool.h>
 
 enum parameters {
-	INVALID, busnum, devpath, idVendor, idProduct, bDeviceClass, bDeviceSubClass, bConfigurationValue, bInterfaceNumber, bInterfaceClass, bInterfaceSubClass, count
+	INVALID, busnum, devpath, idVendor, idProduct, bDeviceClass, bDeviceSubClass, bDeviceProtocol, bConfigurationValue, bInterfaceNumber, bInterfaceClass, bInterfaceSubClass, bInterfaceProtocol, count
 };
 
 enum operator { eq, neq, lt, gt, l, g };

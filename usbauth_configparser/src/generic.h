@@ -14,7 +14,7 @@
 #include <stdbool.h>
 
 enum parameters {
-	INVALID, busnum, devpath, idVendor, idProduct, bDeviceClass, bDeviceSubClass, bConfigurationValue, bInterfaceNumber, bInterfaceClass, bInterfaceSubClass, count
+	INVALID, busnum, devpath, idVendor, idProduct, bDeviceClass, bDeviceSubClass, bDeviceProtocol, bConfigurationValue, bInterfaceNumber, bInterfaceClass, bInterfaceSubClass, bInterfaceProtocol, count
 };
 
 enum operator { eq, neq, lt, gt, l, g };
@@ -39,6 +39,11 @@ struct auth {
 struct match_ret {
 	bool match_attrs:1;
 	bool match_cond:1;
+};
+
+struct auth_ret {
+	bool match;
+	bool allowed;
 };
 
 #endif /* GENERIC_H_ */

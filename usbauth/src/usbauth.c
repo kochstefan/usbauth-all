@@ -14,7 +14,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <libudev.h>
-#include <libusb-1.0/libusb.h>
 #include <dbus/dbus.h>
 
 #define CONFIG_FILE "/home/stefan/usbauth.config"
@@ -52,11 +51,26 @@ int get_val_libudev(int param, struct udev_device *udevdev) {
 	}
 
 	switch(param) {
+	case busnum:
+		val = strtoul(udev_device_get_sysattr_value(parent, "busnum"), NULL, 16);
+		break;
+	case devpath:
+		val = strtoul(udev_device_get_sysattr_value(parent, "devpath"), NULL, 16);
+		break;
 	case idVendor:
 		val = strtoul(udev_device_get_sysattr_value(parent, "idVendor"), NULL, 16);
 		break;
 	case idProduct:
 		val = strtoul(udev_device_get_sysattr_value(parent, "idProduct"), NULL, 16);
+		break;
+	case bDeviceClass:
+		val = strtoul(udev_device_get_sysattr_value(parent, "bDeviceClass"), NULL, 16);
+		break;
+	case bDeviceSubClass:
+		val = strtoul(udev_device_get_sysattr_value(parent, "bDeviceSubClass"), NULL, 16);
+		break;
+	case bDeviceProtocol:
+		val = strtoul(udev_device_get_sysattr_value(parent, "bDeviceProtocol"), NULL, 16);
 		break;
 	case bConfigurationValue:
 		val = strtoul(udev_device_get_sysattr_value(parent, "bConfigurationValue"), NULL, 0);
@@ -66,6 +80,12 @@ int get_val_libudev(int param, struct udev_device *udevdev) {
 		break;
 	case bInterfaceClass:
 		val = strtoul(udev_device_get_sysattr_value(udevdev, "bInterfaceClass"), NULL, 16);
+		break;
+	case bInterfaceSubClass:
+		val = strtoul(udev_device_get_sysattr_value(udevdev, "bInterfaceSubClass"), NULL, 16);
+		break;
+	case bInterfaceProtocol:
+		val = strtoul(udev_device_get_sysattr_value(udevdev, "bInterfaceProtocol"), NULL, 16);
 		break;
 	default:
 		break;
@@ -151,83 +171,6 @@ void authorize_device_libudev(struct udev_device *udevdev, bool authorize, bool 
 	udev_device_set_sysattr_value(udevdev, "interface_authorization_mask", v);
 }
 
-void authorize_interface_libusb(struct libusb_device *dev, const struct libusb_interface_descriptor *intf, bool authorize) {
-	struct libusb_config_descriptor *conf;
-	libusb_get_active_config_descriptor(dev, &conf);
-
-	uint8_t busNr = libusb_get_bus_number(dev);
-	uint8_t portNr = libusb_get_port_number(dev);
-	uint8_t confNr = conf->bConfigurationValue;
-	uint8_t intfNr = intf->bInterfaceNumber;
-	char d[16];
-	sprintf(d, "%" SCNu8 "-%" SCNu8 ":%" SCNu8 ".%" SCNu8, busNr, portNr, confNr, intfNr);
-	fprintf(logfile, "%s, USB Interface with class %02x\n", d, intf->bInterfaceClass);
-	fprintf(logfile, "%s/%s/interface_authorized %u\n", SYSFS_USB, d, authorize);
-}
-
-int str_parse_param_val(const char* str, char **param, char **op, char **val) {
-	int ret = 0;
-	int slen = strlen(str);
-	int len = 0;
-	const char *send = str + slen;
-	char *p1 = NULL;
-	char *tmp1;
-
-	char* ops[] = { "==", "!=", "<=", ">=", "<", ">" };
-
-	int i = 0;
-	for (i = 0; i < sizeof(ops) / sizeof(char*); i++) {
-		tmp1 = strstr(str, ops[i]);
-		if ((tmp1 && tmp1 < p1) || !p1) {
-			p1 = tmp1;
-			len = strlen(ops[i]);
-			if (op) {
-				*op = (char*) calloc(len, sizeof(char));
-				strncpy(*op, ops[i], len);
-				(*op)[len] = 0;
-			}
-		}
-	}
-
-	if (p1) {
-		const char *ll = str;
-		char *lr = p1, *rl = p1 + 1;
-
-		while (rl < send && *ll == ' ')
-			ll++;
-
-		while (lr > str && *--lr == ' ')
-			;
-		while (rl < send && *++rl == ' ')
-			;
-
-		char *rr = rl;
-
-		while (rr < send && (*rr != ' ' && *rr != '\n' && *rr != '\r'))
-			rr++;
-
-		rr--;
-
-		len = lr - ll + 1;
-		if (param) {
-			*param = (char*) calloc(len + 1, sizeof(char));
-			strncpy(*param, ll, len);
-			(*param)[len] = 0;
-		}
-
-		len = rr - rl + 1;
-		if (val) {
-			*val = (char*) calloc(len + 1, sizeof(char));
-			strncpy(*val, rl, len);
-			(*val)[len] = 0;
-		}
-
-		ret = rr - str + 1;
-	}
-
-	return ret;
-}
-
 struct match_ret auth_match_interface_libudev(struct auth *a, struct udev_device *udevdev) {
 	struct match_ret ret;
 	ret.match_attrs = true;
@@ -282,49 +225,6 @@ struct match_ret auth_match_interface_libudev(struct auth *a, struct udev_device
 			ret.match_cond = false;
 		else if (d->op == g && !(val > d->val))
 			ret.match_cond = false;
-	}
-
-	return ret;
-}
-
-bool auth_match_interface_libusb(struct auth *a, struct libusb_device *dev, const struct libusb_interface_descriptor *intf) {
-	bool ret = true;
-
-	if(!a || !dev || !intf || !a->valid)
-		return false;
-
-	struct libusb_device_descriptor desc;
-	struct libusb_config_descriptor *conf;
-	libusb_get_device_descriptor(dev, &desc);
-	libusb_get_active_config_descriptor(dev, &conf);
-
-	int i;
-	for (i = 0; i < a->attr_len; i++) {
-		struct data *d = &a->attr_array[i];
-		unsigned val = 0;
-
-		switch(d->param) {
-		case idVendor:
-			val = desc.idVendor;
-			break;
-		case idProduct:
-			val = desc.idProduct;
-			break;
-		case bConfigurationValue:
-			val = conf->bConfigurationValue;
-			break;
-		case bInterfaceNumber:
-			val = intf->bInterfaceNumber;
-			break;
-		case bInterfaceClass:
-			val = intf->bInterfaceClass;
-			break;
-		default:
-			break;
-		}
-
-		if (val != d->val)
-			ret = false;
 	}
 
 	return ret;
@@ -392,6 +292,31 @@ struct auth_ret intffunct(struct udev_device *udevdev, struct auth *a, size_t le
 	return ret;
 }
 
+void allowhub(struct auth *a, size_t len) {
+	int i = 0;
+	struct udev *udev;
+	struct udev_enumerate *enumerate;
+	struct udev_list_entry *devices, *entry;
+
+	udev = udev_new();
+
+	enumerate = udev_enumerate_new(udev);
+	udev_enumerate_add_match_subsystem(enumerate, "usb");
+	udev_enumerate_scan_devices(enumerate);
+	devices = udev_enumerate_get_list_entry(enumerate);
+
+	udev_list_entry_foreach(entry, devices)
+	{
+		const char *path = udev_list_entry_get_name(entry);
+		struct udev_device *udevdev = udev_device_new_from_syspath(udev, path);
+		const char *type = udev_device_get_devtype(udevdev);
+		if (type && strcmp(type, "usb_device") == 0) {// filter out interfaces
+			unsigned val = strtoul(udev_device_get_sysattr_value(udevdev, "bDeviceClass"), NULL, 16);
+			authorize_device_libudev(udevdev, true, true);
+		}
+	}
+}
+
 void device_interfaces_match_auth_udev(struct udev_device *udevdev, struct auth *a, size_t len, bool emulate) {
 	const char *type = udev_device_get_devtype(udevdev);
 	const char *path = udev_device_get_syspath(udevdev);
@@ -428,18 +353,13 @@ void device_interfaces_match_auth_udev(struct udev_device *udevdev, struct auth 
 		const char *type = udev_device_get_devtype(udevdev);
 
 		if (type && strcmp(type, "usb_interface") == 0) {
+			fprintf(logfile, "path %s %s\n", path, type);
+			struct auth_ret r = intffunct(udevdev, a, len);
+
 			if(val == 0) {
-				fprintf(logfile, "path %s %s\n", path, type);
-
-				struct auth_ret r = intffunct(udevdev, a, len);
-
 				if (!emulate && r.match) // if one rule has matched
 					authorize_interface_libudev(udevdev, r.allowed, true);
-			}
-			else {
-				fprintf(logfile, "path %s %s\n", path, type);
-
-				struct auth_ret r = intffunct(udevdev, a, len);
+			} else {
 				genMatch &= r.match;
 				genAllowed &= r.allowed;
 			}
@@ -474,42 +394,6 @@ void devices_enumerate_libudev(struct auth *a, size_t len, bool emulate) {
 	}
 }
 
-void interfaces_enumerate_libusb(struct auth *a, size_t len) {
-	struct libusb_device **devs;
-	struct libusb_device *dev;
-
-	libusb_init(NULL);
-	libusb_get_device_list(NULL, &devs);
-
-	int i = 0;
-	while ((dev = devs[i++]) != NULL) {
-		struct libusb_device_descriptor desc;
-		struct libusb_config_descriptor *conf;
-		libusb_get_device_descriptor(dev, &desc);
-		libusb_get_active_config_descriptor(dev, &conf);
-		fprintf(logfile, "USB Device %04x:%04x with class %02x\n", desc.idVendor, desc.idProduct, desc.bDeviceClass);
-		int i;
-		for (i = 0; i < conf->bNumInterfaces; i++) {
-			const struct libusb_interface_descriptor *intf = conf->interface[i].altsetting;
-			bool match = false;
-			bool allowed = false;
-			int j;
-			for (j = 0; j < len; j++) {
-				if (auth_match_interface_libusb(&a[j], dev, intf)) {
-					match |= true;
-					allowed = a[j].allowed;
-				}
-			}
-			if (match)
-				authorize_interface_libusb(dev, intf, allowed);
-		}
-		libusb_free_config_descriptor(conf);
-	}
-
-	libusb_free_device_list(devs, 1);
-	libusb_exit(NULL);
-}
-
 bool chk_args(const char *p1, const char *p2) {
 	if(!p1 || !p2)
 		return false;
@@ -524,10 +408,6 @@ bool chk_args(const char *p1, const char *p2) {
 	authorize_interface_libudev(udevdev, allw, false);
 
 	return true;
-}
-
-void init() {
-
 }
 
 int main(int argc, char **argv) {
@@ -548,6 +428,7 @@ int main(int argc, char **argv) {
 		printf("exit");
 		return 0;
 	} else if(strcmp(argv[1], "init") == 0) {
+		allowhub(auths, length);
 		devices_enumerate_libudev(auths, length, false);
 	}
 
