@@ -44,7 +44,7 @@ void deserialize(struct ser *dev) {
 	printf("%i", i);
 }
 
-void chkerr(DBusError *error) {
+void serialize_dbus_error_check(DBusError *error) {
 	if(dbus_error_is_set(error)) {
 		printf("error %s", error->message);
 		dbus_error_free(error);
@@ -57,13 +57,13 @@ void dbus_init() {
 	dbus_error_init(&error);
 
 	bus = dbus_bus_get(DBUS_BUS_SYSTEM, &error);
-	chkerr(&error);
+	serialize_dbus_error_check(&error);
 
 	dbus_bus_request_name(bus, "test.signal.target", DBUS_NAME_FLAG_REPLACE_EXISTING, &error);
-	chkerr(&error);
+	serialize_dbus_error_check(&error);
 
 	dbus_bus_add_match(bus, "type='signal',interface='test.signal.Type'", &error);
-	chkerr(&error);
+	serialize_dbus_error_check(&error);
 }
 
 void dbus_deinit() {
@@ -85,7 +85,7 @@ struct udev_device *deserialize_dbus() {
 		if (msg) {
 			if (dbus_message_is_signal(msg, "test.signal.Type", "Test")) {
 				dbus_message_get_args(msg, &error, DBUS_TYPE_STRING, &path, DBUS_TYPE_INVALID);
-				chkerr(&error);
+				serialize_dbus_error_check(&error);
 				ret = udev_device_new_from_syspath(udev, path);
 				dbus_message_unref(msg);
 				msg = NULL;
@@ -172,7 +172,7 @@ void actioncb(NotifyNotification *callback, char* action, gpointer user_data) {
 	g_main_loop_quit(loop);
 }
 
-int get_val_libudev(int param, struct udev_device *udevdev) {
+int get_param_val(int param, struct udev_device *udevdev) {
 	unsigned val = 0;
 	struct udev_device *parent = udev_device_get_parent(udevdev);
 
@@ -218,15 +218,15 @@ int main(void) {
 
 		unsigned cl = 255;
 		if (strcmp(type, "usb_interface") == 0) {
-			cl = get_val_libudev(bInterfaceClass, udevdev);
+			cl = get_param_val(bInterfaceClass, udevdev);
 		} else if (strcmp(type, "usb_device") == 0) {
-			cl = get_val_libudev(bDeviceClass, udevdev);
+			cl = get_param_val(bDeviceClass, udevdev);
 		}
 
-		uint16_t vId = get_val_libudev(idVendor, udevdev);
-		uint16_t pId = get_val_libudev(idProduct, udevdev);
-		uint16_t busn = get_val_libudev(busnum, udevdev);
-		uint16_t devp = get_val_libudev(devpath, udevdev);
+		uint16_t vId = get_param_val(idVendor, udevdev);
+		uint16_t pId = get_param_val(idProduct, udevdev);
+		uint16_t busn = get_param_val(busnum, udevdev);
+		uint16_t devp = get_param_val(devpath, udevdev);
 		bool allowed = false;
 
 		snprintf(titleMsg, sizeof(titleMsg), "New %s device", getClassString(cl, false));

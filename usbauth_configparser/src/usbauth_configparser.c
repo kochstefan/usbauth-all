@@ -10,21 +10,22 @@
 
 #include "generic.h"
 #include "usbauth_configparser.h"
+#include "usbauth_lang.tab.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
 #define CONFIG_FILE "/home/stefan/usbauth.config"
 
-extern uint8_t ruleCnt;
-struct auth *au;
+unsigned gen_length;
+struct auth *gen_auths;
 
 extern FILE *usbauth_yyin;
 
-const char* parameters[] = {"INVALID", "busnum", "devpath", "idVendor", "idProduct", "bDeviceClass", "bDeviceSubClass", "bConfigurationValue", "bInterfaceNumber", "bInterfaceClass", "bInterfaceSubClass", "count"};
+const char* parameters[] = {"INVALID", "busnum", "devpath", "idVendor", "idProduct", "bDeviceClass", "bDeviceSubClass", "bDeviceProtocol", "bConfigurationValue", "bInterfaceNumber", "bInterfaceClass", "bInterfaceSubClass", "bInterfaceProtocol", "count"};
 const char* operators[] = {"==", "!=", "<=", ">=", "<", ">"};
 
-bool usbauth_config_param_val_str_to_data(struct data *d, char *paramStr, char* opStr, char *valStr) {
+bool usbauth_config_convert_str_to_data(struct data *d, char *paramStr, char* opStr, char *valStr) {
 	bool ret = true;
 
 	if(!d || !paramStr || !valStr)
@@ -141,28 +142,63 @@ void allocate_and_copy(struct auth** auth_arr, struct auth* auths, unsigned leng
 	*auth_arr = arr;
 }
 
+int usbauth_config_free() {
+	int ret = -1;
+
+	if(gen_auths) {
+		usbauth_config_free_auths(gen_auths, gen_length);
+		gen_auths = NULL;
+		gen_length = 0;
+		ret = 0;
+	}
+
+	return ret;
+}
+
 int usbauth_config_read() {
 	usbauth_yyin = fopen(CONFIG_FILE, "r");
+
+	if(!usbauth_yyin)
+		return -1;
+
+	usbauth_config_free();
+
 	int ret = usbauth_yyparse();
 	fclose(usbauth_yyin);
+
 	return ret;
 }
 
 int usbauth_config_write() {
 	FILE* fout = fopen(CONFIG_FILE "1", "w");
+
+	if(!fout)
+		return -1;
+
 	int i = 0;
-	for (i = 0; i < ruleCnt; i++)
-		fprintf(fout, "%s\n", auth_to_str(&au[i]));
+	for (i = 0; i < gen_length; i++)
+		fprintf(fout, "%s\n", auth_to_str(&gen_auths[i]));
 	fclose(fout);
+
+	return 0;
+}
+
+void usbauth_config_free_auths(struct auth* auths, unsigned length) {
+	unsigned i;
+	for (i = 0; i < length; i++) {
+		free(auths[i].attr_array);
+	}
+	free(auths);
 }
 
 void usbauth_config_get_auths(struct auth** auths, unsigned *length) {
-	allocate_and_copy(auths, au, ruleCnt);
-	*length = ruleCnt;
+	allocate_and_copy(auths, gen_auths, gen_length);
+	*length = gen_length;
 }
 
 void usbauth_config_set_auths(struct auth* auths, unsigned length) {
-	allocate_and_copy(&au, auths, length);
-	ruleCnt = length;
+	usbauth_config_free_auths(gen_auths, gen_length);
+	allocate_and_copy(&gen_auths, auths, length);
+	gen_length = length;
 }
 

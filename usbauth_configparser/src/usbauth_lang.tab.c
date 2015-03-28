@@ -80,13 +80,14 @@
 extern char* usbauth_yytext;
 #define CONFIG_FILE "/home/stefan/usbauth.config"
 
-extern struct auth *au;
+extern struct auth *gen_auths;
+extern unsigned gen_length;
+
 struct data *d;
 bool cnt = false;
 char *paramStr;
 char *opStr;
 char *valStr;
-uint8_t ruleCnt = 0;
 uint8_t *counter = NULL;
 struct data **currd = NULL;
 unsigned currd_offs = 0;
@@ -129,7 +130,7 @@ op -> "==", "!=", "<=", ">=", "<", ">"
 val -> SysFS-Val */
 
 /* Line 371 of yacc.c  */
-#line 133 "usbauth_lang.tab.c"
+#line 134 "usbauth_lang.tab.c"
 
 # ifndef YY_NULL
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -232,7 +233,7 @@ int usbauth_yyparse ();
 /* Copy the second part of user declarations.  */
 
 /* Line 390 of yacc.c  */
-#line 236 "usbauth_lang.tab.c"
+#line 237 "usbauth_lang.tab.c"
 
 #ifdef short
 # undef short
@@ -528,9 +529,9 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    61,    61,    62,    62,    63,    63,    64,    64,    65,
-      65,    65,    68,    68,    68,    69,    69,    70,    71,    71,
-      72,    72,    72,    73,    73
+       0,    62,    62,    63,    63,    64,    64,    65,    65,    66,
+      66,    66,    69,    69,    69,    70,    70,    71,    72,    72,
+      73,    73,    73,    74,    74
 };
 #endif
 
@@ -1444,73 +1445,73 @@ yyreduce:
     {
         case 2:
 /* Line 1792 of yacc.c  */
-#line 61 "usbauth_lang.y"
+#line 62 "usbauth_lang.y"
     { printf("file ok\n"); return 0;}
     break;
 
   case 7:
 /* Line 1792 of yacc.c  */
-#line 64 "usbauth_lang.y"
-    { process(&ruleCnt, (void**)&au, false); au[ruleCnt].valid = true; }
+#line 65 "usbauth_lang.y"
+    { process(&gen_length, (void**)&gen_auths, false); gen_auths[gen_length].valid = true; }
     break;
 
   case 8:
 /* Line 1792 of yacc.c  */
-#line 64 "usbauth_lang.y"
-    { ruleCnt++; printf("line ok\n");}
+#line 65 "usbauth_lang.y"
+    { gen_length++; printf("line ok\n");}
     break;
 
   case 12:
 /* Line 1792 of yacc.c  */
-#line 68 "usbauth_lang.y"
+#line 69 "usbauth_lang.y"
     {cpyy(&paramStr);}
     break;
 
   case 13:
 /* Line 1792 of yacc.c  */
-#line 68 "usbauth_lang.y"
+#line 69 "usbauth_lang.y"
     {cpyy(&opStr);}
     break;
 
   case 14:
 /* Line 1792 of yacc.c  */
-#line 68 "usbauth_lang.y"
-    {cpyy(&valStr); process(counter, (void**)currd, true); usbauth_config_param_val_str_to_data(d, paramStr, opStr, valStr);}
+#line 69 "usbauth_lang.y"
+    {cpyy(&valStr); process(counter, (void**)currd, true); usbauth_config_convert_str_to_data(d, paramStr, opStr, valStr);}
     break;
 
   case 18:
 /* Line 1792 of yacc.c  */
-#line 71 "usbauth_lang.y"
-    { counter = &(au[ruleCnt].attr_len); currd = &(au[ruleCnt].attr_array);}
+#line 72 "usbauth_lang.y"
+    { counter = &(gen_auths[gen_length].attr_len); currd = &(gen_auths[gen_length].attr_array);}
     break;
 
   case 20:
 /* Line 1792 of yacc.c  */
-#line 72 "usbauth_lang.y"
-    { au[ruleCnt].cond = true; counter = &(au[ruleCnt].cond_len); currd = &(au[ruleCnt].cond_array);}
+#line 73 "usbauth_lang.y"
+    { gen_auths[gen_length].cond = true; counter = &(gen_auths[gen_length].cond_len); currd = &(gen_auths[gen_length].cond_array);}
     break;
 
   case 21:
 /* Line 1792 of yacc.c  */
-#line 72 "usbauth_lang.y"
-    { counter = &(au[ruleCnt].attr_len); currd = &(au[ruleCnt].attr_array);}
+#line 73 "usbauth_lang.y"
+    { counter = &(gen_auths[gen_length].attr_len); currd = &(gen_auths[gen_length].attr_array);}
     break;
 
   case 23:
 /* Line 1792 of yacc.c  */
-#line 73 "usbauth_lang.y"
-    {au[ruleCnt].allowed = true;}
+#line 74 "usbauth_lang.y"
+    {gen_auths[gen_length].allowed = true;}
     break;
 
   case 24:
 /* Line 1792 of yacc.c  */
-#line 73 "usbauth_lang.y"
-    {au[ruleCnt].allowed = false;}
+#line 74 "usbauth_lang.y"
+    {gen_auths[gen_length].allowed = false;}
     break;
 
 
 /* Line 1792 of yacc.c  */
-#line 1514 "usbauth_lang.tab.c"
+#line 1515 "usbauth_lang.tab.c"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1742,7 +1743,7 @@ yyreturn:
 
 
 /* Line 2055 of yacc.c  */
-#line 74 "usbauth_lang.y"
+#line 75 "usbauth_lang.y"
 
 
 int yyerror(char*msg) {

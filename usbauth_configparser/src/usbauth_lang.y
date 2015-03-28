@@ -8,13 +8,14 @@
 extern char* usbauth_yytext;
 #define CONFIG_FILE "/home/stefan/usbauth.config"
 
-extern struct auth *au;
+extern struct auth *gen_auths;
+extern unsigned gen_length;
+
 struct data *d;
 bool cnt = false;
 char *paramStr;
 char *opStr;
 char *valStr;
-uint8_t ruleCnt = 0;
 uint8_t *counter = NULL;
 struct data **currd = NULL;
 unsigned currd_offs = 0;
@@ -61,16 +62,16 @@ val -> SysFS-Val */
 S: FILE { printf("file ok\n"); return 0;}
 FILE: LINE | FILE LINE
 NLA: nl | NLA nl
-LINE: { process(&ruleCnt, (void**)&au, false); au[ruleCnt].valid = true; } RULE NLA { ruleCnt++; printf("line ok\n");}
+LINE: { process(&gen_length, (void**)&gen_auths, false); gen_auths[gen_length].valid = true; } RULE NLA { gen_length++; printf("line ok\n");}
 RULE: GENERIC|AUTH|COND
 OPERATOR: op_eq|op_neq|op_le|op_ge|op_lt|op_gt
 PARAM: par_busnum|par_devpath|par_idVendor|par_idProduct|par_bDeviceClass|par_bDeviceSubClass|par_bConfigurationValue|par_bInterfaceNumber|par_bInterfaceClass|par_bInterfaceSubClass|par_count
-DATA: param {cpyy(&paramStr);} op {cpyy(&opStr);} val {cpyy(&valStr); process(counter, (void**)currd, true); usbauth_config_param_val_str_to_data(d, paramStr, opStr, valStr);}
+DATA: param {cpyy(&paramStr);} op {cpyy(&opStr);} val {cpyy(&valStr); process(counter, (void**)currd, true); usbauth_config_convert_str_to_data(d, paramStr, opStr, valStr);}
 DATAm: DATA | DATAm DATA
 GENERIC: auth_keyword all
-AUTH: auth_keyword { counter = &(au[ruleCnt].attr_len); currd = &(au[ruleCnt].attr_array);} DATAm
-COND: condition { au[ruleCnt].cond = true; counter = &(au[ruleCnt].cond_len); currd = &(au[ruleCnt].cond_array);} DATAm case_ { counter = &(au[ruleCnt].attr_len); currd = &(au[ruleCnt].attr_array);} DATAm
-auth_keyword: allow {au[ruleCnt].allowed = true;} | deny {au[ruleCnt].allowed = false;}
+AUTH: auth_keyword { counter = &(gen_auths[gen_length].attr_len); currd = &(gen_auths[gen_length].attr_array);} DATAm
+COND: condition { gen_auths[gen_length].cond = true; counter = &(gen_auths[gen_length].cond_len); currd = &(gen_auths[gen_length].cond_array);} DATAm case_ { counter = &(gen_auths[gen_length].attr_len); currd = &(gen_auths[gen_length].attr_array);} DATAm
+auth_keyword: allow {gen_auths[gen_length].allowed = true;} | deny {gen_auths[gen_length].allowed = false;}
 %%
 
 int yyerror(char*msg) {
