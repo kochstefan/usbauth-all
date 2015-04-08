@@ -99,9 +99,8 @@ void serialize_dbus_error_check(DBusError *error) {
 	}
 }
 
-void serialize_dbus(struct udev_device *udevdev) {
+void serialize_dbus(struct udev_device *udevdev, bool authorize) {
 	const char *path = udev_device_get_syspath(udevdev);
-
 	DBusError error;
 	dbus_error_init(&error);
 	DBusConnection *bus = dbus_bus_get(DBUS_BUS_SYSTEM, &error);
@@ -116,7 +115,8 @@ void serialize_dbus(struct udev_device *udevdev) {
 	if(!msg)
 		printf("NULL");
 
-	dbus_message_append_args(msg, DBUS_TYPE_STRING, &path, DBUS_TYPE_INVALID);
+	dbus_message_append_args(msg, DBUS_TYPE_BOOLEAN, &authorize, DBUS_TYPE_STRING, &path, DBUS_TYPE_INVALID);
+	fprintf(logfile, "dbus%s\n", path);
 	dbus_connection_send(bus, msg, NULL);
 	dbus_connection_flush(bus);
 	dbus_message_unref(msg);
@@ -134,8 +134,8 @@ void authorize_interface_libudev(struct udev_device *udevdev, bool authorize, bo
 	strcpy(v, "");
 	sprintf(v, "%x", value);
 	fprintf(logfile, "/sys%s/interface_authorized %u\n", path, value);
-	if (dbus && authorize)
-		serialize_dbus(udevdev);
+	if (dbus)
+		serialize_dbus(udevdev, authorize);
 	udev_device_set_sysattr_value(udevdev, "interface_authorized", v);
 }
 
@@ -149,8 +149,8 @@ void authorize_device_libudev(struct udev_device *udevdev, bool authorize, bool 
 	strcpy(v, "");
 	sprintf(v, "%x", value);
 	fprintf(logfile, "/sys%s/interface_authorization_mask %u\n", path, value);
-	if (dbus && authorize)
-		serialize_dbus(udevdev);
+	if (dbus)
+		serialize_dbus(udevdev, authorize);
 	udev_device_set_sysattr_value(udevdev, "interface_authorization_mask", v);
 }
 
@@ -272,10 +272,7 @@ void match_auths_device_interfaces(struct auth *a, size_t len, struct udev_devic
 
 	unsigned val = strtoul(udev_device_get_sysattr_value(udevdev, "bDeviceClass"), NULL, 16);
 
-	if(val == 9) // skip HUBs
-		return;
-
-	bool genMatch = true;
+	bool genMatch = false;
 	bool genAllowed = true;
 	udev_list_entry_foreach(entry, devices)
 	{
@@ -293,6 +290,10 @@ void match_auths_device_interfaces(struct auth *a, size_t len, struct udev_devic
 			type = udev_device_get_devtype(udevdev);
 
 		if (type && strcmp(type, "usb_interface") == 0) {
+			unsigned ival = strtoul(udev_device_get_sysattr_value(udevdev, "bInterfaceClass"), NULL, 16);
+			if(val == 9 && ival !=9)
+				continue; // skip other childs from hub that not belong to itself
+
 			fprintf(logfile, "path %s %s\n", path, type);
 			struct auth_ret r = match_auths_interface(a, len, udevdev);
 
@@ -300,7 +301,7 @@ void match_auths_device_interfaces(struct auth *a, size_t len, struct udev_devic
 				if (!emulate && r.match) // if one rule has matched
 					authorize_interface_libudev(udevdev, r.allowed, true);
 			} else {
-				genMatch &= r.match;
+				genMatch |= r.match;
 				genAllowed &= r.allowed;
 			}
 		}
@@ -313,40 +314,6 @@ void match_auths_device_interfaces(struct auth *a, size_t len, struct udev_devic
 
 	if (!emulate && val != 0 && genMatch)  // if one rule has matched
 		authorize_device_libudev(udevdev, genAllowed, true);
-}
-
-void perform_rules_hubs(struct auth *a, size_t len) {
-	struct udev_list_entry *devices, *entry;
-	struct udev_enumerate *enumerate = udev_enumerate_new(udev);
-
-	udev_enumerate_add_match_subsystem(enumerate, "usb");
-	udev_enumerate_scan_devices(enumerate);
-	devices = udev_enumerate_get_list_entry(enumerate);
-
-	udev_list_entry_foreach(entry, devices)
-	{
-		const char *path = NULL;
-		struct udev_device *udevdev = NULL;
-		const char *type = NULL;
-
-		if (entry)
-			path = udev_list_entry_get_name(entry);
-
-		if (path)
-			udevdev = udev_device_new_from_syspath(udev, path);
-
-		if (udevdev)
-			type = udev_device_get_devtype(udevdev);
-
-		if (type && strcmp(type, "usb_device") == 0) {// filter out interfaces
-			authorize_device_libudev(udevdev, true, true);
-		}
-
-		if (udevdev)
-			udev_device_unref(udevdev);
-	}
-
-	udev_enumerate_unref(enumerate);
 }
 
 void perform_rules_devices(struct auth *a, size_t len, bool emulate) {
@@ -395,12 +362,13 @@ bool perform_rules_environment(struct auth *a, size_t len) {
 	if(!path || !type)
 		return false;
 
-	if (strcmp(type, "usb_interface") == 0) {
+	if (strcmp(type, "usb_device") == 0) {
 		fprintf(logfile, "path %s %s\n", path, type);
-		const char* cl = udev_device_get_sysattr_value(udevdev, "bInterfaceClass");
+		const char* cl = udev_device_get_sysattr_value(udevdev, "bDeviceClass");
+		if(cl)
+			strtoul(cl, NULL, 16);
 		fprintf(logfile, "class %s\n", cl);
-		struct udev_device *par = udev_device_get_parent(udevdev);
-		match_auths_device_interfaces(a, len, par, false);
+		match_auths_device_interfaces(a, len, udevdev, false);
 	}
 
 	udev_device_unref(udevdev);
@@ -421,7 +389,6 @@ int main(int argc, char **argv) {
 		perform_rules_devices(auths, length, true);
 		perform_rules_environment(auths, length);
 	} else if(strcmp(argv[1], "init") == 0) { // called manually with init parameter
-		perform_rules_hubs(auths, length);
 		perform_rules_devices(auths, length, false);
 	} else if (argc > 2 && (strcmp(argv[1], "allow") == 0 || strcmp(argv[1], "deny") == 0)) { // called by notifier
 		struct udev_device *udevdev = udev_device_new_from_syspath(udev, argv[2]);

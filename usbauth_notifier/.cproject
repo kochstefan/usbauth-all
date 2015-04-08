@@ -43,6 +43,7 @@
 									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="notify"/>
 									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="dbus-1"/>
 									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="udev"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="pthread"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.linker.input.21698486" superClass="cdt.managedbuild.tool.gnu.c.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
