@@ -13,27 +13,29 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-enum parameters {
+enum Parameters {
 	INVALID, busnum, devpath, idVendor, idProduct, bDeviceClass, bDeviceSubClass, bDeviceProtocol, bConfigurationValue, bInterfaceNumber, bInterfaceClass, bInterfaceSubClass, bInterfaceProtocol, count
 };
 
-enum operator { eq, neq, lt, gt, l, g };
+enum Operator { eq, neq, lt, gt, l, g };
 
-struct data {
+struct Data {
 	int param;
-	enum operator op;
+	enum Operator op;
 	unsigned val;
 };
 
-struct auth {
+enum Type { COMMENT, DENY, ALLOW, COND };
+
+struct Auth {
 	bool valid;
-	bool allowed;
-	bool cond;
+	enum Type type;
+	const char *comment;
 	uint8_t count;
 	uint8_t attr_len;
-	struct data *attr_array;
+	struct Data *attr_array;
 	uint8_t cond_len;
-	struct data *cond_array;
+	struct Data *cond_array;
 };
 
 struct match_ret {

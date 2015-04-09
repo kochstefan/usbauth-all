@@ -26,6 +26,7 @@
 %option noyywrap
 
 %%
+"#" {return comment;}
 "allow" {return allow;}
 "deny" {return deny;}
 "condition" {printf("%s", yytext); return condition;}

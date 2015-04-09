@@ -154,7 +154,7 @@ void authorize_device_libudev(struct udev_device *udevdev, bool authorize, bool 
 	udev_device_set_sysattr_value(udevdev, "interface_authorization_mask", v);
 }
 
-struct match_ret match_auth_interface(struct auth *a, struct udev_device *udevdev) {
+struct match_ret match_auth_interface(struct Auth *a, struct udev_device *udevdev) {
 	struct match_ret ret;
 	ret.match_attrs = true;
 	ret.match_cond = true;
@@ -167,7 +167,7 @@ struct match_ret match_auth_interface(struct auth *a, struct udev_device *udevde
 
 	int i;
 	for (i = 0; i < a->attr_len; i++) {
-		struct data *d = &a->attr_array[i];
+		struct Data *d = &a->attr_array[i];
 		unsigned val = 0;
 
 		val = get_param_val(d->param, udevdev);
@@ -190,7 +190,7 @@ struct match_ret match_auth_interface(struct auth *a, struct udev_device *udevde
 	}
 
 	for (i = 0; i < a->cond_len && ret.match_attrs; i++) {
-		struct data *d = &a->cond_array[i];
+		struct Data *d = &a->cond_array[i];
 		unsigned val = 0;
 
 		if(count == d->param) // count parameter is not in udev device
@@ -213,21 +213,21 @@ struct match_ret match_auth_interface(struct auth *a, struct udev_device *udevde
 	return ret;
 }
 
-struct auth_ret match_auths_interface(struct auth *a, size_t len, struct udev_device *udevdev) {
+struct auth_ret match_auths_interface(struct Auth *a, size_t len, struct udev_device *udevdev) {
 	struct auth_ret ret;
 	ret.match = false;
 	ret.allowed = false;
 	int i;
 	for (i = 0; i < len; i++) {
-		if (!a[i].cond && match_auth_interface(&a[i], udevdev).match_attrs) {
+		if (a[i].type != COND && match_auth_interface(&a[i], udevdev).match_attrs) {
 
 			bool ruleMatched = true;
 			int j = 0;
 			for (j = 0; j < len; j++) {
 				struct match_ret r;
-				if (a[j].cond) {
+				if (a[j].type == COND) {
 					r = match_auth_interface(&a[j], udevdev);
-					if (r.match_attrs && r.match_cond && a[i].allowed) {// count only if allowed for conditions
+					if (r.match_attrs && r.match_cond && a[i].type != ALLOW) {// count only if allowed for conditions
 						a[j].count++;
 						unsigned u = a[j].count;
 						fprintf(logfile, "cc %i  %u\n", j, u);
@@ -244,14 +244,14 @@ struct auth_ret match_auths_interface(struct auth *a, size_t len, struct udev_de
 				fprintf(logfile, "dd %i  %u\n", i, u);
 
 				ret.match |= true;
-				ret.allowed = a[i].allowed;
+				ret.allowed = a[i].type == ALLOW ? true : 0;
 			}
 		}
 	}
 	return ret;
 }
 
-void match_auths_device_interfaces(struct auth *a, size_t len, struct udev_device *udevdev, bool emulate) {
+void match_auths_device_interfaces(struct Auth *a, size_t len, struct udev_device *udevdev, bool emulate) {
 	const char *type = udev_device_get_devtype(udevdev);
 	const char *path = udev_device_get_syspath(udevdev);
 
@@ -316,7 +316,7 @@ void match_auths_device_interfaces(struct auth *a, size_t len, struct udev_devic
 		authorize_device_libudev(udevdev, genAllowed, true);
 }
 
-void perform_rules_devices(struct auth *a, size_t len, bool emulate) {
+void perform_rules_devices(struct Auth *a, size_t len, bool emulate) {
 	struct udev_enumerate *enumerate;
 	struct udev_list_entry *devices, *entry;
 
@@ -350,7 +350,7 @@ void perform_rules_devices(struct auth *a, size_t len, bool emulate) {
 	udev_enumerate_unref(enumerate);
 }
 
-bool perform_rules_environment(struct auth *a, size_t len) {
+bool perform_rules_environment(struct Auth *a, size_t len) {
 	struct udev_device *udevdev = udev_device_new_from_environment(udev);
 
 	if(!udevdev)
@@ -382,7 +382,7 @@ int main(int argc, char **argv) {
 
 	usbauth_config_read();
 	unsigned length;
-	struct auth *auths;
+	struct Auth *auths;
 	usbauth_config_get_auths(&auths, &length);
 
 	if (argc <= 1) { // called by udev

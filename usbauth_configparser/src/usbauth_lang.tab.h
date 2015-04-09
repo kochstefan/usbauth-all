@@ -80,7 +80,9 @@ extern int usbauth_yydebug;
      par_bInterfaceNumber = 281,
      par_bInterfaceClass = 282,
      par_bInterfaceSubClass = 283,
-     par_count = 284
+     par_count = 284,
+     comment = 285,
+     comment2 = 286
    };
 #endif
 

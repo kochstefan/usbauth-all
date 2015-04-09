@@ -18,14 +18,14 @@
 #define CONFIG_FILE "/home/stefan/usbauth.config"
 
 unsigned gen_length;
-struct auth *gen_auths;
+struct Auth *gen_auths;
 
 extern FILE *usbauth_yyin;
 
 const char* parameters[] = {"INVALID", "busnum", "devpath", "idVendor", "idProduct", "bDeviceClass", "bDeviceSubClass", "bDeviceProtocol", "bConfigurationValue", "bInterfaceNumber", "bInterfaceClass", "bInterfaceSubClass", "bInterfaceProtocol", "count"};
 const char* operators[] = {"==", "!=", "<=", ">=", "<", ">"};
 
-bool usbauth_config_convert_str_to_data(struct data *d, char *paramStr, char* opStr, char *valStr) {
+bool usbauth_config_convert_str_to_data(struct Data *d, char *paramStr, char* opStr, char *valStr) {
 	bool ret = true;
 
 	if(!d || !paramStr || !valStr)
@@ -77,23 +77,27 @@ bool usbauth_config_convert_str_to_data(struct data *d, char *paramStr, char* op
 	return ret;
 }
 
-char* auth_to_str(struct auth *auth) {
+char* auth_to_str(struct Auth *auth) {
 	char v[16];
 	char *str = calloc(512, sizeof(char));
 
 	strcpy(str, "");
 	strcpy(v, "");
 
-	if (auth->cond)
+	if (auth->type == COND)
 		strcat(str, "condition");
-	else if (auth->allowed)
+	else if (auth->type == ALLOW)
 		strcat(str, "allow");
-	else
+	else if (auth->type == DENY)
 		strcat(str, "deny");
+	else if (auth->type == COMMENT)
+		strcat(str, "#");
 
-	strcat(str, " ");
-	struct data* cond_array = auth->cond_array;
-	if (auth->cond) {
+	if (auth->type != COMMENT)
+		strcat(str, " ");
+
+	struct Data* cond_array = auth->cond_array;
+	if (auth->type == COND) {
 		int k;
 		for (k = 0; k < auth->cond_len; k++) {
 			strcat(str, parameters[cond_array[k].param]);
@@ -105,7 +109,7 @@ char* auth_to_str(struct auth *auth) {
 
 		strcat(str, "case ");
 	}
-	struct data* attr_array = auth->attr_array;
+	struct Data* attr_array = auth->attr_array;
 	int j;
 	for (j = 0; j < auth->attr_len; j++) {
 		strcat(str, parameters[attr_array[j].param]);
@@ -115,29 +119,34 @@ char* auth_to_str(struct auth *auth) {
 		strcat(str, " ");
 	}
 
+	if(auth->comment) {
+		strcat(str, "#");
+		strcat(str, auth->comment);
+	}
+
 	return str;
 }
 
-void allocate_and_copy(struct auth** auth_arr, struct auth* auths, unsigned length) {
-	struct auth *arr;
+void allocate_and_copy(struct Auth** auth_arr, struct Auth* auths, unsigned length) {
+	struct Auth *arr;
 
 	arr = 0;
 	if (length)
-		arr = calloc(length, sizeof(struct auth));
+		arr = calloc(length, sizeof(struct Auth));
 	if (arr)
-		memcpy(arr, auths, length*sizeof(struct auth));
+		memcpy(arr, auths, length*sizeof(struct Auth));
 
 	arr->attr_array = NULL;
 	if (arr->attr_len)
-		arr->attr_array = calloc(arr->attr_len, sizeof(struct data));
+		arr->attr_array = calloc(arr->attr_len, sizeof(struct Data));
 	if (arr->attr_array)
-		memcpy(arr->attr_array, auths->attr_array, arr->attr_len*sizeof(struct data));
+		memcpy(arr->attr_array, auths->attr_array, arr->attr_len*sizeof(struct Data));
 
 	arr->cond_array = NULL;
 	if (arr->cond_len)
-		arr->cond_array = calloc(arr->cond_len, sizeof(struct data));
+		arr->cond_array = calloc(arr->cond_len, sizeof(struct Data));
 	if (arr->cond_array)
-		memcpy(arr->cond_array, auths->cond_array, arr->cond_len*sizeof(struct data));
+		memcpy(arr->cond_array, auths->cond_array, arr->cond_len*sizeof(struct Data));
 
 	*auth_arr = arr;
 }
@@ -164,6 +173,7 @@ int usbauth_config_read() {
 	usbauth_config_free();
 
 	int ret = usbauth_yyparse();
+
 	fclose(usbauth_yyin);
 
 	return ret;
@@ -183,7 +193,7 @@ int usbauth_config_write() {
 	return 0;
 }
 
-void usbauth_config_free_auths(struct auth* auths, unsigned length) {
+void usbauth_config_free_auths(struct Auth* auths, unsigned length) {
 	unsigned i;
 	for (i = 0; i < length; i++) {
 		free(auths[i].attr_array);
@@ -191,12 +201,12 @@ void usbauth_config_free_auths(struct auth* auths, unsigned length) {
 	free(auths);
 }
 
-void usbauth_config_get_auths(struct auth** auths, unsigned *length) {
+void usbauth_config_get_auths(struct Auth** auths, unsigned *length) {
 	allocate_and_copy(auths, gen_auths, gen_length);
 	*length = gen_length;
 }
 
-void usbauth_config_set_auths(struct auth* auths, unsigned length) {
+void usbauth_config_set_auths(struct Auth* auths, unsigned length) {
 	usbauth_config_free_auths(gen_auths, gen_length);
 	allocate_and_copy(&gen_auths, auths, length);
 	gen_length = length;

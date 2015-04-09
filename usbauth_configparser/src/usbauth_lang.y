@@ -8,10 +8,10 @@
 extern char* usbauth_yytext;
 #define CONFIG_FILE "/home/stefan/usbauth.config"
 
-extern struct auth *gen_auths;
+extern struct Auth *gen_auths;
 extern unsigned gen_length;
 
-struct data *d;
+struct Data *d;
 bool cnt = false;
 char *paramStr;
 char *opStr;
@@ -31,9 +31,9 @@ void process(uint8_t *counter, void **arr, bool data) {
 	unsigned size;
 	
 	if(data)
-		size = sizeof(struct data);
+		size = sizeof(struct Data);
 	else
-		size = sizeof(struct auth);
+		size = sizeof(struct Auth);
 	
 	if(!*arr)
 		*arr = (void*) malloc((*counter+1) * size);
@@ -57,21 +57,28 @@ param -> SysFS-Attr
 op -> "==", "!=", "<=", ">=", "<", ">"
 val -> SysFS-Val */
 %}
-%token allow deny condition all case_ val param op op_eq op_neq op_le op_ge op_lt op_gt nl eof par_busnum par_devpath par_idVendor par_idProduct par_bDeviceClass par_bDeviceSubClass par_bConfigurationValue par_bInterfaceNumber par_bInterfaceClass par_bInterfaceSubClass par_count
+%token allow deny condition all case_ val param op op_eq op_neq op_le op_ge op_lt op_gt nl eof par_busnum par_devpath par_idVendor par_idProduct par_bDeviceClass par_bDeviceSubClass par_bConfigurationValue par_bInterfaceNumber par_bInterfaceClass par_bInterfaceSubClass par_count comment comment2
 %%
 S: FILE { printf("file ok\n"); return 0;}
 FILE: LINE | FILE LINE
 NLA: nl | NLA nl
 LINE: { process(&gen_length, (void**)&gen_auths, false); gen_auths[gen_length].valid = true; } RULE NLA { gen_length++; printf("line ok\n");}
-RULE: GENERIC|AUTH|COND
+RULE: COMMENT | GENERICC | AUTHC | CONDC
 OPERATOR: op_eq|op_neq|op_le|op_ge|op_lt|op_gt
 PARAM: par_busnum|par_devpath|par_idVendor|par_idProduct|par_bDeviceClass|par_bDeviceSubClass|par_bConfigurationValue|par_bInterfaceNumber|par_bInterfaceClass|par_bInterfaceSubClass|par_count
 DATA: param {cpyy(&paramStr);} op {cpyy(&opStr);} val {cpyy(&valStr); process(counter, (void**)currd, true); usbauth_config_convert_str_to_data(d, paramStr, opStr, valStr);}
 DATAm: DATA | DATAm DATA
+GENERICC: GENERIC COMMENTADD
 GENERIC: auth_keyword all
+AUTHC: AUTH COMMENTADD
 AUTH: auth_keyword { counter = &(gen_auths[gen_length].attr_len); currd = &(gen_auths[gen_length].attr_array);} DATAm
-COND: condition { gen_auths[gen_length].cond = true; counter = &(gen_auths[gen_length].cond_len); currd = &(gen_auths[gen_length].cond_array);} DATAm case_ { counter = &(gen_auths[gen_length].attr_len); currd = &(gen_auths[gen_length].attr_array);} DATAm
-auth_keyword: allow {gen_auths[gen_length].allowed = true;} | deny {gen_auths[gen_length].allowed = false;}
+CONDC: COND COMMENTADD
+COND: condition { gen_auths[gen_length].type = COND; counter = &(gen_auths[gen_length].cond_len); currd = &(gen_auths[gen_length].cond_array);} DATAm case_ { counter = &(gen_auths[gen_length].attr_len); currd = &(gen_auths[gen_length].attr_array);} DATAm
+COMMENTPARAM: EMPTY|param
+COMMENT: comment COMMENTPARAM { cpyy(&(gen_auths[gen_length].comment)); printf("c%s\n", (gen_auths[gen_length].comment));}
+EMPTY: 
+COMMENTADD: EMPTY|COMMENT
+auth_keyword: allow {gen_auths[gen_length].type = ALLOW;} | deny {gen_auths[gen_length].type = DENY;}
 %%
 
 int yyerror(char*msg) {
