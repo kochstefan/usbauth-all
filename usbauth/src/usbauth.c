@@ -144,6 +144,20 @@ void authorize_device(struct udev_device *udevdev, bool authorize, bool dbus) {
 	udev_device_set_sysattr_value(udevdev, "interface_authorization_mask", v);
 }
 
+void authorize_mask(struct udev_device *udevdev, uint32_t mask, bool dbus) {
+	const char* path = udev_device_get_devpath(udevdev);
+	unsigned cl = strtoul(udev_device_get_sysattr_value(udevdev, "bDeviceClass"), NULL, 16);
+	unsigned val = strtoul(udev_device_get_sysattr_value(udevdev, "bNumInterfaces"), NULL, 16);
+	fprintf(logfile, "USB Interface with class %02x\n", cl);
+	char v[16];
+	strcpy(v, "");
+	sprintf(v, "%x", mask);
+	fprintf(logfile, "/sys%s/interface_authorization_mask %x\n", path, mask);
+	if (dbus)
+		serialize_dbus(udevdev, mask ? true : false);
+	udev_device_set_sysattr_value(udevdev, "interface_authorization_mask", v);
+}
+
 /**
  * checks if an auth rule matches an USB interface
  * @rule: auth rule
@@ -288,6 +302,7 @@ void match_auths_device_interfaces(struct Auth *rule_array, size_t array_len, st
 	bool genMatch = false;
 	bool genAllowed = true;
 	unsigned dev_class = 0;
+	uint32_t mask = 0;
 
 	if(!path || !type)
 		return;
@@ -309,7 +324,11 @@ void match_auths_device_interfaces(struct Auth *rule_array, size_t array_len, st
 	if(!devices)
 		return;
 
+	// get the current mask from sysfs, because unmatched interfaces should be unchanged
 	dev_class = get_param_val(bDeviceClass, usb_device);
+	const char* maskStr = udev_device_get_sysattr_value(usb_device, "interface_authorization_mask");
+	if (maskStr)
+		mask = strtoul(maskStr, NULL, 16);
 
 	// iterate over the childs (usb_interface's) of the udevdev (usb_device)
 	udev_list_entry_foreach(entry, devices)
@@ -336,15 +355,13 @@ void match_auths_device_interfaces(struct Auth *rule_array, size_t array_len, st
 
 			struct auth_ret r = match_auths_interface(rule_array, array_len, interface);
 
-			if(dev_class == 0) { // device class 0, so interface class is describing
-				// do nothing in emulate mode
-				// do only if one rule has matched, so if there would no generic rule and no specific rule do nothing
-				if (!prepare && r.match)
-					authorize_interface(interface, r.allowed, true);
-			} else { // device class describes, so all interfaces must allowed by all rules
-				genMatch |= r.match;
-				genAllowed &= r.allowed;
-			}
+			uint8_t nr = get_param_val(bInterfaceNumber, interface);
+
+			// do only if one rule has matched, so if there would no generic rule and no specific rule do nothing
+			if (r.match && r.allowed)
+				mask |= (1 << nr);
+			else if (r.match && !r.allowed)
+				mask &= ~(1 << nr);
 		}
 
 		if (interface)
@@ -353,9 +370,9 @@ void match_auths_device_interfaces(struct Auth *rule_array, size_t array_len, st
 
 	udev_enumerate_unref(enumerate);
 
-	// do only if one rule has matched, so if there would no generic rule and no specific rule do nothing
-	if (!prepare && dev_class != 0 && genMatch)
-		authorize_device(usb_device, genAllowed, true); // allow the device if all interfaces are allowed by rules
+	// do nothing at preparing (e. g. count increments)
+	if(!prepare)
+		authorize_mask(usb_device, mask, true);
 }
 
 /**
