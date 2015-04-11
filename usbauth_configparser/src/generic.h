@@ -13,7 +13,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-enum Parameters {
+enum Parameter {
 	INVALID, busnum, devpath, idVendor, idProduct, bDeviceClass, bDeviceSubClass, bDeviceProtocol, bConfigurationValue, bInterfaceNumber, bInterfaceClass, bInterfaceSubClass, bInterfaceProtocol, count
 };
 
@@ -40,7 +40,7 @@ struct Auth {
 
 struct match_ret {
 	bool match_attrs:1;
-	bool match_cond:1;
+	bool match_conds:1;
 };
 
 struct auth_ret {

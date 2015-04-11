@@ -22,8 +22,47 @@ struct Auth *gen_auths;
 
 extern FILE *usbauth_yyin;
 
-const char* parameters[] = {"INVALID", "busnum", "devpath", "idVendor", "idProduct", "bDeviceClass", "bDeviceSubClass", "bDeviceProtocol", "bConfigurationValue", "bInterfaceNumber", "bInterfaceClass", "bInterfaceSubClass", "bInterfaceProtocol", "count"};
-const char* operators[] = {"==", "!=", "<=", ">=", "<", ">"};
+const char* parameter_strings[] = {"INVALID", "busnum", "devpath", "idVendor", "idProduct", "bDeviceClass", "bDeviceSubClass", "bDeviceProtocol", "bConfigurationValue", "bInterfaceNumber", "bInterfaceClass", "bInterfaceSubClass", "bInterfaceProtocol", "count"};
+const char* operator_strings[] = {"==", "!=", "<=", ">=", "<", ">"};
+
+int str_to_enum(const char *string, const char** string_array, int array_len) {
+	enum Parameter ret = INVALID;
+
+	int i;
+	for (i = 0; i < array_len; i++) {
+		if (strcmp(string, string_array[i]) == 0) {
+			ret = i;
+			break;
+		}
+	}
+
+	return ret;
+}
+
+const char* enum_to_str(int param, const char** string_array, int array_len) {
+	const char* ret = string_array[0];
+
+	if (param < array_len)
+		ret = string_array[param];
+
+	return ret;
+}
+
+enum Parameter str_to_param(const char *string) {
+	return str_to_enum(string, parameter_strings, sizeof(parameter_strings));
+}
+
+const char* param_to_str(enum Parameter param) {
+	return enum_to_str(param, parameter_strings, sizeof(parameter_strings));
+}
+
+enum Operator str_to_op(const char *string) {
+	return str_to_enum(string, operator_strings, sizeof(operator_strings));
+}
+
+const char* op_to_str(enum Operator param) {
+	return enum_to_str(param, operator_strings, sizeof(operator_strings));
+}
 
 bool usbauth_config_convert_str_to_data(struct Data *d, char *paramStr, char* opStr, char *valStr) {
 	bool ret = true;
@@ -31,46 +70,11 @@ bool usbauth_config_convert_str_to_data(struct Data *d, char *paramStr, char* op
 	if(!d || !paramStr || !valStr)
 		return false;
 
-	if (strcmp(paramStr, "busnum") == 0) {
-		d->param = busnum;
-	} else if (strcmp(paramStr, "devpath") == 0) {
-		d->param = devpath;
-	} else if (strcmp(paramStr, "idVendor") == 0) {
-		d->param = idVendor;
-	} else if (strcmp(paramStr, "idProduct") == 0) {
-		d->param = idProduct;
-	} else if (strcmp(paramStr, "bDeviceClass") == 0) {
-		d->param = bDeviceClass;
-	} else if (strcmp(paramStr, "bDeviceSubClass") == 0) {
-		d->param = bDeviceSubClass;
-	} else if (strcmp(paramStr, "bConfigurationValue") == 0) {
-		d->param = bConfigurationValue;
-	} else if (strcmp(paramStr, "bInterfaceNumber") == 0) {
-		d->param = bInterfaceNumber;
-	} else if (strcmp(paramStr, "bInterfaceClass") == 0) {
-		d->param = bInterfaceClass;
-	} else if (strcmp(paramStr, "bInterfaceSubClass") == 0) {
-		d->param = bInterfaceSubClass;
-	} else if (strcmp(paramStr, "count") == 0) {
-		d->param = count;
-	} else {
-		d->param = INVALID;
+	d->param = str_to_param(paramStr);
+	if (d->param == INVALID)
 		ret = false;
-	}
 
-	if (strcmp(opStr, "==") == 0) {
-		d->op = eq;
-	} else if (strcmp(opStr, "!=") == 0) {
-		d->op = neq;
-	} else if (strcmp(opStr, "<=") == 0) {
-		d->op = lt;
-	} else if (strcmp(opStr, ">=") == 0) {
-		d->op = gt;
-	} else if (strcmp(opStr, "<") == 0) {
-		d->op = l;
-	} else if (strcmp(opStr, ">") == 0) {
-		d->op = g;
-	}
+	d->op = str_to_op(opStr);
 
 	sscanf(valStr, "%x", &d->val);
 
@@ -90,8 +94,6 @@ char* auth_to_str(struct Auth *auth) {
 		strcat(str, "allow");
 	else if (auth->type == DENY)
 		strcat(str, "deny");
-	else if (auth->type == COMMENT)
-		strcat(str, "#");
 
 	if (auth->type != COMMENT)
 		strcat(str, " ");
@@ -100,8 +102,8 @@ char* auth_to_str(struct Auth *auth) {
 	if (auth->type == COND) {
 		int k;
 		for (k = 0; k < auth->cond_len; k++) {
-			strcat(str, parameters[cond_array[k].param]);
-			strcat(str, operators[cond_array[k].op]);
+			strcat(str, parameter_strings[cond_array[k].param]);
+			strcat(str, operator_strings[cond_array[k].op]);
 			sprintf(v, "%x", cond_array[k].val);
 			strcat(str, v);
 			strcat(str, " ");
@@ -112,17 +114,15 @@ char* auth_to_str(struct Auth *auth) {
 	struct Data* attr_array = auth->attr_array;
 	int j;
 	for (j = 0; j < auth->attr_len; j++) {
-		strcat(str, parameters[attr_array[j].param]);
-		strcat(str, operators[attr_array[j].op]);
+		strcat(str, parameter_strings[attr_array[j].param]);
+		strcat(str, operator_strings[attr_array[j].op]);
 		sprintf(v, "%x", attr_array[j].val);
 		strcat(str, v);
 		strcat(str, " ");
 	}
 
-	if(auth->comment) {
-		strcat(str, "#");
+	if(auth->comment)
 		strcat(str, auth->comment);
-	}
 
 	return str;
 }
