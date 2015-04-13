@@ -15,7 +15,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#define CONFIG_FILE "/home/stefan/usbauth.config"
+#define CONFIG_FILE "/etc/usbauth.conf"
 
 unsigned gen_length;
 struct Auth *gen_auths;
@@ -128,25 +128,28 @@ char* auth_to_str(struct Auth *auth) {
 }
 
 void allocate_and_copy(struct Auth** auth_arr, struct Auth* auths, unsigned length) {
-	struct Auth *arr;
+	struct Auth *arr = NULL;
 
-	arr = 0;
 	if (length)
 		arr = calloc(length, sizeof(struct Auth));
-	if (arr)
-		memcpy(arr, auths, length*sizeof(struct Auth));
 
-	arr->attr_array = NULL;
-	if (arr->attr_len)
-		arr->attr_array = calloc(arr->attr_len, sizeof(struct Data));
-	if (arr->attr_array)
-		memcpy(arr->attr_array, auths->attr_array, arr->attr_len*sizeof(struct Data));
+	if (arr) {
+		memcpy(arr, auths, length * sizeof(struct Auth));
 
-	arr->cond_array = NULL;
-	if (arr->cond_len)
-		arr->cond_array = calloc(arr->cond_len, sizeof(struct Data));
-	if (arr->cond_array)
-		memcpy(arr->cond_array, auths->cond_array, arr->cond_len*sizeof(struct Data));
+		arr->attr_array = NULL;
+		if (arr->attr_len)
+			arr->attr_array = calloc(arr->attr_len, sizeof(struct Data));
+		if (arr->attr_array)
+			memcpy(arr->attr_array, auths->attr_array,
+					arr->attr_len * sizeof(struct Data));
+
+		arr->cond_array = NULL;
+		if (arr->cond_len)
+			arr->cond_array = calloc(arr->cond_len, sizeof(struct Data));
+		if (arr->cond_array)
+			memcpy(arr->cond_array, auths->cond_array,
+					arr->cond_len * sizeof(struct Data));
+	}
 
 	*auth_arr = arr;
 }
