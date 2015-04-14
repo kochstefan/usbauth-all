@@ -19,6 +19,7 @@ bool cnt = false;
 char *paramStr = NULL;
 char *opStr = NULL;
 char *valStr = NULL;
+bool anychild = false;
 
 
 
@@ -59,14 +60,15 @@ param -> SysFS-Attr
 op -> "==", "!=", "<=", ">=", "<", ">"
 val -> SysFS-Val */
 %}
-%token allow deny condition all case_ val param op nl eof comment comment2
+%token allow deny condition all case_ val param op nl eof comment anyChild
 %%
 S: FILE { printf("file ok\n"); return 0;}
 FILE: LINE | FILE LINE
 NLA: nl | NLA nl
 LINE: { process(&gen_length, (void**)&gen_auths, false); gen_auths[gen_length].valid = true; } RULE NLA { gen_length++; printf("line ok\n");}
 RULE: COMMENT | GENERICC | AUTHC | CONDC
-DATA: param {allocate_copy_yytext(&paramStr);} op {allocate_copy_yytext(&opStr);} val {allocate_copy_yytext(&valStr); process(data_array_length, (void**)data_array, true); convert_str_to_data(data_ptr, paramStr, opStr, valStr);}
+ANYCHILDADD: EMPTY {anychild = false;} | anyChild {anychild = true;}
+DATA: ANYCHILDADD param {allocate_copy_yytext(&paramStr);} op {allocate_copy_yytext(&opStr);} val {allocate_copy_yytext(&valStr); process(data_array_length, (void**)data_array, true); convert_str_to_data(data_ptr, paramStr, opStr, valStr); data_ptr->anyChild = anychild;}
 DATAm: DATA | DATAm DATA
 GENERICC: GENERIC COMMENTADD
 GENERIC: auth_keyword all

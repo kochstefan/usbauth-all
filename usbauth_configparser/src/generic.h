@@ -14,12 +14,13 @@
 #include <stdbool.h>
 
 enum Parameter {
-	INVALID, busnum, devpath, idVendor, idProduct, bDeviceClass, bDeviceSubClass, bDeviceProtocol, bConfigurationValue, bInterfaceNumber, bInterfaceClass, bInterfaceSubClass, bInterfaceProtocol, count
+	INVALID, busnum, devpath, idVendor, idProduct, bDeviceClass, bDeviceSubClass, bDeviceProtocol, bConfigurationValue, bInterfaceNumber, bInterfaceClass, bInterfaceSubClass, bInterfaceProtocol, intfcount, devcount
 };
 
 enum Operator { eq, neq, lt, gt, l, g };
 
 struct Data {
+	bool anyChild;
 	int param;
 	enum Operator op;
 	unsigned val;
@@ -31,7 +32,8 @@ struct Auth {
 	bool valid;
 	enum Type type;
 	const char *comment;
-	uint8_t count;
+	uint8_t intfcount;
+	uint8_t devcount;
 	uint8_t attr_len;
 	struct Data *attr_array;
 	uint8_t cond_len;

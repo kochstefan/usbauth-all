@@ -65,7 +65,7 @@ extern int usbauth_yydebug;
      nl = 266,
      eof = 267,
      comment = 268,
-     comment2 = 269
+     anyChild = 269
    };
 #endif
 

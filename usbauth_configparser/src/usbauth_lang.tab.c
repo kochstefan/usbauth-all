@@ -91,6 +91,7 @@ bool cnt = false;
 char *paramStr = NULL;
 char *opStr = NULL;
 char *valStr = NULL;
+bool anychild = false;
 
 
 
@@ -132,7 +133,7 @@ op -> "==", "!=", "<=", ">=", "<", ">"
 val -> SysFS-Val */
 
 /* Line 371 of yacc.c  */
-#line 136 "usbauth_lang.tab.c"
+#line 137 "usbauth_lang.tab.c"
 
 # ifndef YY_NULL
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -187,7 +188,7 @@ extern int usbauth_yydebug;
      nl = 266,
      eof = 267,
      comment = 268,
-     comment2 = 269
+     anyChild = 269
    };
 #endif
 
@@ -220,7 +221,7 @@ int usbauth_yyparse ();
 /* Copy the second part of user declarations.  */
 
 /* Line 390 of yacc.c  */
-#line 224 "usbauth_lang.tab.c"
+#line 225 "usbauth_lang.tab.c"
 
 #ifdef short
 # undef short
@@ -440,16 +441,16 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  5
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   23
+#define YYLAST   29
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  15
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  24
+#define YYNNTS  25
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  32
+#define YYNRULES  34
 /* YYNRULES -- Number of states.  */
-#define YYNSTATES  43
+#define YYNSTATES  46
 
 /* YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.  */
 #define YYUNDEFTOK  2
@@ -496,9 +497,9 @@ static const yytype_uint8 yytranslate[] =
 static const yytype_uint8 yyprhs[] =
 {
        0,     0,     3,     5,     7,    10,    12,    15,    16,    20,
-      22,    24,    26,    28,    29,    30,    36,    38,    41,    44,
-      47,    50,    51,    55,    58,    59,    60,    67,    69,    70,
-      72,    74,    76
+      22,    24,    26,    28,    30,    32,    33,    34,    41,    43,
+      46,    49,    52,    55,    56,    60,    63,    64,    65,    72,
+      74,    75,    77,    79,    81
 };
 
 /* YYRHS -- A `-1'-separated list of the rules' RHS.  */
@@ -506,21 +507,22 @@ static const yytype_int8 yyrhs[] =
 {
       16,     0,    -1,    17,    -1,    19,    -1,    17,    19,    -1,
       11,    -1,    18,    11,    -1,    -1,    20,    21,    18,    -1,
-      35,    -1,    26,    -1,    28,    -1,    31,    -1,    -1,    -1,
-       9,    23,    10,    24,     8,    -1,    22,    -1,    25,    22,
-      -1,    27,    37,    -1,    38,     6,    -1,    29,    37,    -1,
-      -1,    38,    30,    25,    -1,    32,    37,    -1,    -1,    -1,
-       5,    33,    25,     7,    34,    25,    -1,    13,    -1,    -1,
-      36,    -1,    35,    -1,     3,    -1,     4,    -1
+      36,    -1,    27,    -1,    29,    -1,    32,    -1,    37,    -1,
+      14,    -1,    -1,    -1,    22,     9,    24,    10,    25,     8,
+      -1,    23,    -1,    26,    23,    -1,    28,    38,    -1,    39,
+       6,    -1,    30,    38,    -1,    -1,    39,    31,    26,    -1,
+      33,    38,    -1,    -1,    -1,     5,    34,    26,     7,    35,
+      26,    -1,    13,    -1,    -1,    37,    -1,    36,    -1,     3,
+      -1,     4,    -1
 };
 
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    64,    64,    65,    65,    66,    66,    67,    67,    68,
-      68,    68,    68,    69,    69,    69,    70,    70,    71,    72,
-      73,    74,    74,    75,    76,    76,    76,    77,    78,    79,
-      79,    80,    80
+       0,    65,    65,    66,    66,    67,    67,    68,    68,    69,
+      69,    69,    69,    70,    70,    71,    71,    71,    72,    72,
+      73,    74,    75,    76,    76,    77,    78,    78,    78,    79,
+      80,    81,    81,    82,    82
 };
 #endif
 
@@ -530,10 +532,11 @@ static const yytype_uint8 yyrline[] =
 static const char *const yytname[] =
 {
   "$end", "error", "$undefined", "allow", "deny", "condition", "all",
-  "case_", "val", "param", "op", "nl", "eof", "comment", "comment2",
-  "$accept", "S", "FILE", "NLA", "LINE", "$@1", "RULE", "DATA", "$@2",
-  "$@3", "DATAm", "GENERICC", "GENERIC", "AUTHC", "AUTH", "$@4", "CONDC",
-  "COND", "$@5", "$@6", "COMMENT", "EMPTY", "COMMENTADD", "auth_keyword", YY_NULL
+  "case_", "val", "param", "op", "nl", "eof", "comment", "anyChild",
+  "$accept", "S", "FILE", "NLA", "LINE", "$@1", "RULE", "ANYCHILDADD",
+  "DATA", "$@2", "$@3", "DATAm", "GENERICC", "GENERIC", "AUTHC", "AUTH",
+  "$@4", "CONDC", "COND", "$@5", "$@6", "COMMENT", "EMPTY", "COMMENTADD",
+  "auth_keyword", YY_NULL
 };
 #endif
 
@@ -551,18 +554,18 @@ static const yytype_uint16 yytoknum[] =
 static const yytype_uint8 yyr1[] =
 {
        0,    15,    16,    17,    17,    18,    18,    20,    19,    21,
-      21,    21,    21,    23,    24,    22,    25,    25,    26,    27,
-      28,    30,    29,    31,    33,    34,    32,    35,    36,    37,
-      37,    38,    38
+      21,    21,    21,    22,    22,    24,    25,    23,    26,    26,
+      27,    28,    29,    31,    30,    32,    34,    35,    33,    36,
+      37,    38,    38,    39,    39
 };
 
 /* YYR2[YYN] -- Number of symbols composing right hand side of rule YYN.  */
 static const yytype_uint8 yyr2[] =
 {
        0,     2,     1,     1,     2,     1,     2,     0,     3,     1,
-       1,     1,     1,     0,     0,     5,     1,     2,     2,     2,
-       2,     0,     3,     2,     0,     0,     6,     1,     0,     1,
-       1,     1,     1
+       1,     1,     1,     1,     1,     0,     0,     6,     1,     2,
+       2,     2,     2,     0,     3,     2,     0,     0,     6,     1,
+       0,     1,     1,     1,     1
 };
 
 /* YYDEFACT[STATE-NAME] -- Default reduction number in state STATE-NUM.
@@ -570,63 +573,63 @@ static const yytype_uint8 yyr2[] =
    means the default is an error.  */
 static const yytype_uint8 yydefact[] =
 {
-       7,     0,     7,     3,     0,     1,     4,    31,    32,    24,
-      27,     0,    10,    28,    11,    28,    12,    28,     9,    21,
-       0,     5,     8,    30,    29,    18,    20,    23,    19,     0,
-      13,    16,     0,     6,    22,     0,    25,    17,    14,     0,
-       0,    26,    15
+       7,     0,     7,     3,     0,     1,     4,    33,    34,    26,
+      29,     0,    10,    30,    11,    30,    12,    30,     9,    23,
+      30,     5,     8,    32,    31,    20,    22,    25,    21,    30,
+      14,     0,    18,    30,    13,     6,    24,    15,    27,    19,
+       0,    30,    16,    28,     0,    17
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,     1,     2,    22,     3,     4,    11,    31,    35,    40,
-      32,    12,    13,    14,    15,    29,    16,    17,    20,    39,
-      23,    24,    25,    19
+      -1,     1,     2,    22,     3,     4,    11,    31,    32,    40,
+      44,    33,    12,    13,    14,    15,    29,    16,    17,    20,
+      41,    23,    34,    25,    19
 };
 
 /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
    STATE-NUM.  */
-#define YYPACT_NINF -28
+#define YYPACT_NINF -30
 static const yytype_int8 yypact[] =
 {
-     -28,     4,    12,   -28,    -3,   -28,   -28,   -28,   -28,   -28,
-     -28,     5,   -28,     2,   -28,     2,   -28,     2,   -28,    11,
-       9,   -28,     8,   -28,   -28,   -28,   -28,   -28,   -28,     9,
-     -28,   -28,    -1,   -28,     9,    10,   -28,   -28,   -28,     9,
-      13,     9,   -28
+     -30,     7,    10,   -30,    -2,   -30,   -30,   -30,   -30,   -30,
+     -30,     9,   -30,     8,   -30,     8,   -30,     8,   -30,    16,
+      11,   -30,    12,   -30,   -30,   -30,   -30,   -30,   -30,    11,
+     -30,    15,   -30,    -1,   -30,   -30,    -5,   -30,   -30,   -30,
+      17,    11,   -30,    -5,    18,   -30
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -28,   -28,   -28,   -28,    20,   -28,   -28,   -27,   -28,   -28,
-     -26,   -28,   -28,   -28,   -28,   -28,   -28,   -28,   -28,   -28,
-      19,   -28,    -6,   -28
+     -30,   -30,   -30,   -30,    26,   -30,   -30,   -30,   -28,   -30,
+     -30,   -29,   -30,   -30,   -30,   -30,   -30,   -30,   -30,   -30,
+     -30,    25,     1,     2,   -30
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]].  What to do in state STATE-NUM.  If
    positive, shift that token.  If negative, reduce the rule which
    number is the opposite.  If YYTABLE_NINF, syntax error.  */
-#define YYTABLE_NINF -3
+#define YYTABLE_NINF -31
 static const yytype_int8 yytable[] =
 {
-       7,     8,     9,    34,     5,    37,    36,    37,    30,    26,
-      10,    27,    -2,    41,    37,    10,    21,    28,    30,    33,
-      38,    42,     6,    18
+      36,     7,     8,     9,   -30,    39,    38,     5,    39,    30,
+      -2,    10,    43,    30,    24,    39,    24,    26,    24,    27,
+      21,    10,    28,    35,    37,    30,    45,    42,     6,    18
 };
 
 #define yypact_value_is_default(Yystate) \
-  (!!((Yystate) == (-28)))
+  (!!((Yystate) == (-30)))
 
 #define yytable_value_is_error(Yytable_value) \
   YYID (0)
 
 static const yytype_uint8 yycheck[] =
 {
-       3,     4,     5,    29,     0,    32,     7,    34,     9,    15,
-      13,    17,     0,    39,    41,    13,    11,     6,     9,    11,
-      10,     8,     2,     4
+      29,     3,     4,     5,     9,    33,     7,     0,    36,    14,
+       0,    13,    41,    14,    13,    43,    15,    15,    17,    17,
+      11,    13,     6,    11,     9,    14,     8,    10,     2,     4
 };
 
 /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
@@ -634,10 +637,10 @@ static const yytype_uint8 yycheck[] =
 static const yytype_uint8 yystos[] =
 {
        0,    16,    17,    19,    20,     0,    19,     3,     4,     5,
-      13,    21,    26,    27,    28,    29,    31,    32,    35,    38,
-      33,    11,    18,    35,    36,    37,    37,    37,     6,    30,
-       9,    22,    25,    11,    25,    23,     7,    22,    10,    34,
-      24,    25,     8
+      13,    21,    27,    28,    29,    30,    32,    33,    36,    39,
+      34,    11,    18,    36,    37,    38,    38,    38,     6,    31,
+      14,    22,    23,    26,    37,    11,    26,     9,     7,    23,
+      24,    35,    10,    26,    25,     8
 };
 
 #define yyerrok		(yyerrstatus = 0)
@@ -1439,79 +1442,91 @@ yyreduce:
     {
         case 2:
 /* Line 1792 of yacc.c  */
-#line 64 "usbauth_lang.y"
+#line 65 "usbauth_lang.y"
     { printf("file ok\n"); return 0;}
     break;
 
   case 7:
 /* Line 1792 of yacc.c  */
-#line 67 "usbauth_lang.y"
+#line 68 "usbauth_lang.y"
     { process(&gen_length, (void**)&gen_auths, false); gen_auths[gen_length].valid = true; }
     break;
 
   case 8:
 /* Line 1792 of yacc.c  */
-#line 67 "usbauth_lang.y"
+#line 68 "usbauth_lang.y"
     { gen_length++; printf("line ok\n");}
     break;
 
   case 13:
 /* Line 1792 of yacc.c  */
-#line 69 "usbauth_lang.y"
-    {allocate_copy_yytext(&paramStr);}
+#line 70 "usbauth_lang.y"
+    {anychild = false;}
     break;
 
   case 14:
 /* Line 1792 of yacc.c  */
-#line 69 "usbauth_lang.y"
-    {allocate_copy_yytext(&opStr);}
+#line 70 "usbauth_lang.y"
+    {anychild = true;}
     break;
 
   case 15:
 /* Line 1792 of yacc.c  */
-#line 69 "usbauth_lang.y"
-    {allocate_copy_yytext(&valStr); process(data_array_length, (void**)data_array, true); convert_str_to_data(data_ptr, paramStr, opStr, valStr);}
+#line 71 "usbauth_lang.y"
+    {allocate_copy_yytext(&paramStr);}
     break;
 
-  case 21:
+  case 16:
 /* Line 1792 of yacc.c  */
-#line 74 "usbauth_lang.y"
+#line 71 "usbauth_lang.y"
+    {allocate_copy_yytext(&opStr);}
+    break;
+
+  case 17:
+/* Line 1792 of yacc.c  */
+#line 71 "usbauth_lang.y"
+    {allocate_copy_yytext(&valStr); process(data_array_length, (void**)data_array, true); convert_str_to_data(data_ptr, paramStr, opStr, valStr); data_ptr->anyChild = anychild;}
+    break;
+
+  case 23:
+/* Line 1792 of yacc.c  */
+#line 76 "usbauth_lang.y"
     { data_array_length = &(gen_auths[gen_length].attr_len); data_array = &(gen_auths[gen_length].attr_array);}
     break;
 
-  case 24:
+  case 26:
 /* Line 1792 of yacc.c  */
-#line 76 "usbauth_lang.y"
+#line 78 "usbauth_lang.y"
     { gen_auths[gen_length].type = COND; data_array_length = &(gen_auths[gen_length].cond_len); data_array = &(gen_auths[gen_length].cond_array);}
-    break;
-
-  case 25:
-/* Line 1792 of yacc.c  */
-#line 76 "usbauth_lang.y"
-    { data_array_length = &(gen_auths[gen_length].attr_len); data_array = &(gen_auths[gen_length].attr_array);}
     break;
 
   case 27:
 /* Line 1792 of yacc.c  */
-#line 77 "usbauth_lang.y"
+#line 78 "usbauth_lang.y"
+    { data_array_length = &(gen_auths[gen_length].attr_len); data_array = &(gen_auths[gen_length].attr_array);}
+    break;
+
+  case 29:
+/* Line 1792 of yacc.c  */
+#line 79 "usbauth_lang.y"
     { allocate_copy_yytext(&(gen_auths[gen_length].comment)); printf("c%s\n", (gen_auths[gen_length].comment));}
     break;
 
-  case 31:
+  case 33:
 /* Line 1792 of yacc.c  */
-#line 80 "usbauth_lang.y"
+#line 82 "usbauth_lang.y"
     {gen_auths[gen_length].type = ALLOW;}
     break;
 
-  case 32:
+  case 34:
 /* Line 1792 of yacc.c  */
-#line 80 "usbauth_lang.y"
+#line 82 "usbauth_lang.y"
     {gen_auths[gen_length].type = DENY;}
     break;
 
 
 /* Line 1792 of yacc.c  */
-#line 1515 "usbauth_lang.tab.c"
+#line 1530 "usbauth_lang.tab.c"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1743,7 +1758,7 @@ yyreturn:
 
 
 /* Line 2055 of yacc.c  */
-#line 81 "usbauth_lang.y"
+#line 83 "usbauth_lang.y"
 
 
 int yyerror(char*msg) {

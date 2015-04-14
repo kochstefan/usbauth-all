@@ -24,63 +24,38 @@ static GMainLoop *loop = NULL;
 static struct udev *udev = NULL;
 static DBusConnection *bus = NULL;
 
-int get_param_val(int param, struct udev_device *udevdev) {
+const char* parameter_strings[] = {"INVALID", "busnum", "devpath", "idVendor", "idProduct", "bDeviceClass", "bDeviceSubClass", "bDeviceProtocol", "bConfigurationValue", "bInterfaceNumber", "bInterfaceClass", "bInterfaceSubClass", "bInterfaceProtocol", "count"};
+const char* operator_strings[] = {"==", "!=", "<=", ">=", "<", ">"};
+
+const char* enum_to_str(int val, const char** string_array, int array_len) {
+	const char* ret = string_array[0];
+
+	if (val < array_len)
+		ret = string_array[val];
+
+	return ret;
+}
+
+const char* param_to_str(enum Parameter param) {
+	return enum_to_str(param, parameter_strings, sizeof(parameter_strings));
+}
+
+unsigned get_param_val(enum Parameter param, struct udev_device *udevdev) {
 	unsigned val = 0;
 	struct udev_device *parent = NULL;
-	const char *type = udev_device_get_devtype(udevdev);
+	const char* paramStr = param_to_str(param);
+	const char* valStr = NULL;
 
-	if(!type)
-		return val;
+	if(udevdev)
+		valStr = udev_device_get_sysattr_value(udevdev, paramStr);
 
-	if (strcmp(type, "usb_device") == 0)
-		parent = udevdev;
-	else
+	if(!valStr) {
 		parent = udev_device_get_parent(udevdev);
-
-	if(!udevdev) {
-		return val;
+		valStr = udev_device_get_sysattr_value(parent, paramStr);
 	}
 
-	switch(param) {
-	case busnum:
-		val = strtoul(udev_device_get_sysattr_value(parent, "busnum"), NULL, 16);
-		break;
-	case devpath:
-		val = strtoul(udev_device_get_sysattr_value(parent, "devpath"), NULL, 16);
-		break;
-	case idVendor:
-		val = strtoul(udev_device_get_sysattr_value(parent, "idVendor"), NULL, 16);
-		break;
-	case idProduct:
-		val = strtoul(udev_device_get_sysattr_value(parent, "idProduct"), NULL, 16);
-		break;
-	case bDeviceClass:
-		val = strtoul(udev_device_get_sysattr_value(parent, "bDeviceClass"), NULL, 16);
-		break;
-	case bDeviceSubClass:
-		val = strtoul(udev_device_get_sysattr_value(parent, "bDeviceSubClass"), NULL, 16);
-		break;
-	case bDeviceProtocol:
-		val = strtoul(udev_device_get_sysattr_value(parent, "bDeviceProtocol"), NULL, 16);
-		break;
-	case bConfigurationValue:
-		val = strtoul(udev_device_get_sysattr_value(parent, "bConfigurationValue"), NULL, 0);
-		break;
-	case bInterfaceNumber:
-		val = strtoul(udev_device_get_sysattr_value(udevdev, "bInterfaceNumber"), NULL, 16);
-		break;
-	case bInterfaceClass:
-		val = strtoul(udev_device_get_sysattr_value(udevdev, "bInterfaceClass"), NULL, 16);
-		break;
-	case bInterfaceSubClass:
-		val = strtoul(udev_device_get_sysattr_value(udevdev, "bInterfaceSubClass"), NULL, 16);
-		break;
-	case bInterfaceProtocol:
-		val = strtoul(udev_device_get_sysattr_value(udevdev, "bInterfaceProtocol"), NULL, 16);
-		break;
-	default:
-		break;
-	}
+	if(valStr)
+		val = strtoul(valStr, NULL, 16);
 
 	return val;
 }
