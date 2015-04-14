@@ -17,7 +17,7 @@
 
 #define CONFIG_FILE "/etc/usbauth.conf"
 
-unsigned gen_length;
+uint8_t gen_length;
 struct Auth *gen_auths;
 
 extern FILE *usbauth_yyin;
@@ -39,11 +39,11 @@ int str_to_enum(const char *string, const char** string_array, int array_len) {
 	return ret;
 }
 
-const char* enum_to_str(int param, const char** string_array, int array_len) {
+const char* enum_to_str(int val, const char** string_array, int array_len) {
 	const char* ret = string_array[0];
 
-	if (param < array_len)
-		ret = string_array[param];
+	if (val < array_len)
+		ret = string_array[val];
 
 	return ret;
 }
@@ -60,11 +60,11 @@ enum Operator str_to_op(const char *string) {
 	return str_to_enum(string, operator_strings, sizeof(operator_strings));
 }
 
-const char* op_to_str(enum Operator param) {
-	return enum_to_str(param, operator_strings, sizeof(operator_strings));
+const char* op_to_str(enum Operator op) {
+	return enum_to_str(op, operator_strings, sizeof(operator_strings));
 }
 
-bool usbauth_config_convert_str_to_data(struct Data *d, char *paramStr, char* opStr, char *valStr) {
+bool convert_str_to_data(struct Data *d, char *paramStr, char* opStr, char *valStr) {
 	bool ret = true;
 
 	if(!d || !paramStr || !valStr)
@@ -127,31 +127,31 @@ char* auth_to_str(struct Auth *auth) {
 	return str;
 }
 
-void allocate_and_copy(struct Auth** auth_arr, struct Auth* auths, unsigned length) {
+void allocate_and_copy(struct Auth** destination, struct Auth* source, unsigned length) {
 	struct Auth *arr = NULL;
 
 	if (length)
 		arr = calloc(length, sizeof(struct Auth));
 
 	if (arr) {
-		memcpy(arr, auths, length * sizeof(struct Auth));
+		memcpy(arr, source, length * sizeof(struct Auth));
 
 		arr->attr_array = NULL;
 		if (arr->attr_len)
 			arr->attr_array = calloc(arr->attr_len, sizeof(struct Data));
 		if (arr->attr_array)
-			memcpy(arr->attr_array, auths->attr_array,
+			memcpy(arr->attr_array, source->attr_array,
 					arr->attr_len * sizeof(struct Data));
 
 		arr->cond_array = NULL;
 		if (arr->cond_len)
 			arr->cond_array = calloc(arr->cond_len, sizeof(struct Data));
 		if (arr->cond_array)
-			memcpy(arr->cond_array, auths->cond_array,
+			memcpy(arr->cond_array, source->cond_array,
 					arr->cond_len * sizeof(struct Data));
 	}
 
-	*auth_arr = arr;
+	*destination = arr;
 }
 
 int usbauth_config_free() {
@@ -189,8 +189,12 @@ int usbauth_config_write() {
 		return -1;
 
 	int i = 0;
-	for (i = 0; i < gen_length; i++)
-		fprintf(fout, "%s\n", auth_to_str(&gen_auths[i]));
+	for (i = 0; i < gen_length; i++) {
+		const char *str = auth_to_str(&gen_auths[i]);
+		fprintf(fout, "%s\n", str);
+		free(str);
+		str = NULL;
+	}
 	fclose(fout);
 
 	return 0;

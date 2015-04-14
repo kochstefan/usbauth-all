@@ -9,7 +9,7 @@ extern char* usbauth_yytext;
 #define CONFIG_FILE "/home/stefan/usbauth.config"
 
 extern struct Auth *gen_auths;
-extern unsigned gen_length;
+extern uint8_t gen_length;
 
 struct Data **data_array = NULL;
 uint8_t *data_array_length = NULL;
@@ -29,7 +29,7 @@ void allocate_copy_yytext(char **dest) {
 	(*dest)[len] = 0;
 }
 
-void process(unsigned *counter, void **arr, bool data) {
+void process(uint8_t *counter, void **arr, bool data) {
 	unsigned size;
 	
 	if(data)
@@ -59,16 +59,14 @@ param -> SysFS-Attr
 op -> "==", "!=", "<=", ">=", "<", ">"
 val -> SysFS-Val */
 %}
-%token allow deny condition all case_ val param op op_eq op_neq op_le op_ge op_lt op_gt nl eof par_busnum par_devpath par_idVendor par_idProduct par_bDeviceClass par_bDeviceSubClass par_bConfigurationValue par_bInterfaceNumber par_bInterfaceClass par_bInterfaceSubClass par_count comment comment2
+%token allow deny condition all case_ val param op nl eof comment comment2
 %%
 S: FILE { printf("file ok\n"); return 0;}
 FILE: LINE | FILE LINE
 NLA: nl | NLA nl
 LINE: { process(&gen_length, (void**)&gen_auths, false); gen_auths[gen_length].valid = true; } RULE NLA { gen_length++; printf("line ok\n");}
 RULE: COMMENT | GENERICC | AUTHC | CONDC
-OPERATOR: op_eq|op_neq|op_le|op_ge|op_lt|op_gt
-PARAM: par_busnum|par_devpath|par_idVendor|par_idProduct|par_bDeviceClass|par_bDeviceSubClass|par_bConfigurationValue|par_bInterfaceNumber|par_bInterfaceClass|par_bInterfaceSubClass|par_count
-DATA: param {allocate_copy_yytext(&paramStr);} op {allocate_copy_yytext(&opStr);} val {allocate_copy_yytext(&valStr); process(data_array_length, (void**)data_array, true); usbauth_config_convert_str_to_data(data_ptr, paramStr, opStr, valStr);}
+DATA: param {allocate_copy_yytext(&paramStr);} op {allocate_copy_yytext(&opStr);} val {allocate_copy_yytext(&valStr); process(data_array_length, (void**)data_array, true); convert_str_to_data(data_ptr, paramStr, opStr, valStr);}
 DATAm: DATA | DATAm DATA
 GENERICC: GENERIC COMMENTADD
 GENERIC: auth_keyword all

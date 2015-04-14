@@ -62,27 +62,10 @@ extern int usbauth_yydebug;
      val = 263,
      param = 264,
      op = 265,
-     op_eq = 266,
-     op_neq = 267,
-     op_le = 268,
-     op_ge = 269,
-     op_lt = 270,
-     op_gt = 271,
-     nl = 272,
-     eof = 273,
-     par_busnum = 274,
-     par_devpath = 275,
-     par_idVendor = 276,
-     par_idProduct = 277,
-     par_bDeviceClass = 278,
-     par_bDeviceSubClass = 279,
-     par_bConfigurationValue = 280,
-     par_bInterfaceNumber = 281,
-     par_bInterfaceClass = 282,
-     par_bInterfaceSubClass = 283,
-     par_count = 284,
-     comment = 285,
-     comment2 = 286
+     nl = 266,
+     eof = 267,
+     comment = 268,
+     comment2 = 269
    };
 #endif
 

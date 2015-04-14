@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <inttypes.h>
 
 #define LOG_FILE "/var/log/usbauth.log"
 
@@ -86,6 +87,13 @@ void serialize_dbus_error_check(DBusError *error) {
 	}
 }
 
+/**
+ * send dbus message to notifier service for interface
+ *
+ * @udevdev: udev_device with type "usb_interface"
+ * @authorize: true for allow, false for deny
+ *
+ */
 void serialize_dbus(struct udev_device *udevdev, bool authorize) {
 	const char *path = udev_device_get_syspath(udevdev);
 	//dbus_bus_request_name(bus, "test.signal.source", DBUS_NAME_FLAG_REPLACE_EXISTING, &error);
@@ -102,52 +110,48 @@ void serialize_dbus(struct udev_device *udevdev, bool authorize) {
 	msg=NULL;
 }
 
-
 void authorize_interface(struct udev_device *udevdev, bool authorize, bool dbus) {
 	const char* path = udev_device_get_devpath(udevdev);
+	const char *type = udev_device_get_devtype(udevdev);
 	unsigned cl = strtoul(udev_device_get_sysattr_value(udevdev, "bInterfaceClass"), NULL, 16);
+	bool value = authorize ? true : false;
+
+	if (!path || !type || strcmp(type, "usb_interface") != 0)
+		return;
+
 	fprintf(logfile, "USB Interface with class %02x\n", cl);
-	unsigned value = authorize ? 1 : 0;
+
 	char v[16];
 	strcpy(v, "");
-	sprintf(v, "%x", value);
-	fprintf(logfile, "/sys%s/interface_authorized %u\n", path, value);
+	snprintf(v, 16, "%" SCNu8, value);
+	fprintf(logfile, "/sys%s/interface_authorized %" SCNu8 "\n", path, value);
+
 	if (dbus)
 		serialize_dbus(udevdev, authorize);
+
 	udev_device_set_sysattr_value(udevdev, "interface_authorized", v);
 }
 
-
-
 void authorize_mask(struct udev_device *udevdev, uint32_t mask, bool dbus) {
-	const char *type = udev_device_get_devtype(udevdev);
 	const char* path = udev_device_get_devpath(udevdev);
+	const char *type = udev_device_get_devtype(udevdev);
 	unsigned cl = strtoul(udev_device_get_sysattr_value(udevdev, "bDeviceClass"), NULL, 16);
 
-	if (!type || strcmp(type, "usb_device") != 0)
+	if (!path || !type || strcmp(type, "usb_device") != 0)
 		return;
 
 	fprintf(logfile, "USB Interface with class %02x\n", cl);
 	char v[16];
 	strcpy(v, "");
-	sprintf(v, "%x", mask);
-	fprintf(logfile, "/sys%s/interface_authorization_mask %x\n", path, mask);
-
+	snprintf(v, 16, "%" SCNx32, mask);
+	fprintf(logfile, "/sys%s/interface_authorization_mask %" SCNx32 "\n", path, mask);
 
 	udev_device_set_sysattr_value(udevdev, "interface_authorization_mask", v);
 
 	if (dbus) {
-		const char *type = udev_device_get_devtype(udevdev);
-		const char *path = udev_device_get_syspath(udevdev);
 		struct udev_list_entry *devices = NULL, *entry = NULL;
 		struct udev_enumerate *enumerate = NULL;
 		unsigned dev_class = 0;
-
-		if(!path || !type)
-			return;
-
-		if (strcmp(type, "usb_device") != 0)
-			return;
 
 		enumerate = udev_enumerate_new(udev);
 
@@ -197,14 +201,18 @@ void authorize_mask(struct udev_device *udevdev, uint32_t mask, bool dbus) {
 	}
 }
 
-/**
- * checks if an auth rule matches an USB interface
- * @rule: auth rule
- * @interface: udev_device with type "usb_interface"
- *
- * Return: match_attrs is true if the interface matches the rules
- * match_cond is true if the interface matches the conditions
- */
+bool isRule(struct Auth *array, unsigned array_length) {
+	bool ret = false;
+
+	int i = 0;
+	for (i = 0; i < array_length; i++) {
+		if (array[i].type == ALLOW || array[i].type == DENY)
+			ret = true;
+	}
+
+	return ret;
+}
+
 struct match_ret match_auth_interface(struct Auth *rule, struct udev_device *interface) {
 	int i;
 	struct match_ret ret;
@@ -258,20 +266,6 @@ struct match_ret match_auth_interface(struct Auth *rule, struct udev_device *int
 	return ret;
 }
 
-/**
- * checks if an USB interface matches to all auth rules
- * if matches the interface will be allowed for use
- *
- * note: a condition that matches with the interface must apply,
- * otherwise the interface will denied
- *
- * @array: auth rules
- * @array_length: auth rules length
- * @interface: udev_device with type "usb_interface"
- *
- * Return: match is true if the interface matches with all rules
- * allowed: true if the interface should be allowed, otherwise false
- */
 struct auth_ret match_auths_interface(struct Auth *rule_array, size_t array_len, struct udev_device *usb_interface) {
 
 	int i;
@@ -318,26 +312,11 @@ struct auth_ret match_auths_interface(struct Auth *rule_array, size_t array_len,
 	return ret;
 }
 
-
-/**
- * checks if an auth rule matches to an USB device
- * and allows or denies the device
- *
- * note: all interfaces of the USB devices are checked
- *
- * @array: auth rules
- * @array_length: auth rules length
- * @usb_device: udev_device with type "usb_device"
- * @prepare: do only prepare e. g. increment count but do not authorize
- *
- */
 void match_auths_device_interfaces(struct Auth *rule_array, size_t array_len, struct udev_device *usb_device, bool prepare) {
 	const char *type = udev_device_get_devtype(usb_device);
 	const char *path = udev_device_get_syspath(usb_device);
 	struct udev_list_entry *devices = NULL, *entry = NULL;
 	struct udev_enumerate *enumerate = NULL;
-	bool genMatch = false;
-	bool genAllowed = true;
 	unsigned dev_class = 0;
 	uint32_t mask = 0;
 
@@ -412,14 +391,6 @@ void match_auths_device_interfaces(struct Auth *rule_array, size_t array_len, st
 		authorize_mask(usb_device, mask, true);
 }
 
-/**
- * perform rules on all USB devices
- *
- * @rule_array: auth rules
- * @array_length: auth rules length
- * @prepare: do only prepare e. g. increment count but do not authorize
- *
- */
 void perform_rules_devices(struct Auth *rule_array, size_t array_len, bool prepare) {
 	struct udev_enumerate *enumerate;
 	struct udev_list_entry *devices, *entry;
@@ -462,16 +433,6 @@ void perform_rules_devices(struct Auth *rule_array, size_t array_len, bool prepa
 	udev_enumerate_unref(enumerate);
 }
 
-/**
- * perform rules on attached USB device
- *
- * note: to prepare the count information
- * call perform_rules_devices with that flag
- *
- * @rule_array: auth rules
- * @array_length: auth rules length
- *
- */
 bool perform_rules_environment(struct Auth *rule_array, size_t array_len) {
 	struct udev_device *udevdev = udev_device_new_from_environment(udev);
 
@@ -496,18 +457,6 @@ bool perform_rules_environment(struct Auth *rule_array, size_t array_len) {
 	udev_device_unref(udevdev);
 
 	return true;
-}
-
-bool isRule(struct Auth *auths, unsigned length) {
-	bool ret = false;
-
-	int i = 0;
-	for (i = 0; i < length; i++) {
-		if (auths[i].type == ALLOW || auths[i].type == DENY)
-			ret = true;
-	}
-
-	return ret;
 }
 
 int main(int argc, char **argv) {
