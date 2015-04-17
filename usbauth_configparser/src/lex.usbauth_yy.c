@@ -393,11 +393,11 @@ struct yy_trans_info
 	};
 static yyconst flex_int16_t yy_accept[46] =
     {   0,
-        0,    0,   13,   12,   11,   12,    1,    8,   10,   12,
-       10,    9,    8,    8,    8,   10,    1,    8,    9,    9,
-        9,    8,    9,    8,    5,    9,    9,    9,    9,    9,
-        9,    6,    9,    3,    2,    9,    9,    9,    9,    9,
-        9,    7,    9,    4,    0
+        0,    0,   13,   12,   10,   12,   11,    7,    9,   12,
+        9,    8,    7,    7,    7,    9,   11,    7,    8,    8,
+        8,    7,    8,    7,    4,    8,    8,    8,    8,    8,
+        8,    5,    8,    2,    1,    8,    8,    8,    8,    8,
+        8,    6,    8,    3,    0
     } ;
 
 static yyconst flex_int32_t yy_ec[256] =
@@ -434,18 +434,18 @@ static yyconst flex_int32_t yy_ec[256] =
 
 static yyconst flex_int32_t yy_meta[24] =
     {   0,
-        1,    1,    1,    1,    2,    1,    1,    1,    2,    2,
-        2,    2,    2,    2,    2,    2,    2,    2,    2,    2,
-        2,    2,    2
+        1,    2,    1,    1,    3,    1,    1,    1,    3,    3,
+        3,    3,    3,    3,    3,    3,    3,    3,    3,    3,
+        3,    3,    3
     } ;
 
 static yyconst flex_int16_t yy_base[48] =
     {   0,
-        0,    0,   76,   77,   77,   68,    0,   19,   67,   66,
-       65,    0,   29,   37,   25,   77,    0,   16,    0,   54,
-       47,   38,   51,    8,   49,   58,   52,   52,   41,   41,
-       47,    0,   45,    0,    0,   44,   38,   36,   36,   38,
-       31,    0,   27,    0,   77,   35,   27
+        0,    0,   77,   78,   78,   69,    0,   19,   68,   67,
+       66,    0,   29,   37,   25,   78,    0,   16,    0,   55,
+       48,   38,   52,    8,   50,   59,   53,   53,   42,   42,
+       48,    0,   46,    0,    0,   44,   32,   35,   35,   37,
+       26,    0,   19,    0,   78,   58,   26
     } ;
 
 static yyconst flex_int16_t yy_def[48] =
@@ -457,34 +457,36 @@ static yyconst flex_int16_t yy_def[48] =
        47,   47,   47,   47,    0,   45,   45
     } ;
 
-static yyconst flex_int16_t yy_nxt[101] =
+static yyconst flex_int16_t yy_nxt[102] =
     {   0,
         4,    5,    6,    7,    8,    9,   10,   11,    8,   12,
        13,   14,   15,    8,   12,   12,   12,   12,   12,   12,
        12,   12,   12,   18,   19,   29,   18,   18,   19,   18,
-       18,   18,   18,   18,   19,   18,   17,   18,   24,   18,
-       18,   18,   18,   19,   44,   20,   21,   22,   18,   43,
-       42,   41,   40,   19,   19,   23,   19,   27,   39,   38,
-       37,   36,   35,   34,   33,   32,   31,   30,   28,   26,
-       25,   16,   16,   16,   16,   45,    3,   45,   45,   45,
+       18,   18,   18,   18,   19,   18,   44,   18,   24,   18,
+       18,   18,   18,   19,   43,   20,   21,   22,   18,   42,
+       41,   40,   39,   19,   19,   23,   19,   27,   17,   38,
+       17,   37,   36,   35,   34,   33,   32,   31,   30,   28,
+       26,   25,   16,   16,   16,   16,   45,    3,   45,   45,
        45,   45,   45,   45,   45,   45,   45,   45,   45,   45,
-       45,   45,   45,   45,   45,   45,   45,   45,   45,   45
+       45,   45,   45,   45,   45,   45,   45,   45,   45,   45,
 
+       45
     } ;
 
-static yyconst flex_int16_t yy_chk[101] =
+static yyconst flex_int16_t yy_chk[102] =
     {   0,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    8,   24,   24,   18,    8,   47,    8,
-        8,    8,    8,   13,   18,   15,   46,   13,   15,   13,
-       13,   13,   13,   15,   43,   13,   13,   14,   22,   41,
-       40,   39,   38,   14,   14,   14,   22,   22,   37,   36,
-       33,   31,   30,   29,   28,   27,   26,   25,   23,   21,
-       20,   11,   10,    9,    6,    3,   45,   45,   45,   45,
+        8,    8,    8,   13,   18,   15,   43,   13,   15,   13,
+       13,   13,   13,   15,   41,   13,   13,   14,   22,   40,
+       39,   38,   37,   14,   14,   14,   22,   22,   46,   36,
+       46,   33,   31,   30,   29,   28,   27,   26,   25,   23,
+       21,   20,   11,   10,    9,    6,    3,   45,   45,   45,
        45,   45,   45,   45,   45,   45,   45,   45,   45,   45,
-       45,   45,   45,   45,   45,   45,   45,   45,   45,   45
+       45,   45,   45,   45,   45,   45,   45,   45,   45,   45,
 
+       45
     } ;
 
 static yy_state_type yy_last_accepting_state;
@@ -505,7 +507,7 @@ char *usbauth_yytext;
 #line 4 "usbauth_lang.l"
 #include "usbauth_lang.tab.h"
 
-#line 509 "lex.usbauth_yy.c"
+#line 511 "lex.usbauth_yy.c"
 
 #define INITIAL 0
 
@@ -689,7 +691,7 @@ YY_DECL
     
 #line 10 "usbauth_lang.l"
 
-#line 693 "lex.usbauth_yy.c"
+#line 695 "lex.usbauth_yy.c"
 
 	if ( !(yy_init) )
 		{
@@ -748,7 +750,7 @@ yy_match:
 			yy_current_state = yy_nxt[yy_base[yy_current_state] + (unsigned int) yy_c];
 			++yy_cp;
 			}
-		while ( yy_base[yy_current_state] != 77 );
+		while ( yy_base[yy_current_state] != 78 );
 
 yy_find_action:
 		yy_act = yy_accept[yy_current_state];
@@ -775,69 +777,69 @@ do_action:	/* This label is used only to access EOF actions. */
 case 1:
 YY_RULE_SETUP
 #line 11 "usbauth_lang.l"
-{return comment;}
+{return allow;}
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
 #line 12 "usbauth_lang.l"
-{return allow;}
+{return deny;}
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
 #line 13 "usbauth_lang.l"
-{return deny;}
+{printf("%s", usbauth_yytext); return condition;}
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
 #line 14 "usbauth_lang.l"
-{printf("%s", usbauth_yytext); return condition;}
+{return all;}
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
 #line 15 "usbauth_lang.l"
-{return all;}
+{return case_;}
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
 #line 16 "usbauth_lang.l"
-{return case_;}
+{return anyChild;}
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
 #line 17 "usbauth_lang.l"
-{return anyChild;}
+{return val;}
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
 #line 18 "usbauth_lang.l"
-{return val;}
+{return param;}
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
 #line 19 "usbauth_lang.l"
-{return param;}
-	YY_BREAK
-case 10:
-YY_RULE_SETUP
-#line 20 "usbauth_lang.l"
 {return op;}
 	YY_BREAK
-case 11:
-/* rule 11 can match eol */
+case 10:
+/* rule 10 can match eol */
 YY_RULE_SETUP
-#line 21 "usbauth_lang.l"
+#line 20 "usbauth_lang.l"
 {return nl;}
 	YY_BREAK
 case YY_STATE_EOF(INITIAL):
-#line 22 "usbauth_lang.l"
+#line 21 "usbauth_lang.l"
 {static unsigned cnt = 0; return cnt++ ? 0 : nl;}
+	YY_BREAK
+case 11:
+YY_RULE_SETUP
+#line 22 "usbauth_lang.l"
+{return comment;}
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
 #line 23 "usbauth_lang.l"
 ECHO;
 	YY_BREAK
-#line 841 "lex.usbauth_yy.c"
+#line 843 "lex.usbauth_yy.c"
 
 	case YY_END_OF_BUFFER:
 		{

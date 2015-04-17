@@ -8,7 +8,6 @@
 %option noyywrap
 
 %%
-["#"][a-zA-Z0-9]* {return comment;}
 "allow" {return allow;}
 "deny" {return deny;}
 "condition" {printf("%s", yytext); return condition;}
@@ -20,4 +19,5 @@
 ("=="|"!="|"<="|">="|"<"|">") {return op;}
 "\n" {return nl;}
 <<EOF>> {static unsigned cnt = 0; return cnt++ ? 0 : nl;}
+["#"][^\n]* {return comment;}
 %%

@@ -25,10 +25,10 @@ extern FILE *usbauth_yyin;
 const char* parameter_strings[] = {"INVALID", "busnum", "devpath", "idVendor", "idProduct", "bDeviceClass", "bDeviceSubClass", "bDeviceProtocol", "bConfigurationValue", "bInterfaceNumber", "bInterfaceClass", "bInterfaceSubClass", "bInterfaceProtocol", "count"};
 const char* operator_strings[] = {"==", "!=", "<=", ">=", "<", ">"};
 
-int str_to_enum(const char *string, const char** string_array, int array_len) {
+int str_to_enum(const char *string, const char** string_array, unsigned array_len) {
 	enum Parameter ret = INVALID;
 
-	int i;
+	unsigned i;
 	for (i = 0; i < array_len; i++) {
 		if (strcmp(string, string_array[i]) == 0) {
 			ret = i;
@@ -39,7 +39,7 @@ int str_to_enum(const char *string, const char** string_array, int array_len) {
 	return ret;
 }
 
-const char* enum_to_str(int val, const char** string_array, int array_len) {
+const char* enum_to_str(int val, const char** string_array, unsigned array_len) {
 	const char* ret = string_array[0];
 
 	if (val < array_len)
@@ -76,7 +76,7 @@ bool convert_str_to_data(struct Data *d, char *paramStr, char* opStr, char *valS
 
 	d->op = str_to_op(opStr);
 
-	sscanf(valStr, "%x", &d->val);
+	d->val = valStr;
 
 	return ret;
 }

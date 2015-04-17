@@ -17,7 +17,7 @@
  *
  * Return: converted enum value
  */
-int str_to_enum(const char *string, const char** string_array, int array_len);
+int str_to_enum(const char *string, const char** string_array, unsigned array_len);
 
 /**
  * convert enum to string
@@ -26,7 +26,7 @@ int str_to_enum(const char *string, const char** string_array, int array_len);
  *
  * Return: converted string
  */
-const char* enum_to_str(int val, const char** string_array, int array_len);
+const char* enum_to_str(int val, const char** string_array, unsigned array_len);
 
 /**
  * convert param string to param enum
