@@ -24,7 +24,12 @@ static GMainLoop *loop = NULL;
 static struct udev *udev = NULL;
 static DBusConnection *bus = NULL;
 
-const char* parameter_strings[] = {"INVALID", "busnum", "devpath", "idVendor", "idProduct", "bDeviceClass", "bDeviceSubClass", "bDeviceProtocol", "bConfigurationValue", "bInterfaceNumber", "bInterfaceClass", "bInterfaceSubClass", "bInterfaceProtocol", "count"};
+struct Dev {
+	struct udev_device *dev;
+	int32_t devn;
+};
+
+const char* parameter_strings[] = {"INVALID", "busnum", "devpath", "idVendor", "idProduct", "bDeviceClass", "bDeviceSubClass", "bDeviceProtocol", "bConfigurationValue", "bInterfaceNumber", "bInterfaceClass", "bInterfaceSubClass", "bInterfaceProtocol", "devnum", "serial", "intfcount", "devcount"};
 const char* operator_strings[] = {"==", "!=", "<=", ">=", "<", ">"};
 
 const char* enum_to_str(int val, const char** string_array, int array_len) {
@@ -87,7 +92,7 @@ void dbus_deinit() {
 	bus=NULL;
 }
 
-struct udev_device *deserialize_dbus(bool *authorize) {
+struct udev_device *deserialize_dbus(bool *authorize, int32_t *devn) {
 	struct udev_device *ret = NULL;
 	const char *path = NULL;
 	DBusError error;
@@ -100,7 +105,7 @@ struct udev_device *deserialize_dbus(bool *authorize) {
 		msg = dbus_connection_pop_message(bus);
 		if (msg) {
 			if (dbus_message_is_signal(msg, "test.signal.Type", "Test")) {
-				dbus_message_get_args(msg, &error, DBUS_TYPE_BOOLEAN, authorize, DBUS_TYPE_STRING, &path, DBUS_TYPE_INVALID);
+				dbus_message_get_args(msg, &error, DBUS_TYPE_BOOLEAN, authorize, DBUS_TYPE_INT32, devn, DBUS_TYPE_STRING, &path, DBUS_TYPE_INVALID);
 				serialize_dbus_error_check(&error);
 				ret = udev_device_new_from_syspath(udev, path);
 				dbus_message_unref(msg);
@@ -186,17 +191,19 @@ const char* getClassString(unsigned cl, unsigned subcl, unsigned iprot, bool ret
 void action_callback(NotifyNotification *callback, char* action, gpointer user_data) {
 	char cmd[256];
 	const char *authstr = strcmp(action, "act_allow") ? "deny" : "allow";
-	struct udev_device *udevdev = (struct udev_device*) user_data;
+	struct Dev *dev = (struct Dev*) user_data;
+	struct udev_device *udevdev = dev->dev;
+	int devn = dev->devn;
 
 	printf("usbauth notifyid %u action %s\n", 1, authstr);
 
-	snprintf(cmd, sizeof(cmd), "pkexec usbauth %s %s", authstr, udev_device_get_syspath(udevdev));
-	printf(cmd);
+	snprintf(cmd, sizeof(cmd), "pkexec usbauth %s %x %s", authstr, devn, udev_device_get_syspath(udevdev));
+	printf("%s\n", cmd);
 	system(cmd);
 	g_object_unref(G_OBJECT(callback));
 }
 
-void create_notification(struct udev_device* udevdev, bool authorize) {
+void create_notification(struct udev_device* udevdev, int32_t devn, bool authorize) {
 	char titleMsg[32];
 	char detailedMsg[128];
 
@@ -240,9 +247,12 @@ void create_notification(struct udev_device* udevdev, bool authorize) {
 	snprintf(titleMsg, sizeof(titleMsg), titleStr, getClassString(cl, subcl, iprot, false));
 	snprintf(detailedMsg, sizeof(detailedMsg), "Default rule: %s\nID %" SCNx16 ":%" SCNx16 "\nbusnum %" SCNu8 ", devpath %" SCNu8, authorize ? "ALLOW" : "DENY", vId, pId, busn, devp);
 
+	struct Dev *dev = calloc(1, sizeof(struct Dev));
+	dev->dev = udevdev;
+	dev->devn = devn;
 	NotifyNotification *notification = notify_notification_new(titleMsg, detailedMsg, getClassString(cl, subcl, iprot, true));
-	notify_notification_add_action(notification, "act_allow", "allow", (NotifyActionCallback) action_callback, udevdev, NULL);
-	notify_notification_add_action(notification, "act_deny", "deny", (NotifyActionCallback) action_callback, udevdev, NULL);
+	notify_notification_add_action(notification, "act_allow", "allow", (NotifyActionCallback) action_callback, dev, NULL);
+	notify_notification_add_action(notification, "act_deny", "deny", (NotifyActionCallback) action_callback, dev, NULL);
 	notify_notification_show(notification, NULL);
 }
 
@@ -263,10 +273,11 @@ int main(int argc, char **argv) {
 	while(1) {
 		printf("hallo");
 		bool authorize = false;
-		struct udev_device *udevdev = deserialize_dbus(&authorize);
+		int32_t devn = -1;
+		struct udev_device *udevdev = deserialize_dbus(&authorize, &devn);
 
 		if (udevdev) {
-			create_notification(udevdev, authorize);
+			create_notification(udevdev, devn, authorize);
 		}
 
 		sleep(1);

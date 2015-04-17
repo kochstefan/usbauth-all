@@ -39,7 +39,7 @@ static struct udev *udev = NULL;
 DBusConnection *bus = NULL;
 struct udev_device *plug_usb_device = NULL;
 
-const char* parameter_strings[] = {"INVALID", "busnum", "devpath", "idVendor", "idProduct", "bDeviceClass", "bDeviceSubClass", "bDeviceProtocol", "bConfigurationValue", "bInterfaceNumber", "bInterfaceClass", "bInterfaceSubClass", "bInterfaceProtocol", "serial", "intfcount", "devcount"};
+const char* parameter_strings[] = {"INVALID", "busnum", "devpath", "idVendor", "idProduct", "bDeviceClass", "bDeviceSubClass", "bDeviceProtocol", "bConfigurationValue", "bInterfaceNumber", "bInterfaceClass", "bInterfaceSubClass", "bInterfaceProtocol", "devnum", "serial", "intfcount", "devcount"};
 const char* operator_strings[] = {"==", "!=", "<=", ">=", "<", ">"};
 
 const char* get_param_valStr(enum Parameter param, struct udev_device *udevdev) {
@@ -219,26 +219,30 @@ void serialize_dbus_error_check(DBusError *error) {
  * @authorize: true for allow, false for deny
  *
  */
-void serialize_dbus(struct udev_device *udevdev, bool authorize) {
-//	const char *path = udev_device_get_syspath(udevdev);
-//	//dbus_bus_request_name(bus, "test.signal.source", DBUS_NAME_FLAG_REPLACE_EXISTING, &error);
-//
-//	DBusMessage *msg = dbus_message_new_signal("/test/signal/Object", "test.signal.Type", "Test");
-//	if(!msg)
-//		printf("NULL");
-//
-//	dbus_message_append_args(msg, DBUS_TYPE_BOOLEAN, &authorize, DBUS_TYPE_STRING, &path, DBUS_TYPE_INVALID);
-//	fprintf(logfile, "dbus%s\n", path);
-//	dbus_connection_send(bus, msg, NULL);
-//	dbus_connection_flush(bus);
-//	dbus_message_unref(msg);
-//	msg=NULL;
+void serialize_dbus(struct udev_device *udevdev, bool authorize, int32_t devn) {
+	const char *path = udev_device_get_syspath(udevdev);
+	DBusError error;
+	dbus_error_init(&error);
+	dbus_bus_request_name(bus, "test.signal.source", DBUS_NAME_FLAG_REPLACE_EXISTING, &error);
+	serialize_dbus_error_check(&error);
+
+	DBusMessage *msg = dbus_message_new_signal("/test/signal/Object", "test.signal.Type", "Test");
+	if(!msg)
+		printf("NULL");
+
+	dbus_message_append_args(msg, DBUS_TYPE_BOOLEAN, &authorize, DBUS_TYPE_INT32, &devn, DBUS_TYPE_STRING, &path, DBUS_TYPE_INVALID);
+	fprintf(logfile, "dbus%s %i\n", path, devn);
+	dbus_connection_send(bus, msg, NULL);
+	dbus_connection_flush(bus);
+	dbus_message_unref(msg);
+	msg=NULL;
 }
 
 void authorize_interface(struct udev_device *udevdev, bool authorize, bool dbus) {
 	const char* path = udev_device_get_devpath(udevdev);
 	const char *type = udev_device_get_devtype(udevdev);
-	unsigned cl = strtoul(udev_device_get_sysattr_value(udevdev, "bInterfaceClass"), NULL, 16);
+	int cl = get_param_val(bInterfaceClass, udevdev);
+	int32_t devn = get_param_val(devnum, udevdev);
 	bool value = authorize ? true : false;
 
 	if (!path || !type || strcmp(type, "usb_interface") != 0)
@@ -252,7 +256,7 @@ void authorize_interface(struct udev_device *udevdev, bool authorize, bool dbus)
 	fprintf(logfile, "/sys%s/interface_authorized %" SCNu8 "\n", path, value);
 
 	if (dbus)
-		serialize_dbus(udevdev, authorize);
+		serialize_dbus(udevdev, authorize, devn);
 
 	udev_device_set_sysattr_value(udevdev, "interface_authorized", v);
 }
@@ -260,12 +264,10 @@ void authorize_interface(struct udev_device *udevdev, bool authorize, bool dbus)
 void authorize_mask(struct udev_device *udevdev, uint32_t mask, bool dbus) {
 	const char* path = udev_device_get_devpath(udevdev);
 	const char *type = udev_device_get_devtype(udevdev);
-	unsigned cl = strtoul(udev_device_get_sysattr_value(udevdev, "bDeviceClass"), NULL, 16);
 
 	if (!path || !type || strcmp(type, "usb_device") != 0)
 		return;
 
-	fprintf(logfile, "USB Interface with class %02x\n", cl);
 	char v[16];
 	strcpy(v, "");
 	snprintf(v, 16, "%" SCNx32, mask);
@@ -314,8 +316,9 @@ void authorize_mask(struct udev_device *udevdev, uint32_t mask, bool dbus) {
 				if(dev_class == 9 && intf_class != 9) // dev class is HUB and intf class is not HUB
 					continue; // skip device childs from hubs, use only hub's interfaces
 
-				uint8_t nr = get_param_val(bInterfaceNumber, interface);
-				serialize_dbus(interface, mask | (1 << nr) ? true : false);
+				int nr = get_param_val(bInterfaceNumber, interface);
+				int32_t devn = get_param_val(devnum, udevdev);
+				serialize_dbus(interface, mask | (1 << nr) ? true : false, devn);
 			}
 
 			if (interface)
@@ -639,15 +642,20 @@ int main(int argc, char **argv) {
 			fprintf(logfile, "%s\n", type);
 			perform_rules_devices(auths, length); // plug device will excluded
 			// check all interfaces of the device
-			struct usb_device *plg = plug_usb_device;
+			struct udev_device *plg = plug_usb_device;
 			plug_usb_device = NULL; // to work with excluded device
 			match_auths_device_interfaces(auths, length, plg); // work with excluded device now
 		}
 	} else if(strcmp(argv[1], "init") == 0) { // called manually with init parameter
 		perform_rules_devices(auths, length);
 	} else if (argc > 2 && (strcmp(argv[1], "allow") == 0 || strcmp(argv[1], "deny") == 0)) { // called by notifier
-		struct udev_device *udevdev = udev_device_new_from_syspath(udev, argv[2]);
-		if(udevdev) {
+		struct udev_device *udevdev = udev_device_new_from_syspath(udev, argv[3]);
+		int devn = get_param_val(devnum, udevdev);
+		int devnpar = strtol(argv[2], NULL, 16);
+
+		fprintf(logfile, "devn%i %i\n", devn, devnpar);
+
+		if(udevdev && devn == devnpar) {
 			bool allw = strcmp(argv[1], "allow") == 0 ? true : false;
 			authorize_interface(udevdev, allw, false);
 			udev_device_unref(udevdev);
