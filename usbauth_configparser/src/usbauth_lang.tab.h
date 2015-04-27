@@ -59,13 +59,12 @@ extern int usbauth_yydebug;
      condition = 260,
      all = 261,
      case_ = 262,
-     val = 263,
-     param = 264,
+     anyChild = 263,
+     name = 264,
      op = 265,
      nl = 266,
      eof = 267,
-     comment = 268,
-     anyChild = 269
+     comment = 268
    };
 #endif
 
