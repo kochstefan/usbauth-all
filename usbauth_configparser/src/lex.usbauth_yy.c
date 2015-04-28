@@ -502,10 +502,29 @@ int usbauth_yy_flex_debug = 0;
 #define YY_RESTORE_YY_MORE_OFFSET
 char *usbauth_yytext;
 #line 1 "usbauth_lang.l"
-#line 4 "usbauth_lang.l"
+/*
+ * Copyright (c) 2015 SUSE LLC. All Rights Reserved.
+ * Author: Stefan Koch <skoch@suse.de>
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of version 2.1 of the GNU Lesser General
+ * Public License as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this program; if not, contact SUSE LLC.
+ *
+ * To contact SUSE about this file by physical or electronic mail,
+ * you may find current contact information at www.suse.com
+ */
+#line 24 "usbauth_lang.l"
 #include "usbauth_lang.tab.h"
 
-#line 509 "lex.usbauth_yy.c"
+#line 528 "lex.usbauth_yy.c"
 
 #define INITIAL 0
 
@@ -687,9 +706,9 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 10 "usbauth_lang.l"
+#line 30 "usbauth_lang.l"
 
-#line 693 "lex.usbauth_yy.c"
+#line 712 "lex.usbauth_yy.c"
 
 	if ( !(yy_init) )
 		{
@@ -774,65 +793,65 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 11 "usbauth_lang.l"
+#line 31 "usbauth_lang.l"
 {return allow;}
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 12 "usbauth_lang.l"
+#line 32 "usbauth_lang.l"
 {return deny;}
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 13 "usbauth_lang.l"
+#line 33 "usbauth_lang.l"
 {return condition;}
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 14 "usbauth_lang.l"
+#line 34 "usbauth_lang.l"
 {return all;}
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 15 "usbauth_lang.l"
+#line 35 "usbauth_lang.l"
 {return case_;}
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 16 "usbauth_lang.l"
+#line 36 "usbauth_lang.l"
 {return anyChild;}
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 17 "usbauth_lang.l"
+#line 37 "usbauth_lang.l"
 {return name;}
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 18 "usbauth_lang.l"
+#line 38 "usbauth_lang.l"
 {return op;}
 	YY_BREAK
 case 9:
 /* rule 9 can match eol */
 YY_RULE_SETUP
-#line 19 "usbauth_lang.l"
+#line 39 "usbauth_lang.l"
 {return nl;}
 	YY_BREAK
 case YY_STATE_EOF(INITIAL):
-#line 20 "usbauth_lang.l"
+#line 40 "usbauth_lang.l"
 {static unsigned cnt = 0; return cnt++ ? 0 : nl;}
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 21 "usbauth_lang.l"
+#line 41 "usbauth_lang.l"
 {return comment;}
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 22 "usbauth_lang.l"
+#line 42 "usbauth_lang.l"
 ECHO;
 	YY_BREAK
-#line 836 "lex.usbauth_yy.c"
+#line 855 "lex.usbauth_yy.c"
 
 	case YY_END_OF_BUFFER:
 		{
@@ -1824,7 +1843,7 @@ void usbauth_yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 22 "usbauth_lang.l"
+#line 42 "usbauth_lang.l"
 
 
 

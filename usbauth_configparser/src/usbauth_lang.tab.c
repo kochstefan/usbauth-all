@@ -71,7 +71,7 @@
 
 /* Copy the first part of user declarations.  */
 /* Line 371 of yacc.c  */
-#line 3 "usbauth_lang.y"
+#line 23 "usbauth_lang.y"
 
 
 #include "generic.h"
@@ -520,10 +520,10 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    69,    69,    70,    70,    71,    71,    72,    72,    73,
-      73,    73,    73,    74,    74,    75,    75,    75,    76,    76,
-      77,    78,    79,    80,    80,    81,    82,    82,    82,    83,
-      84,    85,    85,    86,    86
+       0,    89,    89,    90,    90,    91,    91,    92,    92,    93,
+      93,    93,    93,    94,    94,    95,    95,    95,    96,    96,
+      97,    98,    99,   100,   100,   101,   102,   102,   102,   103,
+     104,   105,   105,   106,   106
 };
 #endif
 
@@ -1442,85 +1442,85 @@ yyreduce:
     {
         case 2:
 /* Line 1792 of yacc.c  */
-#line 69 "usbauth_lang.y"
+#line 89 "usbauth_lang.y"
     { printf("file ok\n"); return 0;}
     break;
 
   case 7:
 /* Line 1792 of yacc.c  */
-#line 72 "usbauth_lang.y"
+#line 92 "usbauth_lang.y"
     { process(&gen_length, (void**)&gen_auths, false); }
     break;
 
   case 8:
 /* Line 1792 of yacc.c  */
-#line 72 "usbauth_lang.y"
+#line 92 "usbauth_lang.y"
     { gen_auths[gen_length].type = tmpType; gen_length++; tmpType = INVALID; printf("line ok\n");}
     break;
 
   case 13:
 /* Line 1792 of yacc.c  */
-#line 74 "usbauth_lang.y"
+#line 94 "usbauth_lang.y"
     {anychild = false;}
     break;
 
   case 14:
 /* Line 1792 of yacc.c  */
-#line 74 "usbauth_lang.y"
+#line 94 "usbauth_lang.y"
     {anychild = true;}
     break;
 
   case 15:
 /* Line 1792 of yacc.c  */
-#line 75 "usbauth_lang.y"
+#line 95 "usbauth_lang.y"
     {allocate_copy_yytext(&paramStr);}
     break;
 
   case 16:
 /* Line 1792 of yacc.c  */
-#line 75 "usbauth_lang.y"
+#line 95 "usbauth_lang.y"
     {allocate_copy_yytext(&opStr);}
     break;
 
   case 17:
 /* Line 1792 of yacc.c  */
-#line 75 "usbauth_lang.y"
+#line 95 "usbauth_lang.y"
     {allocate_copy_yytext(&valStr); process(data_array_length, (void**)data_array, true); usbauth_convert_str_to_data(data_ptr, paramStr, opStr, valStr); data_ptr->anyChild = anychild;}
     break;
 
   case 23:
 /* Line 1792 of yacc.c  */
-#line 80 "usbauth_lang.y"
+#line 100 "usbauth_lang.y"
     { data_array_length = &(gen_auths[gen_length].attr_len); data_array = &(gen_auths[gen_length].attr_array);}
     break;
 
   case 26:
 /* Line 1792 of yacc.c  */
-#line 82 "usbauth_lang.y"
+#line 102 "usbauth_lang.y"
     { tmpType = COND; data_array_length = &(gen_auths[gen_length].cond_len); data_array = &(gen_auths[gen_length].cond_array);}
     break;
 
   case 27:
 /* Line 1792 of yacc.c  */
-#line 82 "usbauth_lang.y"
+#line 102 "usbauth_lang.y"
     { data_array_length = &(gen_auths[gen_length].attr_len); data_array = &(gen_auths[gen_length].attr_array);}
     break;
 
   case 29:
 /* Line 1792 of yacc.c  */
-#line 83 "usbauth_lang.y"
+#line 103 "usbauth_lang.y"
     { tmpType = COMMENT; allocate_copy_yytext((char**)&(gen_auths[gen_length].comment)); printf("c%s\n", (gen_auths[gen_length].comment));}
     break;
 
   case 33:
 /* Line 1792 of yacc.c  */
-#line 86 "usbauth_lang.y"
+#line 106 "usbauth_lang.y"
     {tmpType = ALLOW;}
     break;
 
   case 34:
 /* Line 1792 of yacc.c  */
-#line 86 "usbauth_lang.y"
+#line 106 "usbauth_lang.y"
     {tmpType = DENY;}
     break;
 
@@ -1758,5 +1758,5 @@ yyreturn:
 
 
 /* Line 2055 of yacc.c  */
-#line 87 "usbauth_lang.y"
+#line 107 "usbauth_lang.y"
 

@@ -206,7 +206,7 @@ bool match_vals_device(struct Auth *rule, struct Data *d, struct udev_device *de
 	return matches;
 }
 
-bool usbauth_dbus_no_error_check(DBusError *error) {
+bool no_error_check_dbus(DBusError *error) {
 	bool ret = true;
 
 	if(dbus_error_is_set(error)) {
@@ -226,7 +226,7 @@ void send_dbus(struct udev_device *udevdev, int32_t authorize, int32_t devn) {
 	dbus_error_init(&error);
 	dbus_bus_request_name(bus, "org.opensuse.usbauth.source", DBUS_NAME_FLAG_REPLACE_EXISTING, &error);
 
-	usbauth_dbus_no_error_check(&error);
+	no_error_check_dbus(&error);
 
 	msg = dbus_message_new_signal("/usbauth/signal/Object", "org.opensuse.usbauth.Type", "usbauth_dbus");
 
@@ -603,7 +603,7 @@ int main(int argc, char **argv) {
 	DBusError error;
 	dbus_error_init(&error);
 	bus = dbus_bus_get(DBUS_BUS_SYSTEM, &error);
-	usbauth_dbus_no_error_check(&error);
+	no_error_check_dbus(&error);
 
 	udev = udev_new();
 	if(!udev)

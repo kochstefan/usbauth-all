@@ -106,7 +106,7 @@ bool match_vals_device(struct Auth *rule, struct Data *d, struct udev_device *de
  *
  * Return: true if no error, false if error
  */
-bool usbauth_dbus_no_error_check(DBusError *error);
+bool no_error_check_dbus(DBusError *error);
 
 /**
  * send dbus message to notifier service for interface

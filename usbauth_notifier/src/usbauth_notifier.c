@@ -113,13 +113,13 @@ bool init_dbus() {
 	dbus_error_init(&error);
 
 	bus = dbus_bus_get(DBUS_BUS_SYSTEM, &error);
-	ret &= usbauth_dbus_no_error_check(&error);
+	ret &= no_error_check_dbus(&error);
 
 	dbus_bus_request_name(bus, "org.opensuse.usbauth", DBUS_NAME_FLAG_REPLACE_EXISTING, &error);
-	ret &= usbauth_dbus_no_error_check(&error);
+	ret &= no_error_check_dbus(&error);
 
 	dbus_bus_add_match(bus, "type='signal',interface='org.opensuse.usbauth.Type'", &error);
-	ret &= usbauth_dbus_no_error_check(&error);
+	ret &= no_error_check_dbus(&error);
 
 	return ret;
 }
@@ -127,6 +127,18 @@ bool init_dbus() {
 void deinit_dbus() {
 	dbus_connection_unref(bus);
 	bus=NULL;
+}
+
+bool no_error_check_dbus(DBusError *error) {
+	bool ret = true;
+
+	if(dbus_error_is_set(error)) {
+		ret = false;
+		printf("error %s", error->message);
+		dbus_error_free(error);
+	}
+
+	return ret;
 }
 
 struct Dev* receive_dbus(bool *authorize) {
@@ -147,7 +159,7 @@ struct Dev* receive_dbus(bool *authorize) {
 		if (msg) { // get interface udev_device from message path and devnum
 			if (dbus_message_is_signal(msg, "org.opensuse.usbauth.Type", "usbauth_dbus")) {
 				dbus_message_get_args(msg, &error, DBUS_TYPE_INT32, &authorize_int, DBUS_TYPE_INT32, &devn_int, DBUS_TYPE_STRING, &path, DBUS_TYPE_INVALID);
-				usbauth_dbus_no_error_check(&error);
+				no_error_check_dbus(&error);
 				udevdev = udev_device_new_from_syspath(udev, path);
 				dbus_message_unref(msg);
 				msg = NULL;

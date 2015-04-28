@@ -58,6 +58,15 @@ bool init_dbus();
 void deinit_dbus();
 
 /**
+ * check dbus errors
+ *
+ * @error: dbus error structure
+ *
+ * Return: true if no error, false if error
+ */
+bool no_error_check_dbus(DBusError *error);
+
+/**
  * receive dbus message from USB firewall
  * will called when user clicked on allow or deny in notify pop up
  *
