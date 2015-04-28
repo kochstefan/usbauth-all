@@ -1,11 +1,25 @@
 /*
- ============================================================================
- Name        : usbauth_configparser.c
- Author      : Stefan Koch <skoch@suse.de>
- Version     : 1.0
- Copyright   : 2015 SUSE Linux GmbH
- Description : library for USB Firewall including flex/bison parser
- ============================================================================
+ * Copyright (c) 2015 SUSE LLC. All Rights Reserved.
+ * Author: Stefan Koch <skoch@suse.de>
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of version 2.1 of the GNU Lesser General
+ * Public License as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this program; if not, contact SUSE LLC.
+ *
+ * To contact SUSE about this file by physical or electronic mail,
+ * you may find current contact information at www.suse.com
+ */
+
+/*
+ * Description : library for USB Firewall including flex/bison parser
  */
 
 #include "generic.h"
@@ -15,7 +29,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <libudev.h>
-#include <dbus/dbus.h>
 
 #define CONFIG_FILE "/etc/usbauth.conf"
 
@@ -26,18 +39,6 @@ extern FILE *usbauth_yyin;
 
 const char* parameter_strings[] = {"INVALID", "busnum", "devpath", "idVendor", "idProduct", "bDeviceClass", "bDeviceSubClass", "bDeviceProtocol", "bConfigurationValue", "bInterfaceNumber", "bInterfaceClass", "bInterfaceSubClass", "bInterfaceProtocol", "devnum", "serial", "intfcount", "devcount", "PARAM_NUM_ITEMS"};
 const char* operator_strings[] = {"==", "!=", "<=", ">=", "<", ">", "OP_NUM_ITEMS"};
-
-bool usbauth_dbus_no_error_check(DBusError *error) {
-	bool ret = true;
-
-	if(dbus_error_is_set(error)) {
-		ret = false;
-		printf("error %s", error->message);
-		dbus_error_free(error);
-	}
-
-	return ret;
-}
 
 const char* usbauth_get_param_valStr(enum Parameter param, struct udev_device *udevdev) {
 	struct udev_device *parent = NULL;

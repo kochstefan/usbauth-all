@@ -1,11 +1,25 @@
 /*
- ============================================================================
- Name        : usbauth_configparser.h
- Author      : Stefan Koch <skoch@suse.de>
- Version     : 1.0
- Copyright   : 2015 SUSE Linux GmbH
- Description : library for USB Firewall including flex/bison parser
- ============================================================================
+ * Copyright (c) 2015 SUSE LLC. All Rights Reserved.
+ * Author: Stefan Koch <skoch@suse.de>
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of version 2.1 of the GNU Lesser General
+ * Public License as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this program; if not, contact SUSE LLC.
+ *
+ * To contact SUSE about this file by physical or electronic mail,
+ * you may find current contact information at www.suse.com
+ */
+
+/*
+ * Description : library for USB Firewall including flex/bison parser
  */
 
 #ifndef USBAUTH_CONFIGPARSER_H_
@@ -14,16 +28,6 @@
 #include <usbauth/generic.h>
 
 struct udev_device;
-typedef struct DBusError DBusError;
-
-/**
- * check dbus errors
- *
- * @error: dbus error structure
- *
- * Return: true if no error, false if error
- */
-bool usbauth_dbus_no_error_check(DBusError *error);
 
 /**
  * get a sysfs usb device parameter as string
