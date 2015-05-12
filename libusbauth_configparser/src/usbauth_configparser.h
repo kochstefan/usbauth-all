@@ -19,13 +19,13 @@
  */
 
 /*
- * Description : library for USB Firewall including flex/bison parser
+ * Description : Library for USB Firewall including flex/bison parser
  */
 
 #ifndef USBAUTH_CONFIGPARSER_H_
 #define USBAUTH_CONFIGPARSER_H_
 
-#include <usbauth/generic.h>
+#include "generic.h"
 
 struct udev_device;
 
@@ -142,11 +142,15 @@ void usbauth_allocate_and_copy(struct Auth** destination, const struct Auth* sou
 
 /**
  * free allocated memory of auth structures
+ *
+ * Return: 0 at success, -1 at failure
  */
 int usbauth_config_free();
 
 /**
  * parse the config file with flex/bison parser
+ *
+ * Return: 0 at success, -1 at failure
  */
 int usbauth_config_read();
 
@@ -168,6 +172,7 @@ void usbauth_config_free_auths(struct Auth* auths, unsigned length);
  * get parsed rules
  *
  * note: call usbauth_config_read() before to parse config file
+ * otherwise the pointer is NULL and the length 0
  *
  * @auths: pointer of pointer to save rules array pointer in it (out)
  * @length: pointer of unsigned value to save array length in it (out)

@@ -20,23 +20,30 @@
 
 %option prefix="usbauth_yy"
 
-%{
-#include "usbauth_lang.tab.h"
-
-%}
-
+%option noinput
+%option nounput
 %option noyywrap
 
+%{
+#include "usbauth_lang.tab.h"
+%}
+
+%start COMMENT VAL
+
 %%
-"allow" {return allow;}
-"deny" {return deny;}
-"condition" {return condition;}
-"all" {return all;}
-"case" {return case_;}
-"anyChild" {return anyChild;}
-[a-zA-Z0-9"."]+ {return name;}
-("=="|"!="|"<="|">="|"<"|">") {return op;}
-"\n" {return nl;}
-<<EOF>> {static unsigned cnt = 0; return cnt++ ? 0 : nl;}
-["#"][^\n]* {return comment;}
+<COMMENT>.* {BEGIN 0; return t_comment;}
+<VAL>[^\n \t]+ {BEGIN 0; return t_val;}
+
+[ \t] {;}
+"#" {BEGIN COMMENT;}
+"allow" {return t_allow;}
+"deny" {return t_deny;}
+"condition" {return t_condition;}
+"all" {return t_all;}
+"case" {return t_case;}
+"anyChild" {return t_anyChild;}
+[a-zA-Z0-9]+ {return t_name;}
+("=="|"!="|"<="|">="|"<"|">") {BEGIN VAL; return t_op;}
+"\n" {return t_nl;}
+<<EOF>> {static unsigned cnt = 0; return cnt++ ? 0 : t_nl;}
 %%

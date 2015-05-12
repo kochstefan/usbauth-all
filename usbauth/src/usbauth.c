@@ -19,16 +19,17 @@
  */
 
 /*
- * Description : USB Firewall against BadUSB attacks
+ * Description : USB firewall against BadUSB attacks
  */
+
+#include "usbauth.h"
+
+#include <usbauth/usbauth_configparser.h>
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <inttypes.h>
-
-#include "usbauth/usbauth_configparser.h"
-#include "usbauth.h"
 
 #define LOG_FILE "/var/log/usbauth.log"
 
@@ -224,11 +225,11 @@ void send_dbus(struct udev_device *udevdev, int32_t authorize, int32_t devn) {
 	const char *path = udev_device_get_syspath(udevdev);
 
 	dbus_error_init(&error);
-	dbus_bus_request_name(bus, "org.opensuse.usbauth.source", DBUS_NAME_FLAG_REPLACE_EXISTING, &error);
+	dbus_bus_request_name(bus, "org.opensuse.usbauth", DBUS_NAME_FLAG_REPLACE_EXISTING, &error);
 
 	no_error_check_dbus(&error);
 
-	msg = dbus_message_new_signal("/usbauth/signal/Object", "org.opensuse.usbauth.Type", "usbauth_dbus");
+	msg = dbus_message_new_signal("/usbauth/signal/Object", "org.opensuse.usbauth.Message", "usbauth");
 
 	if(!msg || !path)
 		return;
@@ -247,8 +248,9 @@ void authorize_interface(struct udev_device *interface, bool authorize, bool dbu
 	int32_t devn = usbauth_get_param_val(devnum, interface);
 	bool value = authorize ? true : false;
 	char valueStr[16];
+	struct udev_device *parent = udev_device_get_parent(interface);
 
-	if (!path || !type || strcmp(type, "usb_interface") != 0)
+	if (!path || !parent || !type || strcmp(type, "usb_interface") != 0)
 		return;
 
 	fprintf(logfile, "USB Interface with class %02x\n", cl);
@@ -256,7 +258,7 @@ void authorize_interface(struct udev_device *interface, bool authorize, bool dbu
 	strcpy(valueStr, "");
 	snprintf(valueStr, 16, "%" SCNu8, value);
 
-	udev_device_set_sysattr_value(interface, "interface_authorized", valueStr);
+	udev_device_set_sysattr_value(parent, "interface_authorized", valueStr);
 
 	fprintf(logfile, "/sys%s/interface_authorized %" SCNu8 "\n", path, value);
 
@@ -638,16 +640,44 @@ int main(int argc, char **argv) {
 	} else if(strcmp(argv[1], "init") == 0) { // called manually with init parameter
 		perform_rules_devices(auths, length);
 	} else if (argc > 2 && (strcmp(argv[1], "allow") == 0 || strcmp(argv[1], "deny") == 0)) { // called by notifier
-		struct udev_device *udevdev = udev_device_new_from_syspath(udev, argv[3]);
-		int devn = usbauth_get_param_val(devnum, udevdev);
-		int devnpar = strtol(argv[2], NULL, 16);
+		struct udev_device *interface = udev_device_new_from_syspath(udev, argv[3]);
+		int devn_argv = strtol(argv[2], NULL, 16);
+		int devn_sysfs = -1;
+		const char *type = NULL;
 
-		fprintf(logfile, "devn%i %i\n", devn, devnpar);
+		if(interface) {
+			devn_sysfs = usbauth_get_param_val(devnum, interface);
+			type = udev_device_get_devtype(interface);
+		}
 
-		if(udevdev && devn == devnpar) {
+		fprintf(logfile, "devn_sysfs%i %i\n", devn_sysfs, devn_argv);
+
+		// devnr from parameter list must be the same as from sysfs to ensure the correct device
+		if(type && strcmp(type, "usb_interface") == 0 && devn_sysfs == devn_argv) {
+			struct udev_device *parent = udev_device_get_parent(interface);
+			int iNr = usbauth_get_param_val(bInterfaceNumber, interface);
 			bool allw = strcmp(argv[1], "allow") == 0 ? true : false;
-			authorize_interface(udevdev, allw, false);
-			udev_device_unref(udevdev);
+			const char* maskStr = udev_device_get_sysattr_value(interface, "interface_authorization_mask");
+			int val = -1;
+
+			if(maskStr)
+				val = strtol(maskStr, NULL, 16);
+
+			if (parent && iNr >= 0) {
+				uint32_t mask = 0;
+				if(val >= 0)
+					mask = val;
+
+				if (allw)
+					mask |= (1 << iNr);
+				else
+					mask &= ~(1 << iNr);
+
+				printf("mask %x\n", mask);
+
+				authorize_mask(parent, mask, false);
+			}
+			udev_device_unref(interface);
 		}
 	}
 

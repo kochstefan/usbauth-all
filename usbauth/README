@@ -1,0 +1,16 @@
+usbauth: USB firewall against BadUSB attacks
+
+It is a firewall against BadUSB attacks. A config file descibes in which way devices would be accepted.
+
+udev mode, called by udev
+usbauth
+
+manual mode, called by notifier
+usbauth allow DEVNUM PATH
+usbauth deny DEVNUM PATH
+PATH: path of USB interface, example /sys/bus/usb/devices/3-2/3-2:1.0/
+DEVNUM: value of attribute, example 16 (from /sys/bus/usb/devices/3-2/devnum)
+
+init mode, does apply rules for all available devices
+usbauth init
+

@@ -19,12 +19,13 @@
  */
 
 /*
- * Description : library for USB Firewall including flex/bison parser
+ * Description : Library for USB Firewall including flex/bison parser
  */
 
 #include "generic.h"
 #include "usbauth_configparser.h"
-#include "usbauth_lang.tab.h"
+#include "usbauth_syn.tab.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -32,18 +33,22 @@
 
 #define CONFIG_FILE "/etc/usbauth.conf"
 
-uint8_t gen_length;
+unsigned gen_length;
 struct Auth *gen_auths;
 
 extern FILE *usbauth_yyin;
 
-const char* parameter_strings[] = {"INVALID", "busnum", "devpath", "idVendor", "idProduct", "bDeviceClass", "bDeviceSubClass", "bDeviceProtocol", "bConfigurationValue", "bInterfaceNumber", "bInterfaceClass", "bInterfaceSubClass", "bInterfaceProtocol", "devnum", "serial", "intfcount", "devcount", "PARAM_NUM_ITEMS"};
+const char* parameter_strings[] = {"INVALID", "busnum", "devpath", "idVendor", "idProduct", "bDeviceClass", "bDeviceSubClass", "bDeviceProtocol", "bConfigurationValue", "bNumInterfaces", "bInterfaceNumber", "bInterfaceClass", "bInterfaceSubClass", "bInterfaceProtocol", "bNumEndpoints", "bcdDevice", "speed", "devnum", "serial", "manufacturer", "product", "connectType", "intfcount", "devcount", "PARAM_NUM_ITEMS"};
 const char* operator_strings[] = {"==", "!=", "<=", ">=", "<", ">", "OP_NUM_ITEMS"};
 
 const char* usbauth_get_param_valStr(enum Parameter param, struct udev_device *udevdev) {
 	struct udev_device *parent = NULL;
 	const char* paramStr = usbauth_param_to_str(param);
 	const char* valStr = NULL;
+
+	// connectType is in a subdir
+	if(connectType == param)
+		paramStr = "port/connect_type";
 
 	if(udevdev)
 		valStr = udev_device_get_sysattr_value(udevdev, paramStr);
@@ -171,8 +176,10 @@ const char* usbauth_auth_to_str(const struct Auth *auth) {
 	if ((auth->type == ALLOW || auth->type == DENY) && auth->attr_len == 0)
 		strncat(str, "all", str_len);
 
-	if(auth->comment)
+	if(auth->comment) {
+		strncat(str, "#", str_len);
 		strncat(str, auth->comment, str_len);
+	}
 
 	return str;
 }
@@ -233,7 +240,7 @@ int usbauth_config_read() {
 }
 
 int usbauth_config_write() {
-	FILE* fout = fopen(CONFIG_FILE "1", "w");
+	FILE* fout = fopen(CONFIG_FILE, "w");
 
 	if(!fout)
 		return -1;

@@ -31,7 +31,7 @@
 #include <stdbool.h>
 
 enum Parameter {
-	INVALID, busnum, devpath, idVendor, idProduct, bDeviceClass, bDeviceSubClass, bDeviceProtocol, bConfigurationValue, bInterfaceNumber, bInterfaceClass, bInterfaceSubClass, bInterfaceProtocol, devnum, serial, intfcount, devcount, PARAM_NUM_ITEMS
+	INVALID, busnum, devpath, idVendor, idProduct, bDeviceClass, bDeviceSubClass, bDeviceProtocol, bConfigurationValue, bNumInterfaces, bInterfaceNumber, bInterfaceClass, bInterfaceSubClass, bInterfaceProtocol, bNumEndpoints, bcdDevice, speed, devnum, serial, manufacturer, product, connectType, intfcount, devcount, PARAM_NUM_ITEMS
 };
 
 enum Operator { eq, neq, lt, gt, l, g, OP_NUM_ITEMS };

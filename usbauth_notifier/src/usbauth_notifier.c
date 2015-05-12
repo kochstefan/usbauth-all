@@ -19,7 +19,7 @@
  */
 
 /*
- * Description : notifier for USB Firewall to use with desktop environments
+ * Description : Notifier for USB Firewall to use with desktop environments
  */
 
 #include <inttypes.h>
@@ -34,6 +34,8 @@
 #include <usbauth/usbauth_configparser.h>
 
 #include "usbauth_notifier.h"
+
+#define NPRIV_PATH "/usr/bin/usbauth_npriv"
 
 static bool work = true;
 static struct udev *udev = NULL;
@@ -115,10 +117,10 @@ bool init_dbus() {
 	bus = dbus_bus_get(DBUS_BUS_SYSTEM, &error);
 	ret &= no_error_check_dbus(&error);
 
-	dbus_bus_request_name(bus, "org.opensuse.usbauth", DBUS_NAME_FLAG_REPLACE_EXISTING, &error);
+	dbus_bus_request_name(bus, "org.opensuse.usbauth.notifier", DBUS_NAME_FLAG_REPLACE_EXISTING, &error);
 	ret &= no_error_check_dbus(&error);
 
-	dbus_bus_add_match(bus, "type='signal',interface='org.opensuse.usbauth.Type'", &error);
+	dbus_bus_add_match(bus, "type='signal',interface='org.opensuse.usbauth.Message'", &error);
 	ret &= no_error_check_dbus(&error);
 
 	return ret;
@@ -157,7 +159,7 @@ struct Dev* receive_dbus(bool *authorize) {
 		dbus_connection_read_write(bus, 1);
 		msg = dbus_connection_pop_message(bus);
 		if (msg) { // get interface udev_device from message path and devnum
-			if (dbus_message_is_signal(msg, "org.opensuse.usbauth.Type", "usbauth_dbus")) {
+			if (dbus_message_is_signal(msg, "org.opensuse.usbauth.Message", "usbauth")) {
 				dbus_message_get_args(msg, &error, DBUS_TYPE_INT32, &authorize_int, DBUS_TYPE_INT32, &devn_int, DBUS_TYPE_STRING, &path, DBUS_TYPE_INVALID);
 				no_error_check_dbus(&error);
 				udevdev = udev_device_new_from_syspath(udev, path);
@@ -200,7 +202,7 @@ void notification_action_callback(NotifyNotification *callback, char* action, gp
 
 	printf("usbauth notifyid %u action %s\n", 1, authstr);
 
-	snprintf(cmd, sizeof(cmd), "pkexec usbauth %s %x %s", authstr, devn, udev_device_get_syspath(udevdev));
+	snprintf(cmd, sizeof(cmd), "%s %s %x %s", NPRIV_PATH, authstr, devn, udev_device_get_syspath(udevdev));
 	printf("%s\n", cmd);
 	system(cmd);
 	udev_device_unref(udevdev);

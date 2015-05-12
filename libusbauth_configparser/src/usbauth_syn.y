@@ -35,7 +35,7 @@ void allocate_copy_yytext(char **dest);
 extern char* usbauth_yytext;
 
 extern struct Auth *gen_auths;
-extern uint8_t gen_length;
+extern unsigned gen_length;
 
 static struct Data **data_array = NULL;
 static unsigned *data_array_length = NULL;
@@ -59,7 +59,7 @@ void allocate_copy_yytext(char **dest) {
 	(*dest)[len] = 0;
 }
 
-void process(uint8_t *counter, void **arr, bool data) {
+void process(unsigned *counter, void **arr, bool data) {
 	unsigned size;
 	
 	if(data)
@@ -83,25 +83,22 @@ void process(uint8_t *counter, void **arr, bool data) {
 
 %}
 
-%token allow deny condition all case_ anyChild name op nl eof comment 
+%token t_allow t_deny t_condition t_all t_case t_anyChild t_name t_op t_val t_nl t_eof t_comment 
 
 %%
 S: FILE { printf("file ok\n"); return 0;}
 FILE: LINE | FILE LINE
-NLA: nl | NLA nl
+NLA: t_nl | NLA t_nl
 LINE: { process(&gen_length, (void**)&gen_auths, false); } RULE NLA { gen_auths[gen_length].type = tmpType; gen_length++; tmpType = INVALID; printf("line ok\n");}
-RULE: COMMENT | GENERICC | AUTHC | CONDC
-ANYCHILDADD: EMPTY {anychild = false;} | anyChild {anychild = true;}
-DATA: ANYCHILDADD name {allocate_copy_yytext(&paramStr);} op {allocate_copy_yytext(&opStr);} name {allocate_copy_yytext(&valStr); process(data_array_length, (void**)data_array, true); usbauth_convert_str_to_data(data_ptr, paramStr, opStr, valStr); data_ptr->anyChild = anychild;}
-DATAm: DATA | DATAm DATA
-GENERICC: GENERIC COMMENTADD
-GENERIC: auth_keyword all
-AUTHC: AUTH COMMENTADD
-AUTH: auth_keyword { data_array_length = &(gen_auths[gen_length].attr_len); data_array = &(gen_auths[gen_length].attr_array);} DATAm
-CONDC: COND COMMENTADD
-COND: condition { tmpType = COND; data_array_length = &(gen_auths[gen_length].cond_len); data_array = &(gen_auths[gen_length].cond_array);} DATAm case_ { data_array_length = &(gen_auths[gen_length].attr_len); data_array = &(gen_auths[gen_length].attr_array);} DATAm
-COMMENT: comment { tmpType = COMMENT; allocate_copy_yytext((char**)&(gen_auths[gen_length].comment)); printf("c%s\n", (gen_auths[gen_length].comment));}
+RULE: COMMENT | GENERIC | AUTH | COND
+COMMENT: t_comment { tmpType = COMMENT; allocate_copy_yytext((char**)&(gen_auths[gen_length].comment)); printf("c%s\n", (gen_auths[gen_length].comment));}
+COMMENT_add: EMPTY | COMMENT
+GENERIC: AUTH_KEYWORD t_all COMMENT_add
+AUTH: AUTH_KEYWORD { data_array_length = &(gen_auths[gen_length].attr_len); data_array = &(gen_auths[gen_length].attr_array);} DATA_mult COMMENT_add
+AUTH_KEYWORD: t_allow {tmpType = ALLOW;} | t_deny {tmpType = DENY;}
+COND: t_condition { tmpType = COND; data_array_length = &(gen_auths[gen_length].cond_len); data_array = &(gen_auths[gen_length].cond_array);} DATA_mult t_case { data_array_length = &(gen_auths[gen_length].attr_len); data_array = &(gen_auths[gen_length].attr_array);} DATA_mult COMMENT_add
+DATA: ANYCHILD_add t_name {allocate_copy_yytext(&paramStr);} t_op {allocate_copy_yytext(&opStr);} t_val {allocate_copy_yytext(&valStr); process(data_array_length, (void**)data_array, true); usbauth_convert_str_to_data(data_ptr, paramStr, opStr, valStr); data_ptr->anyChild = anychild;}
+DATA_mult: DATA | DATA_mult DATA
+ANYCHILD_add: EMPTY {anychild = false;} | t_anyChild {anychild = true;}
 EMPTY: 
-COMMENTADD: EMPTY|COMMENT
-auth_keyword: allow {tmpType = ALLOW;} | deny {tmpType = DENY;}
 %%

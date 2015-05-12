@@ -19,7 +19,7 @@
  */
 
 /*
- * Description : notifier for USB Firewall to use with desktop environments
+ * Description : Notifier for USB Firewall to use with desktop environments
  */
 
 #ifndef USBAUTH_NOTIFIER_H_

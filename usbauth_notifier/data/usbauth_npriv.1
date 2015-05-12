@@ -1,0 +1,21 @@
+.TH USBAUTH 1
+.SH NAME
+usbauth_notifier \- Notifier for USB Firewall to use with desktop environments
+
+.SH SYNOPSIS
+.B usbauth_notifier
+
+.SH DESCRIPTION
+This programm is installed with SUID bit setted. The usbauth_notifier will call it to call usbauth firewall with superuser rights.
+.LP
+Example call:
+.br
+usbauth_npriv allow/deny DEVNUM PATH
+.LP
+This program calls then:
+.br
+/usr/sbin/usbauth allow/deny DEVNUM PATH
+.br
+but only if the caller is
+.br
+/usr/bin/usbauth_notifier

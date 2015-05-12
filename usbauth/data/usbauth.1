@@ -1,0 +1,30 @@
+.TH USBAUTH 1
+.SH NAME
+usbauth \- USB firewall against BadUSB attacks
+
+.SH SYNOPSIS
+udev mode, called by udev
+.br
+.B usbauth
+.LP
+manual mode, called by notifier
+.br
+.B usbauth
+allow DEVNUM PATH
+.br
+.B usbauth
+deny DEVNUM PATH
+.br
+.br
+PATH: path of USB interface, example /sys/bus/usb/devices/3-2/3-2:1.0/
+.br
+DEVNUM: value of attribute, example 16 (from /sys/bus/usb/devices/3-2/devnum)
+.LP
+init mode, does apply rules for all available devices
+.br
+.B usbauth init
+.LP
+
+.SH DESCRIPTION
+It is a firewall against BadUSB attacks. A config file descibes in which way devices would be accepted.
+

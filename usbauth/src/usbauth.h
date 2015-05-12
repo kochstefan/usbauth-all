@@ -19,7 +19,7 @@
  */
 
 /*
- * Description : USB Firewall against BadUSB attacks
+ * Description : USB firewall against BadUSB attacks
  */
 
 #ifndef USBAUTH_H_
