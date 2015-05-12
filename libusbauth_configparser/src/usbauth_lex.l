@@ -25,7 +25,7 @@
 %option noyywrap
 
 %{
-#include "usbauth_lang.tab.h"
+#include "usbauth_syn.tab.h"
 %}
 
 %start COMMENT VAL
