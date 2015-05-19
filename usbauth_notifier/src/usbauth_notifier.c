@@ -30,6 +30,8 @@
 #include <dbus/dbus.h>
 #include <pthread.h>
 #include <signal.h>
+#include <libintl.h>
+#include <locale.h>
 #include <usbauth/generic.h>
 #include <usbauth/usbauth_configparser.h>
 
@@ -51,51 +53,51 @@ const char* get_info_string(unsigned cl, unsigned subcl, unsigned iprot, bool re
 
 	switch(cl) {
 	case 0:
-		str = "PER_INTERFACE";
+		str = gettext("PER_INTERFACE");
 		icon = "dialog-information";
 		break;
 	case 1:
-		str = "AUDIO";
+		str = gettext("audio");
 		icon = "audio-card";
 		break;
 	case 2:
-		str = "COMM";
+		str = gettext("communication");
 		icon = "modem";
 		break;
 	case 3:
-		str = "HID";
+		str = gettext("HID");
 		icon = "input-keyboard";
 		if (subcl == 1 && iprot == 1) {
-			str = "KEYBOARD";
+			str = gettext("keyboard");
 			icon = "input-keyboard";
 		}
 		else if (subcl == 1 && iprot == 2) {
-			str = "MOUSE";
+			str = gettext("mouse");
 			icon = "input-mouse";
 		}
 		break;
 	case 5:
-		str = "PHYSICAL";
+		str = gettext("physical");
 		icon = "dialog-information";
 		break;
 	case 6:
-		str = "STILL_IMAGE";
+		str = gettext("image");
 		icon = "camera-photo";
 		break;
 	case 7:
-		str = "PRINTER";
+		str = gettext("printer");
 		icon = "printer";
 		break;
 	case 8:
-		str = "MASS_STORAGE";
+		str = gettext("mass storage");
 		icon = "drive-removable-media-usb";
 		break;
 	case 9:
-		str = "HUB";
+		str = gettext("hub");
 		icon = "dialog-information";
 		break;
 	default:
-		str = "UNKNOWN";
+		str = gettext("unknown");
 		icon = "dialog-information";
 		break;
 	}
@@ -165,11 +167,8 @@ struct Dev* receive_dbus(bool *authorize) {
 				udevdev = udev_device_new_from_syspath(udev, path);
 				dbus_message_unref(msg);
 				msg = NULL;
-				printf("test\n");
 				break;
 			}
-			else
-				printf("else\n");
 		}
 		usleep(100000);
 	}
@@ -220,10 +219,10 @@ void notification_create(const struct Dev* dev, bool authorize) {
 	unsigned iprot = 0;
 	unsigned vId = 0;
 	unsigned pId = 0;
-	unsigned busn = 0;
-	unsigned devp = 0;
-	unsigned conf = 0;
-	unsigned intf = 0;
+	const char *busn = 0;
+	const char *devp = 0;
+	const char *conf = 0;
+	const char *intf = 0;
 	const char *titleStr = "";
 	struct Dev *dev_heap = NULL;
 	NotifyNotification *notification = NULL;
@@ -237,26 +236,26 @@ void notification_create(const struct Dev* dev, bool authorize) {
 		cl = usbauth_get_param_val(bInterfaceClass, udevdev);
 		subcl = usbauth_get_param_val(bInterfaceSubClass, udevdev);
 		iprot = usbauth_get_param_val(bInterfaceProtocol, udevdev);
-		titleStr = "New %s interface";
+		titleStr = gettext("New <b>%s</b> USB interface");
 	}
 
 	// values from interfaces parent
 	vId = usbauth_get_param_val(idVendor, udevdev);
 	pId = usbauth_get_param_val(idProduct, udevdev);
-	busn = usbauth_get_param_val(busnum, udevdev);
-	devp = usbauth_get_param_val(devpath, udevdev);
-	conf = usbauth_get_param_val(bConfigurationValue, udevdev);
-	intf = usbauth_get_param_val(bInterfaceNumber, udevdev);
+	busn = usbauth_get_param_valStr(busnum, udevdev);
+	devp = usbauth_get_param_valStr(devpath, udevdev);
+	conf = usbauth_get_param_valStr(bConfigurationValue, udevdev);
+	intf = usbauth_get_param_valStr(bInterfaceNumber, udevdev);
 
 	snprintf(titleMsg, sizeof(titleMsg), titleStr, get_info_string(cl, subcl, iprot, false));
-	snprintf(detailedMsg, sizeof(detailedMsg), "Default rule: %s\nID %x:%x\nbusnum %u, devpath %u\nconfig %u, intf %u", authorize ? "ALLOW" : "DENY", vId, pId, busn, devp, conf, intf);
+	snprintf(detailedMsg, sizeof(detailedMsg), gettext("<b>%s:</b> %s<br/><b>%s:</b> %04x:%04x<br/><b>%s:</b> %s-%s:%s.%s"), gettext("Default rule"), authorize ? gettext("Allow") : gettext("Deny"), "ID", vId, pId, gettext("Name"), busn, devp, conf, intf);
 
 	// pointer of dev heap gets back at callback so stack would be then out of context
 	dev_heap->udevdev = udevdev;
 	dev_heap->devnum = devn;
 	notification = notify_notification_new(titleMsg, detailedMsg, get_info_string(cl, subcl, iprot, true));
-	notify_notification_add_action(notification, "act_allow", "allow", (NotifyActionCallback) notification_action_callback, dev_heap, NULL);
-	notify_notification_add_action(notification, "act_deny", "deny", (NotifyActionCallback) notification_action_callback, dev_heap, NULL);
+	notify_notification_add_action(notification, "act_allow", gettext("Allow"), (NotifyActionCallback) notification_action_callback, dev_heap, NULL);
+	notify_notification_add_action(notification, "act_deny", gettext("Deny"), (NotifyActionCallback) notification_action_callback, dev_heap, NULL);
 	notify_notification_show(notification, NULL);
 }
 
@@ -279,6 +278,9 @@ int main(int argc, char **argv) {
 	// set signal handler for SIGINT and SIGTERM, the handler sets work to false
 	signal(SIGINT, signal_handler);
 	signal(SIGTERM, signal_handler);
+
+	setlocale(LC_ALL, "");
+	textdomain("usbauth_notifier");
 
 	udev = udev_new();
 

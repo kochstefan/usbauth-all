@@ -31,11 +31,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/file.h>
 
 #define LOG_FILE "/var/log/usbauth.log"
 #define LOG2_FILE "/var/log/usbauth.log2"
 #define LOG3_FILE "/var/log/usbauth.log3"
-#define LOCK_FILE "/var/log/usbauth.lock"
+#define LOCK_FILE "/var/run/usbauth.pid"
 
 struct kernels {
 	uint8_t busnum;
@@ -209,64 +210,12 @@ bool match_vals_device(struct Auth *rule, struct Data *d, struct udev_device *de
 	return matches;
 }
 
-bool interface_processed(const char *path, bool udev, bool add) {
-	fprintf(logfile, "haha%s\n", path);
-	bool ret = false;
-	const char *basename = "";
-	const char *basename_new = "";
-	FILE *file = NULL;
-	FILE *filen = NULL;
-	char *line = NULL;
-	size_t len = 0;
-	size_t pathlen = strlen(path);
+bool device_processed(struct udev_device* dev) {
+	bool ret = 0;
+	const char *maskChStr = udev_device_get_sysattr_value(dev, "interface_authorization_mask_changed");
+	if (maskChStr)
+		ret = strtoul(maskChStr, NULL, 16) == 1 ? true : false;
 
-	while(access(LOCK_FILE, F_OK) == 0)
-		usleep(100000);
-
-	FILE *lockfile = fopen(LOCK_FILE, "w");
-	fclose(lockfile);
-
-	if(udev) {
-		basename = LOG2_FILE;
-		basename_new = LOG2_FILE ".new";
-	} else {
-		basename = LOG3_FILE;
-		basename_new = LOG3_FILE ".new";
-	}
-
-	file = fopen(basename, "a");
-	fclose(file);
-	file = fopen(basename, "r");
-	filen = fopen(basename_new, "w");
-
-	while(file && getline(&line, &len, file) != -1) {
-		len = strlen(line);
-		line[len-1] = 0; // overwrite newline
-		fprintf(logfile, "len%i\n", len);
-		len = pathlen < len ? pathlen : len;
-
-		fprintf(logfile, "scmp%s %s %i\n", line, path, len);
-		bool cmp = strncmp(line, path, len) ? false : true;
-		if(cmp) {
-			ret = true; // entry already found
-			fprintf(logfile, "scmpif%s %s %i\n", line, path, len);
-		}
-		if(add || (!add && !cmp)) {
-			fprintf(filen, "%s\n", line); // copy others entries
-			fprintf(logfile, "els%s\n", line);
-		}
-	}
-
-	if (add && !ret) {// if entry is not already in list
-		fprintf(filen, "%s\n", path);
-		fprintf(logfile, "if%s\n", path);
-	}
-	fclose(file);
-	fclose(filen);
-	remove(basename);
-	rename(basename_new, basename);
-	remove(LOCK_FILE);
-	fprintf(logfile, "notnot %u", ret);
 	return ret;
 }
 
@@ -388,7 +337,7 @@ void authorize_mask(struct udev_device *udevdev, uint32_t mask, bool dbus) {
 				if(dev_class == 9 && intf_class != 9) // dev class is HUB and intf class is not HUB
 					continue; // skip device childs from hubs, use only hub's interfaces
 
-				send_dbus(interface, mask | (1 << nr) ? true : false, devn);
+				send_dbus(interface, mask & (1 << nr) ? true : false, devn);
 			}
 
 			if (interface)
@@ -539,7 +488,6 @@ void match_auths_device_interfaces(struct Auth *rule_array, size_t array_len, st
 	uint32_t mask = 0;
 	const char *plugpath = NULL;
 	const char *maskStr = NULL;
-	bool cpret = false;
 
 	if(plug_usb_device)
 		plugpath = udev_device_get_syspath(plug_usb_device);
@@ -603,11 +551,6 @@ void match_auths_device_interfaces(struct Auth *rule_array, size_t array_len, st
 
 			fprintf(logfile, "path %s %s\n", path, type);
 
-			// now it's an correct interface (if plug is set it's only initialization)
-			if (!plug_usb_device) {
-				cpret |= interface_processed(path, true, true);
-			}
-
 			// do only if one rule has matched, so if there would no generic rule and no specific rule do nothing
 			if (r.match) {
 				if (r.allowed)
@@ -636,8 +579,7 @@ void match_auths_device_interfaces(struct Auth *rule_array, size_t array_len, st
 
 	// now it's the correct device (if plug is set it's only initialization)
 	// do not authorize interfaces and do not send dbus messages multiple times
-	fprintf(logfile, "cpret%u\n", cpret);
-	if (!plug_usb_device && !cpret) {
+	if (!plug_usb_device) {
 		fprintf(logfile, "plug%u\n", mask);
 		authorize_mask(usb_device, mask, true);
 	}
@@ -694,20 +636,16 @@ void perform_udev_env(struct Auth *auths, size_t length, bool add) {
 	if (plug_usb_device)
 		type = udev_device_get_devtype(plug_usb_device);
 
-	if (type && ((strcmp(type, "usb_interface") == 0 && add) || (strcmp(type, "usb_interface") == 0 && !add))) { // use only usb_device's
+	if (type && strcmp(type, "usb_interface") == 0) { // use only usb_device's
 		plugpath = udev_device_get_syspath(plug_usb_device);
 		fprintf(logfile, "pppath %s\n", plugpath);
 		struct udev_device *plg = NULL;
-		if (add) {
-			int r = interface_processed(plugpath, false, false);
-			fprintf(logfile, "rrrrppppll%i\n", r);
-			if (r) {
-				fprintf(logfile, "ppppll%i\n", r);
-				return;
-			}
-		}
 		if(add)
 		plug_usb_device = udev_device_get_parent(plug_usb_device); // set parent of interface (device)
+
+		if(device_processed(plug_usb_device))
+			return;
+
 		plugpath = udev_device_get_syspath(plug_usb_device);
 		plg = plug_usb_device; // save local pointer
 		fprintf(logfile, "%s\n", type);
@@ -715,9 +653,7 @@ void perform_udev_env(struct Auth *auths, size_t length, bool add) {
 			perform_rules_devices(auths, length, false); // plug device will excluded
 			plug_usb_device = NULL; // to work with excluded device
 			match_auths_device_interfaces(auths, length, plg); // check plugged (excluded before) device's interfaces now
-			//interface_processed(plugpath, false, false);
-		} else if (plugpath)
-			interface_processed(plugpath, true, add);
+		}
 	}
 }
 
@@ -741,8 +677,6 @@ void perform_notifier(const char* actionStr, const char* devnumStr, const char* 
 		bool allw = strcmp(actionStr, "allow") == 0 ? true : false;
 		const char* maskStr = udev_device_get_sysattr_value(interface, "interface_authorization_mask");
 		int val = -1;
-
-		interface_processed(path, false, true);
 
 		if(maskStr)
 			val = strtol(maskStr, NULL, 16);
@@ -768,10 +702,18 @@ void perform_notifier(const char* actionStr, const char* devnumStr, const char* 
 int main(int argc, char **argv) {
 	unsigned length = 0;
 	struct Auth *auths = NULL;
+	int pid_file = 0;
 	DBusError error;
 	dbus_error_init(&error);
 	bus = dbus_bus_get(DBUS_BUS_SYSTEM, &error);
 	no_error_check_dbus(&error);
+
+	// create pid file to avoid multiple usbauth processes
+	pid_file = open(LOCK_FILE, O_CREAT | O_RDWR);
+
+	// wait that a possible lock is away
+	while(flock(pid_file, LOCK_EX | LOCK_NB))
+		usleep(100000);
 
 	udev = udev_new();
 	if(!udev)
@@ -788,12 +730,9 @@ int main(int argc, char **argv) {
 
 	if(!isRule(auths, length)) {
 		fprintf(logfile, "Config file not found or empty.\n");
-	} else if (argc <= 1) {
 	} else if(argc <= 2) {
 		if(strcmp(argv[1], "udev-add") == 0) { // called by udev
 			perform_udev_env(auths, length, true);
-		} else if(strcmp(argv[1], "udev-remove") == 0) {
-			perform_udev_env(auths, length, false);
 		} else if(strcmp(argv[1], "init") == 0) { // called manually with init parameter
 			perform_rules_devices(auths, length, true);
 		}
@@ -807,6 +746,5 @@ int main(int argc, char **argv) {
 	udev_unref(udev);
 	udev = NULL;
 	usbauth_config_free_auths(auths, length);
-
 	return EXIT_SUCCESS;
 }

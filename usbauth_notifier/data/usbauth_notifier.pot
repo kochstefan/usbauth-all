@@ -1,0 +1,92 @@
+# usbauth_notifier language template
+# Copyright (C) 2015 SUSE LLC. All Rights Reserved.
+# This file is distributed under the same license as the usbauth_notifier package.
+# Stefan Koch <skoch@suse.de>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: usbauth_notifier VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-05-19 20:57+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Stefan Koch <skoch@suse.de>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: usbauth_notifier.c:56
+msgid "PER_INTERFACE"
+msgstr ""
+
+#: usbauth_notifier.c:60
+msgid "audio"
+msgstr ""
+
+#: usbauth_notifier.c:64
+msgid "communication"
+msgstr ""
+
+#: usbauth_notifier.c:68
+msgid "HID"
+msgstr ""
+
+#: usbauth_notifier.c:71
+msgid "keyboard"
+msgstr ""
+
+#: usbauth_notifier.c:75
+msgid "mouse"
+msgstr ""
+
+#: usbauth_notifier.c:80
+msgid "physical"
+msgstr ""
+
+#: usbauth_notifier.c:84
+msgid "image"
+msgstr ""
+
+#: usbauth_notifier.c:88
+msgid "printer"
+msgstr ""
+
+#: usbauth_notifier.c:92
+msgid "mass storage"
+msgstr ""
+
+#: usbauth_notifier.c:96
+msgid "hub"
+msgstr ""
+
+#: usbauth_notifier.c:100
+msgid "unknown"
+msgstr ""
+
+#: usbauth_notifier.c:242
+#, c-format
+msgid "New <b>%s</b> USB interface"
+msgstr ""
+
+#: usbauth_notifier.c:254
+#, c-format
+msgid "<b>%s:</b> %s<br/><b>%s:</b> %04x:%04x<br/><b>%s:</b> %s-%s:%s.%s"
+msgstr ""
+
+#: usbauth_notifier.c:254
+msgid "Default rule"
+msgstr ""
+
+#: usbauth_notifier.c:254 usbauth_notifier.c:260
+msgid "Allow"
+msgstr ""
+
+#: usbauth_notifier.c:254 usbauth_notifier.c:261
+msgid "Deny"
+msgstr ""
+
+#: usbauth_notifier.c:254
+msgid "Name"
+msgstr ""

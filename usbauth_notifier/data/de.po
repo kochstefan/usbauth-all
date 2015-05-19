@@ -1,0 +1,92 @@
+# usbauth_notifier language template
+# Copyright (C) 2015 SUSE LLC. All Rights Reserved.
+# This file is distributed under the same license as the usbauth_notifier package.
+# Stefan Koch <skoch@suse.de>, 2015.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: usbauth_notifier VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-05-19 20:57+0200\n"
+"PO-Revision-Date: 2015-05-19 21:01+0200\n"
+"Last-Translator:  <skoch@suse.de>\n"
+"Language-Team: German\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=ASCII\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: usbauth_notifier.c:56
+msgid "PER_INTERFACE"
+msgstr "interfacespezifisches"
+
+#: usbauth_notifier.c:60
+msgid "audio"
+msgstr "Audio"
+
+#: usbauth_notifier.c:64
+msgid "communication"
+msgstr "Kommunikations"
+
+#: usbauth_notifier.c:68
+msgid "HID"
+msgstr "HID"
+
+#: usbauth_notifier.c:71
+msgid "keyboard"
+msgstr "Tastatur"
+
+#: usbauth_notifier.c:75
+msgid "mouse"
+msgstr "Maus"
+
+#: usbauth_notifier.c:80
+msgid "physical"
+msgstr "physikalisches"
+
+#: usbauth_notifier.c:84
+msgid "image"
+msgstr "Bilder"
+
+#: usbauth_notifier.c:88
+msgid "printer"
+msgstr "Drucker"
+
+#: usbauth_notifier.c:92
+msgid "mass storage"
+msgstr "Massenspeicher"
+
+#: usbauth_notifier.c:96
+msgid "hub"
+msgstr "Hub"
+
+#: usbauth_notifier.c:100
+msgid "unknown"
+msgstr "unbekanntes"
+
+#: usbauth_notifier.c:242
+#, c-format
+msgid "New <b>%s</b> USB interface"
+msgstr "Neues <b>%s</b> USB Interface"
+
+#: usbauth_notifier.c:254
+#, c-format
+msgid "<b>%s:</b> %s<br/><b>%s:</b> %04x:%04x<br/><b>%s:</b> %s-%s:%s.%s"
+msgstr "<b>%s:</b> %s<br/><b>%s:</b> %04x:%04x<br/><b>%s:</b> %s-%s:%s.%s"
+
+#: usbauth_notifier.c:254
+msgid "Default rule"
+msgstr "Standardregel"
+
+#: usbauth_notifier.c:254 usbauth_notifier.c:260
+msgid "Allow"
+msgstr "Erlauben"
+
+#: usbauth_notifier.c:254 usbauth_notifier.c:261
+msgid "Deny"
+msgstr "Ablehnen"
+
+#: usbauth_notifier.c:254
+msgid "Name"
+msgstr "Name"

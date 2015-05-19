@@ -99,16 +99,13 @@ bool match_vals_interface(struct Auth *rule, struct Data *d, struct udev_device 
  */
 bool match_vals_device(struct Auth *rule, struct Data *d, struct udev_device *device);
 
-/* check if a interface path is already processed
+/* check if a device is already processed
  *
- * in add mode: keep all entries, do not add an entry multiple times
- * in remove mode: keep all entries except the one to remove
+ * @dev: udev device
  *
- * @add: true if add mode, false if remove mode
- *
- * Returns: true if path already processed, otherwise false
+ * Returns: true if device's mask was changed (so processed), otherwise false
  */
-bool interface_processed(const char *path, bool udev, bool add);
+bool device_processed(struct udev_device* dev);
 
 /**
  * check dbus errors
