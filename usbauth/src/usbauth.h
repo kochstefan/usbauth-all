@@ -99,6 +99,17 @@ bool match_vals_interface(struct Auth *rule, struct Data *d, struct udev_device 
  */
 bool match_vals_device(struct Auth *rule, struct Data *d, struct udev_device *device);
 
+/* check if a interface path is already processed
+ *
+ * in add mode: keep all entries, do not add an entry multiple times
+ * in remove mode: keep all entries except the one to remove
+ *
+ * @add: true if add mode, false if remove mode
+ *
+ * Returns: true if path already processed, otherwise false
+ */
+bool interface_processed(const char *path, bool udev, bool add);
+
 /**
  * check dbus errors
  *
@@ -189,7 +200,6 @@ struct auth_ret match_auths_interface(struct Auth *array, size_t array_length, s
  * @array: auth rules
  * @array_length: auth rules length
  * @usb_device: udev_device with type "usb_device"
- *
  */
 void match_auths_device_interfaces(struct Auth *array, size_t array_length, struct udev_device *usb_device);
 
@@ -198,8 +208,27 @@ void match_auths_device_interfaces(struct Auth *array, size_t array_length, stru
  *
  * @rule_array: auth rules
  * @array_length: auth rules length
+ * @add: true if udev-add mode, false if udev-remove mode
+ */
+void perform_rules_devices(struct Auth *array, size_t array_length, bool add);
+
+/**
+ * perform rules on udev environment
+ *
+ * @rule_array: auth rules
+ * @array_length: auth rules length
+ * @add: true if udev-add mode, false if udev-remove mode
+ */
+void perform_udev_env(struct Auth *auths, size_t length, bool add);
+
+/**
+ * perform notifier command
+ *
+ * @action: allow or deny
+ * @devnum: devnum of interface
+ * @path: path to interface
  *
  */
-void perform_rules_devices(struct Auth *array, size_t array_length);
+void perform_notifier(const char* action, const char* devnum, const char* path);
 
 #endif /* USBAUTH_H_ */

@@ -90,8 +90,8 @@ S: FILE { printf("file ok\n"); return 0;}
 FILE: LINE | FILE LINE
 NLA: t_nl | NLA t_nl
 LINE: { process(&gen_length, (void**)&gen_auths, false); } RULE NLA { gen_auths[gen_length].type = tmpType; gen_length++; tmpType = INVALID; printf("line ok\n");}
-RULE: COMMENT | GENERIC | AUTH | COND
-COMMENT: t_comment { tmpType = COMMENT; allocate_copy_yytext((char**)&(gen_auths[gen_length].comment)); printf("c%s\n", (gen_auths[gen_length].comment));}
+RULE: COMMENT {tmpType = COMMENT;} | GENERIC | AUTH | COND
+COMMENT: t_comment { allocate_copy_yytext((char**)&(gen_auths[gen_length].comment)); printf("c%s\n", (gen_auths[gen_length].comment));}
 COMMENT_add: EMPTY | COMMENT
 GENERIC: AUTH_KEYWORD t_all COMMENT_add
 AUTH: AUTH_KEYWORD { data_array_length = &(gen_auths[gen_length].attr_len); data_array = &(gen_auths[gen_length].attr_array);} DATA_mult COMMENT_add

@@ -62,6 +62,7 @@ struct Auth {
 struct match_ret {
 	bool match_attrs:1;
 	bool match_conds:1;
+	bool match_attrs_nocnts:1;
 };
 
 // used as return structure to check if rule/cond matches and the device should allowed or denied

@@ -146,18 +146,15 @@ const char* usbauth_auth_to_str(const struct Auth *auth) {
 	else if (auth->type == DENY)
 		strncat(str, "deny", str_len);
 
-	if (auth->type != COMMENT)
-		strcat(str, " ");
-
 	struct Data* cond_array = auth->cond_array;
 	if (auth->type == COND) {
 		int k;
 		for (k = 0; k < auth->cond_len; k++) {
+			strncat(str, " ", str_len);
 			strncat(str, parameter_strings[cond_array[k].param], str_len);
 			strncat(str, operator_strings[cond_array[k].op], str_len);
 			sprintf(v, "%s", cond_array[k].val);
 			strncat(str, v, str_len);
-			strncat(str, " ", str_len);
 		}
 
 		strncat(str, "case ", str_len);
@@ -165,18 +162,20 @@ const char* usbauth_auth_to_str(const struct Auth *auth) {
 	struct Data* attr_array = auth->attr_array;
 	int j;
 	for (j = 0; j < auth->attr_len; j++) {
+		strncat(str, " ", str_len);
 		strncat(str, attr_array[j].anyChild ? "anyChild " : "", str_len);
 		strncat(str, parameter_strings[attr_array[j].param], str_len);
 		strncat(str, operator_strings[attr_array[j].op], str_len);
 		sprintf(v, "%s", attr_array[j].val);
 		strncat(str, v, str_len);
-		strncat(str, " ", str_len);
 	}
 
 	if ((auth->type == ALLOW || auth->type == DENY) && auth->attr_len == 0)
-		strncat(str, "all", str_len);
+		strncat(str, " all", str_len);
 
 	if(auth->comment) {
+		if(auth->type != COMMENT)
+			strncat(str, " ", str_len);
 		strncat(str, "#", str_len);
 		strncat(str, auth->comment, str_len);
 	}

@@ -222,6 +222,8 @@ void notification_create(const struct Dev* dev, bool authorize) {
 	unsigned pId = 0;
 	unsigned busn = 0;
 	unsigned devp = 0;
+	unsigned conf = 0;
+	unsigned intf = 0;
 	const char *titleStr = "";
 	struct Dev *dev_heap = NULL;
 	NotifyNotification *notification = NULL;
@@ -243,9 +245,11 @@ void notification_create(const struct Dev* dev, bool authorize) {
 	pId = usbauth_get_param_val(idProduct, udevdev);
 	busn = usbauth_get_param_val(busnum, udevdev);
 	devp = usbauth_get_param_val(devpath, udevdev);
+	conf = usbauth_get_param_val(bConfigurationValue, udevdev);
+	intf = usbauth_get_param_val(bInterfaceNumber, udevdev);
 
 	snprintf(titleMsg, sizeof(titleMsg), titleStr, get_info_string(cl, subcl, iprot, false));
-	snprintf(detailedMsg, sizeof(detailedMsg), "Default rule: %s\nID %x:%x\nbusnum %u, devpath %u", authorize ? "ALLOW" : "DENY", vId, pId, busn, devp);
+	snprintf(detailedMsg, sizeof(detailedMsg), "Default rule: %s\nID %x:%x\nbusnum %u, devpath %u\nconfig %u, intf %u", authorize ? "ALLOW" : "DENY", vId, pId, busn, devp, conf, intf);
 
 	// pointer of dev heap gets back at callback so stack would be then out of context
 	dev_heap->udevdev = udevdev;
