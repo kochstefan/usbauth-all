@@ -53,51 +53,99 @@ const char* get_info_string(unsigned cl, unsigned subcl, unsigned iprot, bool re
 
 	switch(cl) {
 	case 0:
-		str = gettext("PER_INTERFACE");
+		str = gettext("Per Interface");
 		icon = "dialog-information";
 		break;
 	case 1:
-		str = gettext("audio");
+		str = gettext("Audio");
 		icon = "audio-card";
 		break;
 	case 2:
-		str = gettext("communication");
+		str = gettext("Communication");
 		icon = "modem";
 		break;
 	case 3:
 		str = gettext("HID");
 		icon = "input-keyboard";
 		if (subcl == 1 && iprot == 1) {
-			str = gettext("keyboard");
+			str = gettext("Keyboard");
 			icon = "input-keyboard";
 		}
 		else if (subcl == 1 && iprot == 2) {
-			str = gettext("mouse");
+			str = gettext("Mouse");
 			icon = "input-mouse";
 		}
 		break;
 	case 5:
-		str = gettext("physical");
+		str = gettext("Physical");
 		icon = "dialog-information";
 		break;
 	case 6:
-		str = gettext("image");
+		str = gettext("Image");
 		icon = "camera-photo";
 		break;
 	case 7:
-		str = gettext("printer");
+		str = gettext("Printer");
 		icon = "printer";
 		break;
 	case 8:
-		str = gettext("mass storage");
+		str = gettext("Mass Storage");
 		icon = "drive-removable-media-usb";
 		break;
 	case 9:
-		str = gettext("hub");
+		str = gettext("Hub");
+		icon = "dialog-information";
+		break;
+	case 0x0a:
+		str = gettext("CDC data");
+		icon = "modem";
+		break;
+	case 0x0b:
+		str = gettext("Smart Card");
+		icon = "secure-card";
+		break;
+	case 0x0d:
+		str = gettext("Content Security");
+		icon = "dialog-information";
+		break;
+	case 0x0e:
+		str = gettext("Video");
+		icon = "camera-video";
+		break;
+	case 0x0f:
+		str = gettext("Personal Healthcare");
+		icon = "dialog-information";
+		break;
+	case 0x10:
+		str = gettext("AV");
+		icon = "camera-video";
+		break;
+	case 0x11:
+		str = gettext("Billboard");
+		icon = "dialog-information";
+		break;
+	case 0xdc:
+		str = gettext("Diagnostic Device");
+		icon = "dialog-information";
+		break;
+	case 0xe0:
+		str = gettext("Wireless Controller");
+		icon = "network-wireless";
+		break;
+	case 0xef:
+		str = gettext("Miscellaneous");
+		icon = "dialog-information";
+		break;
+	case 0xfe:
+		str = gettext("Application Specific");
+		icon = "dialog-information";
+		break;
+	case 0xff:
+		str = gettext("Vendor Specific");
 		icon = "dialog-information";
 		break;
 	default:
-		str = gettext("unknown");
+		str = gettext("Unknown");
 		icon = "dialog-information";
 		break;
 	}
@@ -236,7 +284,7 @@ void notification_create(const struct Dev* dev, bool authorize) {
 		cl = usbauth_get_param_val(bInterfaceClass, udevdev);
 		subcl = usbauth_get_param_val(bInterfaceSubClass, udevdev);
 		iprot = usbauth_get_param_val(bInterfaceProtocol, udevdev);
-		titleStr = gettext("New <b>%s</b> USB interface");
+		titleStr = gettext("<b>New USB interface</b>");
 	}
 
 	// values from interfaces parent
@@ -247,8 +295,8 @@ void notification_create(const struct Dev* dev, bool authorize) {
 	conf = usbauth_get_param_valStr(bConfigurationValue, udevdev);
 	intf = usbauth_get_param_valStr(bInterfaceNumber, udevdev);
 
-	snprintf(titleMsg, sizeof(titleMsg), titleStr, get_info_string(cl, subcl, iprot, false));
-	snprintf(detailedMsg, sizeof(detailedMsg), gettext("<b>%s:</b> %s<br/><b>%s:</b> %04x:%04x<br/><b>%s:</b> %s-%s:%s.%s"), gettext("Default rule"), authorize ? gettext("Allow") : gettext("Deny"), "ID", vId, pId, gettext("Name"), busn, devp, conf, intf);
+	snprintf(titleMsg, sizeof(titleMsg), titleStr);
+	snprintf(detailedMsg, sizeof(detailedMsg), "<b>%s:</b> %s<br/><b>%s:</b> %s<br/><b>%s:</b> %04x:%04x<br/><b>%s:</b> %s-%s:%s.%s", gettext("Default"), authorize ? gettext("Allow") : gettext("Deny"), gettext("Type"), get_info_string(cl, subcl, iprot, false), "ID", vId, pId, gettext("Name"), busn, devp, conf, intf);
 
 	// pointer of dev heap gets back at callback so stack would be then out of context
 	dev_heap->udevdev = udevdev;

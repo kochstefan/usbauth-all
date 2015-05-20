@@ -730,6 +730,8 @@ int main(int argc, char **argv) {
 
 	if(!isRule(auths, length)) {
 		fprintf(logfile, "Config file not found or empty.\n");
+	} else if(argc <= 1) {
+		printf("read manpage how to call usbauth\n");
 	} else if(argc <= 2) {
 		if(strcmp(argv[1], "udev-add") == 0) { // called by udev
 			perform_udev_env(auths, length, true);

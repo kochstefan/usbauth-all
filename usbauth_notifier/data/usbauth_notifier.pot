@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: usbauth_notifier VERSION\n"
+"Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-05-19 20:57+0200\n"
+"POT-Creation-Date: 2015-05-20 19:20+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Stefan Koch <skoch@suse.de>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,15 +18,15 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #: usbauth_notifier.c:56
-msgid "PER_INTERFACE"
+msgid "Per Interface"
 msgstr ""
 
 #: usbauth_notifier.c:60
-msgid "audio"
+msgid "Audio"
 msgstr ""
 
 #: usbauth_notifier.c:64
-msgid "communication"
+msgid "Communication"
 msgstr ""
 
 #: usbauth_notifier.c:68
@@ -34,59 +34,105 @@ msgid "HID"
 msgstr ""
 
 #: usbauth_notifier.c:71
-msgid "keyboard"
+msgid "Keyboard"
 msgstr ""
 
 #: usbauth_notifier.c:75
-msgid "mouse"
+msgid "Mouse"
 msgstr ""
 
 #: usbauth_notifier.c:80
-msgid "physical"
+msgid "Physical"
 msgstr ""
 
 #: usbauth_notifier.c:84
-msgid "image"
+msgid "Image"
 msgstr ""
 
 #: usbauth_notifier.c:88
-msgid "printer"
+msgid "Printer"
 msgstr ""
 
 #: usbauth_notifier.c:92
-msgid "mass storage"
+msgid "Mass Storage"
 msgstr ""
 
 #: usbauth_notifier.c:96
-msgid "hub"
+msgid "Hub"
 msgstr ""
 
 #: usbauth_notifier.c:100
-msgid "unknown"
+msgid "CDC data"
 msgstr ""
 
-#: usbauth_notifier.c:242
-#, c-format
-msgid "New <b>%s</b> USB interface"
+#: usbauth_notifier.c:104
+msgid "Smart Card"
 msgstr ""
 
-#: usbauth_notifier.c:254
-#, c-format
-msgid "<b>%s:</b> %s<br/><b>%s:</b> %04x:%04x<br/><b>%s:</b> %s-%s:%s.%s"
+#: usbauth_notifier.c:108
+msgid "Content Security"
 msgstr ""
 
-#: usbauth_notifier.c:254
-msgid "Default rule"
+#: usbauth_notifier.c:112
+msgid "Video"
 msgstr ""
 
-#: usbauth_notifier.c:254 usbauth_notifier.c:260
+#: usbauth_notifier.c:116
+msgid "Personal Healthcare"
+msgstr ""
+
+#: usbauth_notifier.c:120
+msgid "AV"
+msgstr ""
+
+#: usbauth_notifier.c:124
+msgid "Billboard"
+msgstr ""
+
+#: usbauth_notifier.c:128
+msgid "Diagnostic Device"
+msgstr ""
+
+#: usbauth_notifier.c:132
+msgid "Wireless Controller"
+msgstr ""
+
+#: usbauth_notifier.c:136
+msgid "Miscellaneous"
+msgstr ""
+
+#: usbauth_notifier.c:140
+msgid "Application Specific"
+msgstr ""
+
+#: usbauth_notifier.c:144
+msgid "Vendor Specific"
+msgstr ""
+
+#: usbauth_notifier.c:148
+msgid "Unknown"
+msgstr ""
+
+#: usbauth_notifier.c:287
+msgid "<b>New USB interface</b>"
+msgstr ""
+
+#: usbauth_notifier.c:299
+msgid "Default"
+msgstr ""
+
+#: usbauth_notifier.c:299 usbauth_notifier.c:305
 msgid "Allow"
 msgstr ""
 
-#: usbauth_notifier.c:254 usbauth_notifier.c:261
+#: usbauth_notifier.c:299 usbauth_notifier.c:306
 msgid "Deny"
 msgstr ""
 
-#: usbauth_notifier.c:254
+#: usbauth_notifier.c:299
+msgid "Type"
+msgstr ""
+
+#: usbauth_notifier.c:299
 msgid "Name"
 msgstr ""

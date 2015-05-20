@@ -42,6 +42,7 @@ BuildRequires: dbus-1-devel
 BuildRequires: libnotify-devel
 BuildRequires: glib2-devel
 BuildRequires: pkg-config
+BuildRequires: gettext-runtime
 
 %description
 A notifier for the usbauth firewall against BadUSB attacks. The user could manually allow or deny USB devices.
@@ -61,7 +62,7 @@ mkdir -p %{buildroot}%_datadir/locale/de/LC_MESSAGES/
 cp Release/usbauth_notifier %{buildroot}%_bindir
 cp Release_npriv/usbauth_npriv %{buildroot}%_bindir
 cp data/usbauth_notifier.sh %{buildroot}%_sysconfdir/X11/xinit/xinitrc.d/
-mv data/usbauth_notifier.mo /usr/share/locale/de/LC_MESSAGES/
+msgfmt data/de.po -o %{buildroot}/usr/share/locale/de/LC_MESSAGES/usbauth_notifier.mo
 gzip -c data/usbauth_notifier.1 > %{buildroot}%_mandir/man1/usbauth_notifier.1.gz
 gzip -c data/usbauth_npriv.1 > %{buildroot}%_mandir/man1/usbauth_npriv.1.gz
 
@@ -72,9 +73,6 @@ gzip -c data/usbauth_npriv.1 > %{buildroot}%_mandir/man1/usbauth_npriv.1.gz
 %_sysconfdir/X11/xinit/
 %_sysconfdir/X11/xinit/xinitrc.d/
 %_sysconfdir/X11/xinit/xinitrc.d/usbauth_notifier.sh
-%_datadir/locale/
-%_datadir/locale/de/
-%_datadir/locale/de/LC_MESSAGES/
 %_datadir/locale/de/LC_MESSAGES/usbauth_notifier.mo
 
 %doc COPYING README

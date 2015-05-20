@@ -28,10 +28,7 @@ BuildRoot: %{tmppath}/%{name}-build
 Source0: %{name}.tar.bz2
 Source1: %{name}-rpmlintrc
 
-#Requires: libusbauth_configparser
-#Requires: libudev1
-#Requires: libdbus-1-3
-#Requires: dbus-1
+Requires: libusbauth_configparser
 Requires: udev
 Requires: systemd
 BuildRequires: libusbauth_configparser-devel

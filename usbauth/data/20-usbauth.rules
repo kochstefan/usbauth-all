@@ -1,2 +1,2 @@
-SUBSYSTEM=="usb", ACTION=="add", RUN+="/usr/sbin/usbauth"
+SUBSYSTEM=="usb", ACTION=="add", RUN+="/usr/sbin/usbauth udev-add"
 

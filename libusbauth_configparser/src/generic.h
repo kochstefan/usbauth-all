@@ -67,8 +67,8 @@ struct match_ret {
 
 // used as return structure to check if rule/cond matches and the device should allowed or denied
 struct auth_ret {
-	bool match;
-	bool allowed;
+	bool match:1;
+	bool allowed:1;
 };
 
 #endif /* GENERIC_H_ */
