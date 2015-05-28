@@ -106,8 +106,8 @@ bool match_vals(const char *lvalStr, enum Operator op, const char *rvalStr) {
 	bool ret = false;
 	char* lend = NULL;
 	char* rend = NULL;
-	int lval = strtoul(lvalStr, &lend, 16);
-	int rval = strtoul(rvalStr, &rend, 16);
+	int lval = strtol(lvalStr, &lend, 16);
+	int rval = strtol(rvalStr, &rend, 16);
 
 	if(lend && *lend != 0)
 		lval = -1;
@@ -136,11 +136,19 @@ bool match_vals_interface(struct Auth *rule, struct Data *d, struct udev_device 
 		return false;
 
 	if(intfcount == d->param) { // intfcount parameter is not in sysfs
-		int rval = strtoul(rvalStr, NULL, 16);
-		ret = match_valsInt(rule->intfcount + 1, d->op, rval);
+		char* rend = NULL;
+		int rval = strtol(rvalStr, &rend, 16);
+		if (rend && *rend != 0)
+			ret = false;
+		else
+			ret = match_valsInt(rule->intfcount + 1, d->op, rval);
 	} else if(devcount == d->param) { // devcount parameter is not in sysfs
-		int rval = strtoul(rvalStr, NULL, 16);
-		ret = match_valsInt(rule->devcount + 1, d->op, rval);
+		char* rend = NULL;
+		int rval = strtol(rvalStr, &rend, 16);
+		if (rend && *rend != 0)
+			ret = false;
+		else
+			ret = match_valsInt(rule->devcount + 1, d->op, rval);
 	} else {
 		lvalStr = usbauth_get_param_valStr(d->param, interface); // get parameter from sysfs
 		ret = match_vals(lvalStr, d->op, rvalStr);
@@ -659,7 +667,8 @@ void perform_udev_env(struct Auth *auths, size_t length, bool add) {
 
 void perform_notifier(const char* actionStr, const char* devnumStr, const char* path) {
 	struct udev_device *interface = udev_device_new_from_syspath(udev, path);
-	int devn_argv = strtol(devnumStr, NULL, 16);
+	char* end = NULL;
+	int devn_argv = strtol(devnumStr, &end, 16);
 	int devn_sysfs = -1;
 	const char *type = NULL;
 
@@ -668,6 +677,10 @@ void perform_notifier(const char* actionStr, const char* devnumStr, const char* 
 		type = udev_device_get_devtype(interface);
 	}
 
+	// at conversion error do nothing
+	if (end && *end != 0)
+		type = NULL;
+
 	fprintf(logfile, "devn_sysfs%i %i\n", devn_sysfs, devn_argv);
 
 	// devnr from parameter list must be the same as from sysfs to ensure the correct device
@@ -675,7 +688,7 @@ void perform_notifier(const char* actionStr, const char* devnumStr, const char* 
 		struct udev_device *parent = udev_device_get_parent(interface);
 		int iNr = usbauth_get_param_val(bInterfaceNumber, interface);
 		bool allw = strcmp(actionStr, "allow") == 0 ? true : false;
-		const char* maskStr = udev_device_get_sysattr_value(interface, "interface_authorization_mask");
+		const char* maskStr = udev_device_get_sysattr_value(parent, "interface_authorization_mask");
 		int val = -1;
 
 		if(maskStr)
@@ -712,8 +725,8 @@ int main(int argc, char **argv) {
 	pid_file = open(LOCK_FILE, O_CREAT | O_RDWR);
 
 	// wait that a possible lock is away
-	while(flock(pid_file, LOCK_EX | LOCK_NB))
-		usleep(100000);
+	//while(flock(pid_file, LOCK_EX | LOCK_NB))
+	//	usleep(100000);
 
 	udev = udev_new();
 	if(!udev)

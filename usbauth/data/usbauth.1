@@ -26,5 +26,225 @@ init mode, does apply rules for all available devices
 .LP
 
 .SH DESCRIPTION
-It is a firewall against BadUSB attacks. A config file descibes in which way devices would be accepted.
+It is a firewall against BadUSB attacks.
+.br
+A config file descibes in which way USB interfaces would be accepted or denied.
+.br
+To the kernel an interface authorization was developed with this firewall.
+.br
+The firewall sets the authorization mask according to the rules.
+.br
 
+.SH RULES
+
+.B Attribute
+.br
+[parameter operator value]
+.br
+An attribute consists of a parameter, an operator and a value.
+.LP
+
+.B The allow/deny rule
+.br
+allow|deny Attribute+
+.br
+A allow/deny rule have at minimum one attribute.
+.br
+That a allow/deny rule will enforced an USB interface must match all attributes
+.LP
+
+.B The condition
+.br
+condition Attribut+ case Attribut+
+.br
+The first section describes the condition that must fullfilled.
+.br
+The second section with the keyword case defines for what interfaces the condition should apply.
+
+.B There are default rules
+.br
+allow|deny all
+.br
+These rules for the generic case. If no other rule matches an interface.
+
+.LP
+Rules will checked top down. A rule at top could be overwritten by a rule at down.
+.LP
+
+.SH Parameters
+.br
+The following parameters are defined at device section
+.br
+.B busnum:
+number of the USB bus
+.br
+.B devpath:
+nummer of the USB port
+.br
+.B idVendor:
+vendor ID, defines the vendor of the USB device
+.br
+.B idProduct:
+product ID, defines the product from a vendor
+.br
+.B bDeviceClass:
+USB device class
+.br
+.B bDeviceSubClass:
+USB device sub class
+.br
+.B bDeviceProtocol:
+USB device protocol
+.br
+.B bConfigurationValue:
+current USB configuration
+.br
+.B serial:
+serial number of the device
+.br
+.B manufacturer:
+manufacturer of device
+.br
+.B product:
+product name string
+.br
+.B connect_type:
+hotplug: external USB device, direct: internal USB device
+.br
+.B bcdDevice:
+USB protocol version
+.br
+.B speed:
+USB speed value
+.br
+.B bNumConfigurations: the number of available USB configurations
+
+.LP
+
+The following parameters are defined at configuration section
+.br
+.br
+.B bNumInterfaces:
+Number of available interfaces in active configuration
+.br
+.B bInterfaceNumber:
+interface number
+.br
+.B bInterfaceClass:
+interface class
+.br
+.B bInterfaceSubClass:
+current sub class of interface
+.br
+.B bInterfaceProtocol:
+In case of HID devices with this value keyboards (1) and mouses (2) could be distinct
+.br
+.B bNumEndpoints:
+number of endpoints for the interface
+
+.LP
+
+The following parameters are specific and calculated internally by the firewall. They are not available in the SysFS.
+.br
+They count how much devices or interfaces matches an rule.
+.br
+.B intfcount:
+Number of interfaces for an rule
+.br
+.B devcount:
+Number of devices for an rule
+
+.LP
+
+The keyword
+.B anyChild
+could be used for a parameter to check not only the own interfaces attribute, also check the silbings attribute. If one silbing mathes the rule is valid.
+
+.LP
+
+.SH Operators
+.br
+The following operators are defined: ==, !=, <=, >=, <, >
+.br
+With operators two values are compared. One frome the data structure of a rule the other from an USB interface
+
+.LP
+
+.SH Values
+.br
+Values are strings in the data strucures of the firewall.
+.br
+At first a numeric compare is attempt. If failed a string comparement will used.
+
+.LP
+
+.SH Rule examples
+.br
+.B Default rule to allow everything:
+.br
+allow all
+.br
+
+.B Default rule to deny everything:
+.br
+deny all
+.br
+
+.B Every configuration file should allow hubs, only special cases should limit these:
+.br
+allow bDeviceClass==09 bInterfaceClass==09
+.br
+
+.B Interfaces with device class 0 and interface class 08 (storage) will accepted:
+.br
+allow bDeviceClass==00 bInterfaceClass==08
+.br
+allow bInterfaceClass==08
+.br
+-> the device class is irrelevant in this case
+.br
+
+.B Two USB storage devices will accepted at specific USB ports. Not more then one storage device is allowed during a condition:
+.br
+allow idVendor==0781 idProduct==5406 bInterfaceClass==08 busnum==3 devpath==6
+.br
+allow idVendor==8564 idProduct==1000 bInterfaceClass==08 busnum==3 devpath==4
+.br
+condition devcount<=1 case bInterfaceClass==08
+.br
+.br
+-> the condition is valid for all interfaces from class 08. Interfaces must comply with the condition for enforcing the two belonging allow rules.
+.br
+
+.B Allow two HID (example keyboard and mouse) devices at maximum
+.br
+allow bInterfaceClass==03 devcount<=2
+.br
+
+.B Allow only one Keyboard:
+.br
+allow bInterfaceClass==03 anyChild bInterfaceProtocol==01 devcount<=1
+.br
+
+.B Allow only one Mouse:
+.br
+allow bInterfaceClass==03 anyChild bInterfaceProtocol==02 devcount<=1
+.br
+.br
+→ The parent device childs of the interface would enumerated to check for the attribute. If one matches the attribute then the rule will enforced.
+.br
+
+.B Allow only certain interfaces:
+.br
+.B Example:
+A multi function device have three interfaces (0xFF, 0x07, 0x08).
+.br
+0xFF is to scan, 0x07 is to print, and 0x08 is for storage devices connected to the multi function device.
+.br
+With the following rules only the 0xFF and 0x07 interfaces are allowed. The device class must be 0.
+.br
+.br
+allow idVendor==04b8 idProduct==089e bDeviceClass==00 bInterfaceSubClass==ff
+.br
+allow idVendor==04b8 idProduct==089e bDeviceClass==00 bInterfaceSubClass==07
+.br

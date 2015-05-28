@@ -36,7 +36,6 @@
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.exe.debug.1220743536" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.debug">
 								<option id="gnu.c.link.option.libs.202831009" name="Libraries (-l)" superClass="gnu.c.link.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="udev"/>
-									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="fl"/>
 									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="dbus-1"/>
 									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="usbauth_configparser"/>
 								</option>
@@ -85,9 +84,15 @@
 							<tool id="cdt.managedbuild.tool.gnu.c.compiler.exe.release.1827381876" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.release">
 								<option defaultValue="gnu.c.optimization.level.most" id="gnu.c.compiler.exe.release.option.optimization.level.1617502006" name="Optimization Level" superClass="gnu.c.compiler.exe.release.option.optimization.level" valueType="enumerated"/>
 								<option id="gnu.c.compiler.exe.release.option.debugging.level.648655599" name="Debug Level" superClass="gnu.c.compiler.exe.release.option.debugging.level" value="gnu.c.debugging.level.none" valueType="enumerated"/>
+								<option id="gnu.c.compiler.option.misc.other.514993106" name="Other flags" superClass="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0 $(shell pkg-config --cflags libudev dbus-1)" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.276285280" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
-							<tool id="cdt.managedbuild.tool.gnu.c.linker.exe.release.1448544528" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.release">
+							<tool commandLinePattern="${COMMAND} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS} $(shell pkg-config --libs libudev dbus-1)" id="cdt.managedbuild.tool.gnu.c.linker.exe.release.1448544528" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.release">
+								<option id="gnu.c.link.option.libs.1843920792" name="Libraries (-l)" superClass="gnu.c.link.option.libs" valueType="libs">
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="usbauth_configparser"/>
+								</option>
+								<option id="gnu.c.link.option.other.685797867" name="Other options (-Xlinker [option])" superClass="gnu.c.link.option.other" valueType="stringList"/>
+								<option id="gnu.c.link.option.userobjs.1242441646" name="Other objects" superClass="gnu.c.link.option.userobjs" valueType="userObjs"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.linker.input.1479515321" superClass="cdt.managedbuild.tool.gnu.c.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
