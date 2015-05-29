@@ -126,16 +126,6 @@ bool no_error_check_dbus(DBusError *error);
 void send_dbus(struct udev_device *udevdev, int32_t authorize, int32_t devnum);
 
 /**
- * allow or deny an interface
- *
- * @udevdev: udev_device with type "usb_interface"
- * @authorize: true for allow, false for deny
- * @dbus: if true, notifications should be enabled
- *
- */
-void authorize_interface(struct udev_device *udevdev, bool authorize, bool dbus);
-
-/**
  * allow or deny a device per bitmask
  *
  * the bitmask is used for marking interfaces

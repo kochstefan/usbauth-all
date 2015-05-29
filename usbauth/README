@@ -29,12 +29,17 @@ allow|deny Attribute+
 A allow/deny rule have at minimum one attribute.
 That a allow/deny rule will enforced an USB interface must match all attributes
 
+Example:
+A rule describes all interfaces with the HID class 0x03.
 
 The condition
 condition Attribut+ case Attribut+
 
 The first section describes the condition that must fullfilled. The second section with the keyword case defines for what interfaces the condition should apply.
 
+Example:
+All rules that describes HID interfaces should apply for two devices at maximum.
+Then the device counter must be fullfilled. The second section describes the interface class 0x03.
 
 There are default rules
 allow|deny all
@@ -63,9 +68,9 @@ connect_type: hotplug: external USB device, direct: internal USB device
 bcdDevice: USB protocol version
 speed: USB speed value
 bNumConfigurations: the number of available USB configurations
+bNumInterfaces: Number of available interfaces in active configuration
 
 The following parameters are defined at configuration section
-bNumInterfaces: Number of available interfaces in active configuration
 bInterfaceNumber: interface number
 bInterfaceClass: interface class
 bInterfaceSubClass: current sub class of interface

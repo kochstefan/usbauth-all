@@ -261,31 +261,6 @@ void send_dbus(struct udev_device *udevdev, int32_t authorize, int32_t devn) {
 	dbus_message_unref(msg);
 }
 
-void authorize_interface(struct udev_device *interface, bool authorize, bool dbus) {
-	const char *path = udev_device_get_devpath(interface);
-	const char *type = udev_device_get_devtype(interface);
-	int cl = usbauth_get_param_val(bInterfaceClass, interface);
-	int32_t devn = usbauth_get_param_val(devnum, interface);
-	bool value = authorize ? true : false;
-	char valueStr[16];
-	struct udev_device *parent = udev_device_get_parent(interface);
-
-	if (!path || !parent || !type || strcmp(type, "usb_interface") != 0)
-		return;
-
-	fprintf(logfile, "USB Interface with class %02x\n", cl);
-
-	strcpy(valueStr, "");
-	snprintf(valueStr, 16, "%" SCNu8, value);
-
-	udev_device_set_sysattr_value(parent, "interface_authorized", valueStr);
-
-	fprintf(logfile, "/sys%s/interface_authorized %" SCNu8 "\n", path, value);
-
-	if (dbus)
-		send_dbus(interface, authorize, devn);
-}
-
 void authorize_mask(struct udev_device *udevdev, uint32_t mask, bool dbus) {
 	const char* path = udev_device_get_devpath(udevdev);
 	const char *type = udev_device_get_devtype(udevdev);
@@ -725,8 +700,8 @@ int main(int argc, char **argv) {
 	pid_file = open(LOCK_FILE, O_CREAT | O_RDWR);
 
 	// wait that a possible lock is away
-	//while(flock(pid_file, LOCK_EX | LOCK_NB))
-	//	usleep(100000);
+	while(flock(pid_file, LOCK_EX | LOCK_NB))
+		usleep(100000);
 
 	udev = udev_new();
 	if(!udev)

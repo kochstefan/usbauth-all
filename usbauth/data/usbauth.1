@@ -51,6 +51,10 @@ allow|deny Attribute+
 A allow/deny rule have at minimum one attribute.
 .br
 That a allow/deny rule will enforced an USB interface must match all attributes
+.br
+.br
+Example:
+A rule describes all interfaces with the HID class 0x03.
 .LP
 
 .B The condition
@@ -60,6 +64,14 @@ condition Attribut+ case Attribut+
 The first section describes the condition that must fullfilled.
 .br
 The second section with the keyword case defines for what interfaces the condition should apply.
+.br
+.br
+Example:
+.br
+All rules that describes HID interfaces should apply for two devices at maximum.
+.br
+Then the device counter must be fullfilled. The second section describes the interface class 0x03.
+.LP
 
 .B There are default rules
 .br
