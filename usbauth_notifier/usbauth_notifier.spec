@@ -17,7 +17,7 @@
 # you may find current contact information at www.suse.com
 
 Name: usbauth_notifier
-Version: 1.0
+Version: 0.8
 Release: 0
 Group: System/X11/Utilities
 License: GPL-2.0
@@ -27,14 +27,7 @@ Url: https://build.opensuse.org/package/show/home:skoch_suse/usbauth_notifier
 BuildRoot: %{tmppath}/%{name}-build
 Source0: %{name}.tar.bz2
 
-#Requires: libusbauth_configparser
-#Requires: libudev1
-#Requires: libdbus-1-3
-#Requires: libnotify4
-#Requires: libglib-2_0-0
-#Requires: libgobject-2_0-0
-#Requires: udev
-#Requires: dbus-1
+Requires: usbauth
 Requires: xinit
 BuildRequires: libusbauth_configparser-devel
 BuildRequires: libudev-devel

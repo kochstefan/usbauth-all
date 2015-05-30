@@ -129,6 +129,16 @@ bool usbauth_convert_str_to_data(struct Data *d, const char *paramStr, const cha
  */
 const char* usbauth_auth_to_str(const struct Auth *auth);
 
+/*
+ * subtracts a value from a base used for string lengths
+ *
+ * @bast: the base value
+ * @value: the value to subtract
+ *
+ * Returns: the subtraction from base - value, but not smaller than 0
+ */
+unsigned usbauth_sub_length(unsigned base, unsigned val);
+
 /**
  * copy auth rules from source to destination. Destination will allocated first.
  *

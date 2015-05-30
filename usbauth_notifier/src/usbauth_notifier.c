@@ -246,11 +246,7 @@ void notification_action_callback(NotifyNotification *callback, char* action, gp
 	}
 
 	devn = dev->devnum;
-
-	printf("usbauth notifyid %u action %s\n", 1, authstr);
-
 	snprintf(cmd, sizeof(cmd), "%s %s %x %s", NPRIV_PATH, authstr, devn, udev_device_get_syspath(udevdev));
-	printf("%s\n", cmd);
 	system(cmd);
 	udev_device_unref(udevdev);
 	free(dev);

@@ -17,7 +17,7 @@
 # you may find current contact information at www.suse.com
 
 Name: libusbauth_configparser
-Version: 1.0
+Version: 0.8
 Release: 0
 Group: System/Libraries
 License: LGPL-2.1
@@ -31,15 +31,24 @@ Source0: %{name}.tar.bz2
 BuildRequires: libudev-devel
 BuildRequires: bison
 BuildRequires: flex
+BuildRequires: pkg-config
 
 %description
 Library to read usbauth config file into data structures
+
+%package -n %{name}0
+Group: System/Libraries
+License: LGPL-2.1
+Summary: Library for USB Firewall including flex/bison parser
 
 %package devel
 Group: Development/Libraries
 License: LGPL-2.1
 Summary: Development part of library for USB Firewall including flex/bison parser
-Requires: libusbauth_configparser
+Requires: libusbauth_configparser0 = %{version}
+
+%description -n %{name}0
+Library to read usbauth config file into data structures
 
 %description devel
 Development part of library to read usbauth config file into data structures
@@ -54,14 +63,19 @@ make -C Release
 mkdir -p %{buildroot}%{_libdir}/
 mkdir -p %{buildroot}%{_includedir}/usbauth/
 mkdir -p %{buildroot}%_mandir/man3/
-cp Release/libusbauth_configparser.so %{buildroot}%{_libdir}/libusbauth_configparser.so
+mkdir -p %{buildroot}%{_libdir}/pkgconfig/
+cp Release/libusbauth_configparser.so %{buildroot}%{_libdir}/libusbauth_configparser.so.0.0
+ln -s %{_libdir}/libusbauth_configparser.so.0.0 %{buildroot}%{_libdir}/libusbauth_configparser.so.0
 cp src/generic.h %{buildroot}%{_includedir}/usbauth/
 cp src/usbauth_configparser.h %{buildroot}%{_includedir}/usbauth/
 gzip -c data/libusbauth_configparser.3 > %{buildroot}%_mandir/man3/libusbauth_configparser.3.gz
+cp data/libusbauth_configparser.pc %{buildroot}%{_libdir}/pkgconfig/
+ln -s %{_libdir}/libusbauth_configparser.so.0.0 %{buildroot}%{_libdir}/libusbauth_configparser.so
 
-%files
+%files -n %{name}0
 %defattr(-,root,root)
-%_libdir/libusbauth_configparser.so
+%_libdir/libusbauth_configparser.so.0.0
+%_libdir/libusbauth_configparser.so.0
 
 %doc COPYING README
 
@@ -70,14 +84,17 @@ gzip -c data/libusbauth_configparser.3 > %{buildroot}%_mandir/man3/libusbauth_co
 %_includedir/usbauth/
 %_includedir/usbauth/generic.h
 %_includedir/usbauth/usbauth_configparser.h
+%_libdir/libusbauth_configparser.so
+%_libdir/pkgconfig/
+%_libdir/pkgconfig/libusbauth_configparser.pc
 
 %doc COPYING README
 %doc %_mandir/man3/libusbauth_configparser.3.gz
 
-%post
+%post -n %{name}0
 %{run_ldconfig}
 
-%postun
+%postun -n %{name}0
 %{run_ldconfig}
 
 %changelog

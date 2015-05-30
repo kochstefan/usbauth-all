@@ -17,7 +17,7 @@
 # you may find current contact information at www.suse.com
 
 Name: usbauth
-Version: 1.0
+Version: 0.8
 Release: 0
 Group: System/Security
 License: GPL-2.0
@@ -28,7 +28,6 @@ BuildRoot: %{tmppath}/%{name}-build
 Source0: %{name}.tar.bz2
 Source1: %{name}-rpmlintrc
 
-Requires: libusbauth_configparser
 Requires: udev
 Requires: systemd
 BuildRequires: libusbauth_configparser-devel

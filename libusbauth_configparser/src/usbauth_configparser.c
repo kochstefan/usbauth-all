@@ -132,55 +132,63 @@ bool usbauth_convert_str_to_data(struct Data *d, const char *paramStr, const cha
 }
 
 const char* usbauth_auth_to_str(const struct Auth *auth) {
-	char v[16];
 	const unsigned str_len = 512;
-	char *str = calloc(str_len, sizeof(char));
+	char *str = calloc(str_len + 1, sizeof(char));
+	char *v = calloc(str_len + 1, sizeof(char));
 
 	strcpy(str, "");
 	strcpy(v, "");
 
 	if (auth->type == COND)
-		strncat(str, "condition", str_len);
+		strncat(str, "condition", usbauth_sub_length(str_len, strlen(str)));
 	else if (auth->type == ALLOW)
-		strncat(str, "allow", str_len);
+		strncat(str, "allow", usbauth_sub_length(str_len, strlen(str)));
 	else if (auth->type == DENY)
-		strncat(str, "deny", str_len);
+		strncat(str, "deny", usbauth_sub_length(str_len, strlen(str)));
 
 	struct Data* cond_array = auth->cond_array;
 	if (auth->type == COND) {
 		int k;
 		for (k = 0; k < auth->cond_len; k++) {
-			strncat(str, " ", str_len);
-			strncat(str, parameter_strings[cond_array[k].param], str_len);
-			strncat(str, operator_strings[cond_array[k].op], str_len);
-			sprintf(v, "%s", cond_array[k].val);
-			strncat(str, v, str_len);
+			strncat(str, " ", usbauth_sub_length(str_len, strlen(str)));
+			strncat(str, parameter_strings[cond_array[k].param], usbauth_sub_length(str_len, strlen(str)));
+			strncat(str, operator_strings[cond_array[k].op], usbauth_sub_length(str_len, strlen(str)));
+			snprintf(v, str_len, "%s", cond_array[k].val);
+			strncat(str, v, usbauth_sub_length(str_len, strlen(str)));
 		}
 
-		strncat(str, "case ", str_len);
+		strncat(str, "case ", usbauth_sub_length(str_len, strlen(str)));
 	}
+
 	struct Data* attr_array = auth->attr_array;
 	int j;
 	for (j = 0; j < auth->attr_len; j++) {
-		strncat(str, " ", str_len);
-		strncat(str, attr_array[j].anyChild ? "anyChild " : "", str_len);
-		strncat(str, parameter_strings[attr_array[j].param], str_len);
-		strncat(str, operator_strings[attr_array[j].op], str_len);
-		sprintf(v, "%s", attr_array[j].val);
-		strncat(str, v, str_len);
+		strncat(str, " ", usbauth_sub_length(str_len, strlen(str)));
+		strncat(str, attr_array[j].anyChild ? "anyChild " : "", usbauth_sub_length(str_len, strlen(str)));
+		strncat(str, parameter_strings[attr_array[j].param], usbauth_sub_length(str_len, strlen(str)));
+		strncat(str, operator_strings[attr_array[j].op], usbauth_sub_length(str_len, strlen(str)));
+		snprintf(v, str_len, "%s", attr_array[j].val);
+		strncat(str, v, usbauth_sub_length(str_len, strlen(str)));
 	}
 
 	if ((auth->type == ALLOW || auth->type == DENY) && auth->attr_len == 0)
-		strncat(str, " all", str_len);
+		strncat(str, " all", usbauth_sub_length(str_len, strlen(str)));
 
 	if(auth->comment) {
 		if(auth->type != COMMENT)
-			strncat(str, " ", str_len);
-		strncat(str, "#", str_len);
-		strncat(str, auth->comment, str_len);
+			strncat(str, " ", usbauth_sub_length(str_len, strlen(str)));
+		strncat(str, "#", usbauth_sub_length(str_len, strlen(str)));
+		strncat(str, auth->comment, usbauth_sub_length(str_len, strlen(str)));
 	}
 
 	return str;
+}
+
+unsigned usbauth_sub_length(unsigned base, unsigned val) {
+	if (base > val)
+		return base - val;
+	else
+		return 0;
 }
 
 void usbauth_allocate_and_copy(struct Auth** destination, const struct Auth* source, unsigned length) {
@@ -196,15 +204,13 @@ void usbauth_allocate_and_copy(struct Auth** destination, const struct Auth* sou
 		if (arr->attr_len)
 			arr->attr_array = calloc(arr->attr_len, sizeof(struct Data));
 		if (arr->attr_array)
-			memcpy(arr->attr_array, source->attr_array,
-					arr->attr_len * sizeof(struct Data));
+			memcpy(arr->attr_array, source->attr_array, arr->attr_len * sizeof(struct Data));
 
 		arr->cond_array = NULL;
 		if (arr->cond_len)
 			arr->cond_array = calloc(arr->cond_len, sizeof(struct Data));
 		if (arr->cond_array)
-			memcpy(arr->cond_array, source->cond_array,
-					arr->cond_len * sizeof(struct Data));
+			memcpy(arr->cond_array, source->cond_array, arr->cond_len * sizeof(struct Data));
 	}
 
 	*destination = arr;

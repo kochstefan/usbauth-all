@@ -25,6 +25,7 @@
 %option noyywrap
 
 %{
+#define YY_FATAL_ERROR(msg) fprintf(stderr, "%s\n", msg)
 #include "usbauth_syn.tab.h"
 %}
 
