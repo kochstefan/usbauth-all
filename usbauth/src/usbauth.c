@@ -34,25 +34,7 @@
 #include <sys/file.h>
 
 #define LOG_FILE "/var/log/usbauth.log"
-#define LOG2_FILE "/var/log/usbauth.log2"
-#define LOG3_FILE "/var/log/usbauth.log3"
 #define LOCK_FILE "/var/run/usbauth.pid"
-
-struct kernels {
-	uint8_t busnum;
-	uint8_t devpath;
-	uint8_t confignum;
-	uint8_t intfnum;
-};
-
-struct ser {
-	bool allowed;
-	uint8_t cl;
-	uint16_t vId;
-	uint16_t pId;
-	uint8_t busnum;
-	uint8_t devpath;
-};
 
 static FILE *logfile = NULL;
 
@@ -232,12 +214,12 @@ bool device_processed(struct udev_device* dev) {
 	return ret;
 }
 
-bool no_error_check_dbus(DBusError *error) {
-	bool ret = true;
+bool error_check_dbus(DBusError *error) {
+	bool ret = false;
 
 	if(dbus_error_is_set(error)) {
-		ret = false;
-		fprintf(logfile, "dbus_error %s\n", error->message);
+		ret = true;
+		fprintf(stderr, "dbus_error %s\n", error->message);
 		dbus_error_free(error);
 	}
 
@@ -247,21 +229,31 @@ bool no_error_check_dbus(DBusError *error) {
 void send_dbus(struct udev_device *udevdev, int32_t authorize, int32_t devn) {
 	DBusMessage *msg = NULL;
 	DBusError error;
+	bool dbusret = false;
 	const char *path = udev_device_get_syspath(udevdev);
+
+	if(!bus)
+		return;
 
 	dbus_error_init(&error);
 	dbus_bus_request_name(bus, "org.opensuse.usbauth", DBUS_NAME_FLAG_REPLACE_EXISTING, &error);
 
-	no_error_check_dbus(&error);
+	if(error_check_dbus(&error))
+		return;
 
 	msg = dbus_message_new_signal("/usbauth/signal/Object", "org.opensuse.usbauth.Message", "usbauth");
 
 	if(!msg || !path)
 		return;
 
-	dbus_message_append_args(msg, DBUS_TYPE_INT32, &authorize, DBUS_TYPE_INT32, &devn, DBUS_TYPE_STRING, &path, DBUS_TYPE_INVALID);
-	dbus_connection_send(bus, msg, NULL);
-	dbus_connection_flush(bus);
+	dbusret = dbus_message_append_args(msg, DBUS_TYPE_INT32, &authorize, DBUS_TYPE_INT32, &devn, DBUS_TYPE_STRING, &path, DBUS_TYPE_INVALID);
+
+	if(dbusret)
+		dbusret = dbus_connection_send(bus, msg, NULL);
+
+	if(dbusret)
+		dbus_connection_flush(bus);
+
 	dbus_message_unref(msg);
 
 	fprintf(logfile, "send_dbus %s\n", path);
@@ -690,27 +682,37 @@ void perform_notifier(const char* actionStr, const char* devnumStr, const char* 
 int main(int argc, char **argv) {
 	unsigned length = 0;
 	struct Auth *auths = NULL;
+	const int max_pid_cnt = 100;
+	int pid_cnt = 0;
 	int pid_file = 0;
 	DBusError error;
 	dbus_error_init(&error);
 	bus = dbus_bus_get(DBUS_BUS_SYSTEM, &error);
-	no_error_check_dbus(&error);
 
 	// create pid file to avoid multiple usbauth processes
 	pid_file = open(LOCK_FILE, O_CREAT | O_RDWR);
 
 	// wait that a possible lock is away
-	while(flock(pid_file, LOCK_EX | LOCK_NB))
+	// if pid_file can't accessed ignore lock
+	// if timeout ignore lock, too
+	while(pid_file >= 0 && pid_cnt++ < max_pid_cnt && flock(pid_file, LOCK_EX | LOCK_NB))
 		usleep(100000);
 
 	udev = udev_new();
-	if(!udev)
+	if(!udev) // udev is needed
 		return EXIT_FAILURE;
 
 	logfile = fopen(LOG_FILE, "a");
 
+	// use stderr if logfile cannot accessed
 	if(!logfile)
 		logfile = stderr;
+
+	// at dbus error disable it
+	if(error_check_dbus(&error) && bus) {
+		dbus_connection_unref(bus);
+		bus = NULL;
+	}
 
 	usbauth_config_read();
 
@@ -730,11 +732,14 @@ int main(int argc, char **argv) {
 		perform_notifier(argv[1], argv[2], argv[3]);
 	}
 
-	dbus_connection_unref(bus);
-	bus=NULL;
+	if (bus) {
+		dbus_connection_unref(bus);
+		bus = NULL;
+	}
 
 	udev_unref(udev);
 	udev = NULL;
 	usbauth_config_free_auths(auths, length);
+
 	return EXIT_SUCCESS;
 }

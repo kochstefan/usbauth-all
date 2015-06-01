@@ -157,7 +157,7 @@ const char* usbauth_auth_to_str(const struct Auth *auth) {
 			strncat(str, v, usbauth_sub_length(str_len, strlen(str)));
 		}
 
-		strncat(str, "case ", usbauth_sub_length(str_len, strlen(str)));
+		strncat(str, " case ", usbauth_sub_length(str_len, strlen(str)));
 	}
 
 	struct Data* attr_array = auth->attr_array;

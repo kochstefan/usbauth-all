@@ -112,9 +112,9 @@ bool device_processed(struct udev_device* dev);
  *
  * @error: dbus error structure
  *
- * Return: true if no error, false if error
+ * Return: true if error, false if no error
  */
-bool no_error_check_dbus(DBusError *error);
+bool error_check_dbus(DBusError *error);
 
 /**
  * send dbus message to notifier service for interface

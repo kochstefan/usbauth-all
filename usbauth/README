@@ -33,7 +33,7 @@ Example:
 A rule describes all interfaces with the HID class 0x03.
 
 The condition
-condition Attribut+ case Attribut+
+condition Attribute+ case Attribute+
 
 The first section describes the condition that must fullfilled. The second section with the keyword case defines for what interfaces the condition should apply.
 
