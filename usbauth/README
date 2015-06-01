@@ -129,12 +129,14 @@ Allow two HID (example keyboard and mouse) devices at maximum
 allow bInterfaceClass==03 devcount<=2
 
 Allow only one Keyboard:
-allow bInterfaceClass==03 anyChild bInterfaceProtocol==01 devcount<=1
+allow bInterfaceClass==03 bInterfaceProtocol==01 devcount<=1
 
 Allow only one Mouse:
 allow bInterfaceClass==03 anyChild bInterfaceProtocol==02 devcount<=1
 
 → The parent device childs of the interface would enumerated to check for the attribute. If one matches the attribute then the rule will enforced.
+A keyboard should have two interfaces. The bInterfaceProtocol of the first interface is "1", from the second "0".
+With anyChild it is possible to allow a rule matching for both interfaces.
 
 Allow only certain interfaces:
 Example: A multi function device have three interfaces (0xFF, 0x07, 0x08).
@@ -142,7 +144,7 @@ Example: A multi function device have three interfaces (0xFF, 0x07, 0x08).
 
 With the following rules only the 0xFF and 0x07 interfaces are allowed. The device class must be 0.
 
-allow idVendor==04b8 idProduct==089e bDeviceClass==00 bInterfaceSubClass==ff
+allow idVendor==04b8 idProduct==089e bDeviceClass==00 bInterfaceClass==ff
 
-allow idVendor==04b8 idProduct==089e bDeviceClass==00 bInterfaceSubClass==07
+allow idVendor==04b8 idProduct==089e bDeviceClass==00 bInterfaceClass==07
 
