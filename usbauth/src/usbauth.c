@@ -205,15 +205,6 @@ bool match_vals_device(struct Auth *rule, struct Data *d, struct udev_device *de
 	return matches;
 }
 
-bool device_processed(struct udev_device* dev) {
-	bool ret = 0;
-	const char *maskChStr = udev_device_get_sysattr_value(dev, "interface_authorization_mask_changed");
-	if (maskChStr)
-		ret = strtoul(maskChStr, NULL, 16) == 1 ? true : false;
-
-	return ret;
-}
-
 bool error_check_dbus(DBusError *error) {
 	bool ret = false;
 
@@ -259,73 +250,87 @@ void send_dbus(struct udev_device *udevdev, int32_t authorize, int32_t devn) {
 	fprintf(logfile, "send_dbus %s\n", path);
 }
 
-void authorize_mask(struct udev_device *udevdev, uint32_t mask, bool dbus) {
+void probe_interface(struct udev_device *interface) {
+	const char *type = udev_device_get_devtype(interface);
+	if (type && strcmp(type, "usb_interface") == 0) {
+		const char *name = udev_device_get_sysname(interface);
+		FILE *probe = fopen("/sys/bus/usb/drivers_probe", "w");
+
+		if (!name || !probe)
+			return;
+
+		fprintf(probe, "%s", name);
+		fclose(probe);
+	}
+}
+
+void probe_device(struct udev_device *udevdev) {
 	const char *path = udev_device_get_syspath(udevdev);
 	const char *type = udev_device_get_devtype(udevdev);
-	char maskStr[16];
+	struct udev_list_entry *devices = NULL, *entry = NULL;
+	struct udev_enumerate *enumerate = NULL;
 
 	if (!path || !type || strcmp(type, "usb_device") != 0)
 		return;
 
-	strcpy(maskStr, "");
-	snprintf(maskStr, 16, "%" SCNx32, mask);
+	enumerate = udev_enumerate_new(udev);
 
-	udev_device_set_sysattr_value(udevdev, "interface_authorization_mask", maskStr);
+	if(!enumerate)
+		return;
 
-	fprintf(logfile, "authorize_mask %x %s/interface_authorization_mask\n", mask, path);
+	udev_enumerate_add_match_parent(enumerate, udevdev);
+	udev_enumerate_scan_devices(enumerate);
+	devices = udev_enumerate_get_list_entry(enumerate);
 
-	if (dbus) {
-		struct udev_list_entry *devices = NULL, *entry = NULL;
-		struct udev_enumerate *enumerate = NULL;
-		unsigned dev_class = 0;
+	if(!devices)
+		return;
 
-		enumerate = udev_enumerate_new(udev);
+	// iterate over the childs (usb_interface's) of the udevdev (usb_device)
+	udev_list_entry_foreach(entry, devices)
+	{
+		const char *intfpath = NULL;
+		struct udev_device *interface = NULL;
 
-		if(!enumerate)
-			return;
+		if (entry)
+			intfpath = udev_list_entry_get_name(entry);
 
-		udev_enumerate_add_match_parent(enumerate, udevdev);
-		udev_enumerate_scan_devices(enumerate);
-		devices = udev_enumerate_get_list_entry(enumerate);
+		if (intfpath)
+			interface = udev_device_new_from_syspath(udev, intfpath);
 
-		if(!devices)
-			return;
+		if (interface)
+			type = udev_device_get_devtype(interface);
 
-		// get the current mask from sysfs, because unmatched interfaces should be unchanged
-		dev_class = usbauth_get_param_val(bDeviceClass, udevdev);
+		// probe interface
+		probe_interface(interface);
 
-		// iterate over the childs (usb_interface's) of the udevdev (usb_device)
-		udev_list_entry_foreach(entry, devices)
-		{
-			const char *intfpath = NULL;
-			struct udev_device *interface = NULL;
-			const char *type = NULL;
-
-			if (entry)
-				intfpath = udev_list_entry_get_name(entry);
-
-			if (intfpath)
-				interface = udev_device_new_from_syspath(udev, intfpath);
-
-			if (interface)
-				type = udev_device_get_devtype(interface);
-
-			if (type && strcmp(type, "usb_interface") == 0) {
-				unsigned intf_class = usbauth_get_param_val(bInterfaceClass, interface);
-				int nr = usbauth_get_param_val(bInterfaceNumber, interface);
-				int32_t devn = usbauth_get_param_val(devnum, udevdev);
-
-				if(dev_class == 9 && intf_class != 9) // dev class is HUB and intf class is not HUB
-					continue; // skip device childs from hubs, use only hub's interfaces
-
-				send_dbus(interface, mask & (1 << nr) ? true : false, devn);
-			}
-
-			if (interface)
-				udev_device_unref(interface);
-		}
-		udev_enumerate_unref(enumerate);
+		if (interface)
+			udev_device_unref(interface);
 	}
+	udev_enumerate_unref(enumerate);
+}
+
+void authorize_interface(struct udev_device *interface, bool authorize, bool dbus) {
+	const char *path = udev_device_get_syspath(interface);
+	const char *type = udev_device_get_devtype(interface);
+	int32_t devn = usbauth_get_param_val(devnum, interface);
+	struct udev_device *parent = udev_device_get_parent(interface);
+	char valueStr[16];
+
+	if (!path || !type || !parent || strcmp(type, "usb_interface") != 0)
+		return;
+
+	strcpy(valueStr, "");
+	snprintf(valueStr, 16, "%" SCNu8, authorize);
+
+	udev_device_set_sysattr_value(interface, "authorized", valueStr);
+
+	fprintf(logfile, "authorize_interface %" SCNu8 " %s/authorized\n", authorize, path);
+
+	// probe all device's childs to avoid side-effects with drivers that need multiple interfaces
+	probe_device(parent);
+
+	if (dbus)
+		send_dbus(interface, authorize, devn);
 }
 
 bool isRule(struct Auth *array, unsigned array_length) {
@@ -433,7 +438,8 @@ struct auth_ret match_auths_interface(struct Auth *rule_array, size_t array_len,
 					if (r.match_attrs && r.match_conds) {
 						rule_array[j].intfcount++; // count affects r.match_conds
 
-						iscounted[j] = true; // the devcount will incremented later to avoid side effects
+						if (iscounted)
+							iscounted[j] = true; // the devcount will incremented later to avoid side effects
 					} else if (r.match_attrs && !r.match_conds) // only if the condition belongs to the interface (cases, match_attrs) and the condition is not fulfilled (conds, match_conds)
 						ruleApplicable = false; // condition conflicts with affected rule then ignore the rule
 				}
@@ -442,7 +448,8 @@ struct auth_ret match_auths_interface(struct Auth *rule_array, size_t array_len,
 			if (ruleApplicable) { // if current/iterated interface matched rule and was not disabled by conflicting condition
 				rule_array[i].intfcount++; // describes how much interfaces are affected by the rule
 
-				iscounted[i] = true;  // the devcount will incremented later to avoid side effects
+				if (iscounted)
+					iscounted[i] = true; // the devcount will incremented later to avoid side effects
 
 				if (r1.match_attrs) {
 					ret.match |= true; // if interface is affected by at least one rule do allow or deny it, otherwise skip allow/deny action
@@ -464,9 +471,7 @@ void match_auths_device_interfaces(struct Auth *rule_array, size_t array_len, st
 	struct udev_list_entry *devices = NULL, *entry = NULL;
 	struct udev_enumerate *enumerate = NULL;
 	unsigned dev_class = 0;
-	uint32_t mask = 0;
 	const char *plugpath = NULL;
-	const char *maskStr = NULL;
 
 	if(plug_usb_device)
 		plugpath = udev_device_get_syspath(plug_usb_device);
@@ -492,11 +497,7 @@ void match_auths_device_interfaces(struct Auth *rule_array, size_t array_len, st
 	if(!devices)
 		return;
 
-	// get the current mask from sysfs, because unmatched interfaces should be unchanged
 	dev_class = usbauth_get_param_val(bDeviceClass, usb_device);
-	maskStr = udev_device_get_sysattr_value(usb_device, "interface_authorization_mask");
-	if (maskStr)
-		mask = strtoul(maskStr, NULL, 16);
 
 	if (!iscounted)
 		iscounted = calloc(array_len, sizeof(bool));
@@ -519,20 +520,18 @@ void match_auths_device_interfaces(struct Auth *rule_array, size_t array_len, st
 
 		if (type && strcmp(type, "usb_interface") == 0) {
 			unsigned intf_class = usbauth_get_param_val(bInterfaceClass, interface);
+			struct auth_ret r;
 
 			if(dev_class == 9 && intf_class != 9) // dev class is HUB and intf class is not HUB
 				continue; // skip device childs from hubs, use only hub's interfaces
 
-			struct auth_ret r = match_auths_interface(rule_array, array_len, interface);
-			uint8_t nr = usbauth_get_param_val(bInterfaceNumber, interface);
+			r = match_auths_interface(rule_array, array_len, interface);
 
 			// do only if one rule has matched, so if there would no generic rule and no specific rule do nothing
-			if (r.match) {
-				if (r.allowed)
-					mask |= (1 << nr);
-				else if (!r.allowed)
-					mask &= ~(1 << nr);
-			}
+			// now it's the correct device (if plug is set it's only initialization)
+			// do not authorize interfaces and do not send dbus messages multiple times
+			if (r.match && !plug_usb_device)
+				authorize_interface(interface, r.allowed, true);
 		}
 
 		if (interface)
@@ -552,14 +551,8 @@ void match_auths_device_interfaces(struct Auth *rule_array, size_t array_len, st
 
 	udev_enumerate_unref(enumerate);
 
-	// now it's the correct device (if plug is set it's only initialization)
-	// do not authorize interfaces and do not send dbus messages multiple times
-	if (!plug_usb_device) {
-		authorize_mask(usb_device, mask, true);
-	}
-
 	if (debuglog)
-		fprintf(logfile, "match_auths_device_interfaces mask=%x plug=%i path=%s\n", mask, plug_usb_device ? true : false, path);
+		fprintf(logfile, "match_auths_device_interfaces plug=%i path=%s\n", plug_usb_device ? true : false, path);
 }
 
 void perform_rules_devices(struct Auth *rule_array, size_t array_len, bool add) {
@@ -609,27 +602,30 @@ void perform_rules_devices(struct Auth *rule_array, size_t array_len, bool add) 
 
 void perform_udev_env(struct Auth *auths, size_t length, bool add) {
 	const char *type = NULL;
+	struct udev_device *intf = NULL;
 
-	plug_usb_device = udev_device_new_from_environment(udev);
+	intf = udev_device_new_from_environment(udev);
 
-	if (plug_usb_device)
-		type = udev_device_get_devtype(plug_usb_device);
+	if (intf)
+		type = udev_device_get_devtype(intf);
 
 	if (type && strcmp(type, "usb_interface") == 0) { // use only usb_device's
-		struct udev_device *plg = NULL;
-		if(add)
-		plug_usb_device = udev_device_get_parent(plug_usb_device); // set parent of interface (device)
-
-		if(device_processed(plug_usb_device))
-			return;
+		if (add)
+			plug_usb_device = udev_device_get_parent(intf); // set parent of interface (device)
 
 		fprintf(logfile, "perform_udev_env\n");
 
-		plg = plug_usb_device; // save local pointer
 		if (add) { // only in udev-add mode
+			struct auth_ret r;
 			perform_rules_devices(auths, length, false); // plug device will excluded
 			plug_usb_device = NULL; // to work with excluded device
-			match_auths_device_interfaces(auths, length, plg); // check plugged (excluded before) device's interfaces now
+			//match_auths_device_interfaces(auths, length, intf); // check plugged (excluded before) device's interfaces now
+
+			r = match_auths_interface(auths, length, intf);
+
+			// do only if one rule has matched, so if there would no generic rule and no specific rule do nothing
+			if (r.match)
+				authorize_interface(intf, r.allowed, true);
 		}
 	}
 }
@@ -654,27 +650,9 @@ void perform_notifier(const char* actionStr, const char* devnumStr, const char* 
 
 	// devnr from parameter list must be the same as from sysfs to ensure the correct device
 	if(type && strcmp(type, "usb_interface") == 0 && devn_sysfs == devn_argv) {
-		struct udev_device *parent = udev_device_get_parent(interface);
-		int iNr = usbauth_get_param_val(bInterfaceNumber, interface);
 		bool allw = strcmp(actionStr, "allow") == 0 ? true : false;
-		const char* maskStr = udev_device_get_sysattr_value(parent, "interface_authorization_mask");
-		int val = -1;
 
-		if(maskStr)
-			val = strtol(maskStr, NULL, 16);
-
-		if (parent && iNr >= 0) {
-			uint32_t mask = 0;
-			if(val >= 0)
-				mask = val;
-
-			if (allw)
-				mask |= (1 << iNr);
-			else
-				mask &= ~(1 << iNr);
-
-			authorize_mask(parent, mask, false);
-		}
+		authorize_interface(interface, allw, false);
 		udev_device_unref(interface);
 	}
 }
@@ -682,21 +660,10 @@ void perform_notifier(const char* actionStr, const char* devnumStr, const char* 
 int main(int argc, char **argv) {
 	unsigned length = 0;
 	struct Auth *auths = NULL;
-	const int max_pid_cnt = 100;
-	int pid_cnt = 0;
-	int pid_file = 0;
 	DBusError error;
+
 	dbus_error_init(&error);
 	bus = dbus_bus_get(DBUS_BUS_SYSTEM, &error);
-
-	// create pid file to avoid multiple usbauth processes
-	pid_file = open(LOCK_FILE, O_CREAT | O_RDWR);
-
-	// wait that a possible lock is away
-	// if pid_file can't accessed ignore lock
-	// if timeout ignore lock, too
-	while(pid_file >= 0 && pid_cnt++ < max_pid_cnt && flock(pid_file, LOCK_EX | LOCK_NB))
-		usleep(100000);
 
 	udev = udev_new();
 	if(!udev) // udev is needed
@@ -717,6 +684,9 @@ int main(int argc, char **argv) {
 	usbauth_config_read();
 
 	usbauth_config_get_auths(&auths, &length);
+
+	if (!iscounted)
+		iscounted = calloc(length, sizeof(bool));
 
 	if(!isRule(auths, length)) {
 		fprintf(logfile, "Config file not found or empty.\n");

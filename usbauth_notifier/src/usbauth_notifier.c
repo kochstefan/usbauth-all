@@ -271,6 +271,7 @@ void notification_create(const struct Dev* dev, bool authorize) {
 	struct Dev *dev_heap = NULL;
 	NotifyNotification *notification = NULL;
 	const char *type = udev_device_get_devtype(udevdev);
+
 	dev_heap = calloc(1, sizeof(struct Dev));
 
 	if(!type || !dev_heap)
