@@ -25,6 +25,8 @@
 
 #define USBAUTH_PATH "/usr/sbin/usbauth"
 #define NOTIFIER_PATH "/usr/bin/usbauth_notifier"
+#define BUFSIZE 128
+#define CALLBUFSIZE 512
 
 /*
  * This programm will installed with SUID bit setted
@@ -42,24 +44,27 @@
  *
  */
 int main(int argc, char **argv) {
-	char str_proc[128];
-	char str_path[128];
-	unsigned len_str_path;
+	char str_proc[BUFSIZE] = {0};
+	char str_path[BUFSIZE] = {0};
+	size_t len_str_path = 0;
+	pid_t ppid = 0;
 
-	unsigned ppid = getppid();
-	snprintf(str_proc, 128, "/proc/%u/exe", ppid);
+	ppid = getppid();
+	snprintf(str_proc, BUFSIZE, "/proc/%d/exe", (int) ppid);
 
-	len_str_path = readlink(str_proc, str_path, 128);
+	len_str_path = readlink(str_proc, str_path, BUFSIZE-1);
+	if (len_str_path < 0 || len_str_path >= BUFSIZE)
+		len_str_path = 0;
+
 	str_path[len_str_path] = 0;
 
-	// three args are used
-	// the caller must be the notifier
-	if(argc >= 4  && strncmp(NOTIFIER_PATH, str_path, strlen(NOTIFIER_PATH)) == 0) {
-		char str3[512];
+	// three params must be given and the caller must be the notifier
+	if(argc >= 4  && strncmp(NOTIFIER_PATH, str_path, BUFSIZE) == 0) {
+		char str_call[CALLBUFSIZE] = {0};
 		// /usr/sbin/usbauth allow/deny DEVNUM PATH
-		snprintf(str3, 512, "%s %s %s %s", USBAUTH_PATH, argv[1], argv[2], argv[3]);
+		snprintf(str_call, CALLBUFSIZE, "%s %s %s %s", USBAUTH_PATH, argv[1], argv[2], argv[3]);
 		setuid(0);
-		system(str3);
+		system(str_call);
 	}
 
 	return EXIT_SUCCESS;
