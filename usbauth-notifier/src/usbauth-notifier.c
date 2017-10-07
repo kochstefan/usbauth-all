@@ -2,6 +2,8 @@
  * Copyright (c) 2015 SUSE LLC. All Rights Reserved.
  * Author: Stefan Koch <skoch@suse.de>
  *
+ * Copyright (c) 2017 Stefan Koch <stefan.koch10@gmail.com>
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of version 2 of the GNU General
  * Public License as published by the Free Software Foundation.
@@ -231,23 +233,32 @@ struct Dev* receive_dbus(bool *authorize) {
 }
 
 void notification_action_callback(NotifyNotification *callback, char* action, gpointer user_data) {
-	char cmd[256];
 	const char *authstr = strcmp(action, "act_allow") ? "deny" : "allow";
 	struct Dev *dev = (struct Dev*) user_data;
 	struct udev_device *udevdev = dev->udevdev;
+	const char *syspath = NULL;
 	int devn = -1;
+	char sdevn[32];
 
-	if(!dev)
+	if (!dev)
 		return;
 
-	if(!udevdev) {
+	if (!udevdev) {
 		free(dev);
 		return;
 	}
 
 	devn = dev->devnum;
-	snprintf(cmd, sizeof(cmd), "%s %s %x %s", NPRIV_PATH, authstr, devn, udev_device_get_syspath(udevdev));
-	system(cmd);
+	syspath = udev_device_get_syspath(udevdev);
+	snprintf(sdevn, sizeof(sdevn), "%x", devn);
+
+	// /usr/bin/usbauth-npriv allow/deny DEVNUM PATH
+	syslog(LOG_NOTICE, "execute %s %s %s %s\n", NPRIV_PATH, authstr, sdevn, syspath);
+	if (fork())
+		wait(NULL);
+	else
+		execl(NPRIV_PATH, NPRIV_PATH, authstr, sdevn, syspath, NULL);
+
 	udev_device_unref(udevdev);
 	free(dev);
 	g_object_unref(G_OBJECT(callback));

@@ -22,11 +22,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/wait.h>
 
 #define USBAUTH_PATH "/usr/sbin/usbauth"
 #define NOTIFIER_PATH "/usr/bin/usbauth-notifier"
 #define BUFSIZE 128
-#define CALLBUFSIZE 512
 
 /*
  * This programm will installed with SUID bit setted
@@ -59,12 +59,14 @@ int main(int argc, char **argv) {
 	str_path[len_str_path] = 0;
 
 	// three params must be given and the caller must be the notifier
-	if(argc >= 4  && strncmp(NOTIFIER_PATH, str_path, BUFSIZE) == 0) {
-		char str_call[CALLBUFSIZE] = {0};
+	if (argc >= 4  && strncmp(NOTIFIER_PATH, str_path, BUFSIZE) == 0) {
 		// /usr/sbin/usbauth allow/deny DEVNUM PATH
-		snprintf(str_call, CALLBUFSIZE, "%s %s %s %s", USBAUTH_PATH, argv[1], argv[2], argv[3]);
-		setuid(0);
-		system(str_call);
+		if (!setuid(0)) {
+			if (fork())
+				wait(NULL);
+			else
+				execl(USBAUTH_PATH, USBAUTH_PATH, argv[1], argv[2], argv[3], NULL);
+		}
 	}
 
 	return EXIT_SUCCESS;
