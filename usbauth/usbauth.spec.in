@@ -1,24 +1,26 @@
 # Copyright (c) 2015 SUSE LLC. All Rights Reserved.
 # Author: Stefan Koch <skoch@suse.de>
-# 
+#
+# Copyright (c) 2017 Stefan Koch <stefan.koch10@gmail.com>
+#
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of version 2 of the GNU General
 # Public License as published by the Free Software Foundation.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, contact SUSE LLC.
-# 
+#
 # To contact SUSE about this file by physical or electronic mail,
 # you may find current contact information at www.suse.com
 
-Name: usbauth
-Version: 0.8
-Release: 0
+Name: @PACKAGE@
+Version: @VERSION@
+Release: 1
 Group: System/Security
 License: GPL-2.0
 Summary: USB firewall against BadUSB attacks
@@ -30,10 +32,11 @@ Source1: %{name}-rpmlintrc
 
 Requires: udev
 Requires: systemd
-BuildRequires: libusbauth_configparser-devel
+BuildRequires: autoconf
+BuildRequires: automake
+BuildRequires: libusbauth-configparser-devel
 BuildRequires: libudev-devel
 BuildRequires: dbus-1-devel
-BuildRequires: pkg-config
 
 %description
 It is a firewall against BadUSB attacks. A config file descibes in which way devices would be accepted.
@@ -42,36 +45,27 @@ It is a firewall against BadUSB attacks. A config file descibes in which way dev
 %setup -n %{name}
 
 %build
-make -C Release
+%configure
+%make_build
 
 %install
-mkdir -p %{buildroot}%_sbindir/
-mkdir -p %{buildroot}%_sysconfdir/dbus-1/system.d/
-mkdir -p %{buildroot}/usr/lib/udev/rules.d/
-mkdir -p %{buildroot}%_mandir/man1/
-cp Release/usbauth %{buildroot}%_sbindir
-cp data/usbauth.conf %{buildroot}%_sysconfdir/usbauth.conf
-cp data/dbus.conf %{buildroot}%_sysconfdir/dbus-1/system.d/org.opensuse.usbauth.conf
-cp data/20-usbauth.rules %{buildroot}/usr/lib/udev/rules.d/
-gzip -c data/usbauth.1 > %{buildroot}%_mandir/man1/usbauth.1.gz
+%make_install
 
 %files
 %defattr(-,root,root)
-%_sbindir/usbauth
-%config %_sysconfdir/usbauth.conf
-%config %_sysconfdir/dbus-1/system.d/org.opensuse.usbauth.conf
-/usr/lib/udev/rules.d/20-usbauth.rules
-
 %doc COPYING README
-%doc %_mandir/man1/usbauth.1.gz
+/*
 
 %post
 %{?udev_rules_update:%udev_rules_update}
+if ! getent group usbauth>/dev/null; then groupadd -r usbauth; fi
 
 %postun
 %{?udev_rules_update:%udev_rules_update}
+groupdel usbauth
 
 %changelog
+* Wed Oct 4 2017 stefan.koch10@gmail.com
+- using automake to build
 * Tue May 5 2015 skoch@suse.de
 - initial created spec file
-
