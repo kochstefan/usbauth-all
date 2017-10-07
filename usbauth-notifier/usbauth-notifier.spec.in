@@ -1,24 +1,26 @@
 # Copyright (c) 2015 SUSE LLC. All Rights Reserved.
 # Author: Stefan Koch <skoch@suse.de>
-# 
+#
+# Copyright (c) 2017 Stefan Koch <stefan.koch10@gmail.com>
+#
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of version 2 of the GNU General
 # Public License as published by the Free Software Foundation.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, contact SUSE LLC.
-# 
+#
 # To contact SUSE about this file by physical or electronic mail,
 # you may find current contact information at www.suse.com
 
-Name: usbauth_notifier
-Version: 0.8
-Release: 0
+Name: @PACKAGE@
+Version: @VERSION@
+Release: 1
 Group: System/X11/Utilities
 License: GPL-2.0
 Summary: Notifier for USB Firewall to use with desktop environments
@@ -28,13 +30,12 @@ BuildRoot: %{tmppath}/%{name}-build
 Source0: %{name}.tar.bz2
 
 Requires: usbauth
-Requires: xinit
-BuildRequires: libusbauth_configparser-devel
+BuildRequires: autoconf
+BuildRequires: automake
+BuildRequires: libusbauth-configparser-devel
 BuildRequires: libudev-devel
 BuildRequires: dbus-1-devel
 BuildRequires: libnotify-devel
-BuildRequires: glib2-devel
-BuildRequires: pkg-config
 BuildRequires: gettext-runtime
 
 %description
@@ -44,37 +45,24 @@ A notifier for the usbauth firewall against BadUSB attacks. The user could manua
 %setup -n %{name}
 
 %build
-make -C Release
-make -C Release_npriv
+%configure
+%make_build
 
 %install
-mkdir -p %{buildroot}%_bindir/
-mkdir -p %{buildroot}%_sysconfdir/X11/xinit/xinitrc.d/
-mkdir -p %{buildroot}%_mandir/man1/
-mkdir -p %{buildroot}%_datadir/locale/de/LC_MESSAGES/
-cp Release/usbauth_notifier %{buildroot}%_bindir
-cp Release_npriv/usbauth_npriv %{buildroot}%_bindir
-cp data/usbauth_notifier.sh %{buildroot}%_sysconfdir/X11/xinit/xinitrc.d/
-msgfmt data/de.po -o %{buildroot}/usr/share/locale/de/LC_MESSAGES/usbauth_notifier.mo
-gzip -c data/usbauth_notifier.1 > %{buildroot}%_mandir/man1/usbauth_notifier.1.gz
-gzip -c data/usbauth_npriv.1 > %{buildroot}%_mandir/man1/usbauth_npriv.1.gz
+%make_install
+mkdir -p %{buildroot}%_sysconfdir/X11/xinit/xinitrc.d
+cp data/90usbauth-notifier %{buildroot}%_sysconfdir/X11/xinit/xinitrc.d
 
 %files
 %defattr(-,root,root)
-%_bindir/usbauth_notifier
-%_bindir/usbauth_npriv
-%_sysconfdir/X11/xinit/
-%_sysconfdir/X11/xinit/xinitrc.d/
-%_sysconfdir/X11/xinit/xinitrc.d/usbauth_notifier.sh
-%_datadir/locale/de/LC_MESSAGES/usbauth_notifier.mo
-
 %doc COPYING README
-%doc %_mandir/man1/usbauth_notifier.1.gz
-%doc %_mandir/man1/usbauth_npriv.1.gz
+/*
 
 %post
-chmod +s %_bindir/usbauth_npriv
+chmod +s %_bindir/usbauth-npriv
 
 %changelog
+* Wed Oct 4 2017 stefan.koch10@gmail.com
+- using automake for build
 * Tue May 5 2015 skoch@suse.de
 - initial created spec file
