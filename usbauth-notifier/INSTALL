@@ -1,0 +1,11 @@
+To compile and install run:
+./autogen.sh
+./configure
+make
+make install
+
+Alternatively you can build a RPM or DEB package.
+
+To generate the .spec file that is necessary to build a RPM package call:
+./autogen.sh
+./configure

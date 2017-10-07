@@ -45,6 +45,7 @@ A notifier for the usbauth firewall against BadUSB attacks. The user could manua
 %setup -n %{name}
 
 %build
+autoreconf -f -i
 %configure
 %make_build
 
