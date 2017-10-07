@@ -1,5 +1,3 @@
-usbauth_notifier: Notifier for USB Firewall to use with desktop environments
+usbauth-notifier: Notifier for USB Firewall to use with desktop environments
 
 A notifier for the usbauth firewall against BadUSB attacks. The user could manually allow or deny USB devices.
-
-

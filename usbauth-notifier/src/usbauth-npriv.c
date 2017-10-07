@@ -24,7 +24,7 @@
 #include <unistd.h>
 
 #define USBAUTH_PATH "/usr/sbin/usbauth"
-#define NOTIFIER_PATH "/usr/bin/usbauth_notifier"
+#define NOTIFIER_PATH "/usr/bin/usbauth-notifier"
 #define BUFSIZE 128
 #define CALLBUFSIZE 512
 

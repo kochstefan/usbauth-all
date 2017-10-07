@@ -1,4 +1,1 @@
-#!/bin/sh
-
-usbauth_notifier
-
+usbauth-notifier &

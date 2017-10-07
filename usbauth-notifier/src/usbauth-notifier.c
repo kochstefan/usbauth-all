@@ -33,11 +33,11 @@
 #include <libintl.h>
 #include <locale.h>
 #include <usbauth/generic.h>
-#include <usbauth/usbauth_configparser.h>
+#include <usbauth/usbauth-configparser.h>
 
-#include "usbauth_notifier.h"
+#include "usbauth-notifier.h"
 
-#define NPRIV_PATH "/usr/bin/usbauth_npriv"
+#define NPRIV_PATH "/usr/bin/usbauth-npriv"
 
 static bool work = true;
 static struct udev *udev = NULL;
@@ -281,7 +281,7 @@ void notification_create(const struct Dev* dev, bool authorize) {
 		cl = usbauth_get_param_val(bInterfaceClass, udevdev);
 		subcl = usbauth_get_param_val(bInterfaceSubClass, udevdev);
 		iprot = usbauth_get_param_val(bInterfaceProtocol, udevdev);
-		titleStr = gettext("<b>New USB interface</b>");
+		titleStr = gettext("New USB interface");
 	}
 
 	// values from interfaces parent
@@ -292,7 +292,7 @@ void notification_create(const struct Dev* dev, bool authorize) {
 	conf = usbauth_get_param_valStr(bConfigurationValue, udevdev);
 	intf = usbauth_get_param_valStr(bInterfaceNumber, udevdev);
 
-	snprintf(titleMsg, sizeof(titleMsg), titleStr);
+	snprintf(titleMsg, sizeof(titleMsg), "%s", titleStr);
 	snprintf(detailedMsg, sizeof(detailedMsg), "<b>%s:</b> %s<br/><b>%s:</b> %s<br/><b>%s:</b> %04x:%04x<br/><b>%s:</b> %s-%s:%s.%s", gettext("Default"), authorize ? gettext("Allow") : gettext("Deny"), gettext("Type"), get_info_string(cl, subcl, iprot, false), "ID", vId, pId, gettext("Name"), busn, devp, conf, intf);
 
 	// pointer of dev heap gets back at callback so stack would be then out of context
@@ -325,7 +325,7 @@ int main(int argc, char **argv) {
 	signal(SIGTERM, signal_handler);
 
 	setlocale(LC_ALL, "");
-	textdomain("usbauth_notifier");
+	textdomain("usbauth-notifier");
 
 	udev = udev_new();
 

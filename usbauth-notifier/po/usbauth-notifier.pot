@@ -1,12 +1,12 @@
 # usbauth_notifier language template
 # Copyright (C) 2015 SUSE LLC. All Rights Reserved.
-# This file is distributed under the same license as the usbauth_notifier package.
-# Stefan Koch <skoch@suse.de>, YEAR.
+# This file is distributed under the same license as the usbauth-notifier package.
+# Stefan Koch <skoch@suse.de>, 2015.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: usbauth-notifier 1.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-05-20 19:20+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
@@ -17,122 +17,122 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: usbauth_notifier.c:56
+#: src/usbauth-notifier.c:56
 msgid "Per Interface"
 msgstr ""
 
-#: usbauth_notifier.c:60
+#: src/usbauth-notifier.c:60
 msgid "Audio"
 msgstr ""
 
-#: usbauth_notifier.c:64
+#: src/usbauth-notifier.c:64
 msgid "Communication"
 msgstr ""
 
-#: usbauth_notifier.c:68
+#: src/usbauth-notifier.c:68
 msgid "HID"
 msgstr ""
 
-#: usbauth_notifier.c:71
+#: src/usbauth-notifier.c:71
 msgid "Keyboard"
 msgstr ""
 
-#: usbauth_notifier.c:75
+#: src/usbauth-notifier.c:75
 msgid "Mouse"
 msgstr ""
 
-#: usbauth_notifier.c:80
+#: src/usbauth-notifier.c:80
 msgid "Physical"
 msgstr ""
 
-#: usbauth_notifier.c:84
+#: src/usbauth-notifier.c:84
 msgid "Image"
 msgstr ""
 
-#: usbauth_notifier.c:88
+#: src/usbauth-notifier.c:88
 msgid "Printer"
 msgstr ""
 
-#: usbauth_notifier.c:92
+#: src/usbauth-notifier.c:92
 msgid "Mass Storage"
 msgstr ""
 
-#: usbauth_notifier.c:96
+#: src/usbauth-notifier.c:96
 msgid "Hub"
 msgstr ""
 
-#: usbauth_notifier.c:100
+#: src/usbauth-notifier.c:100
 msgid "CDC data"
 msgstr ""
 
-#: usbauth_notifier.c:104
+#: src/usbauth-notifier.c:104
 msgid "Smart Card"
 msgstr ""
 
-#: usbauth_notifier.c:108
+#: src/usbauth-notifier.c:108
 msgid "Content Security"
 msgstr ""
 
-#: usbauth_notifier.c:112
+#: src/usbauth-notifier.c:112
 msgid "Video"
 msgstr ""
 
-#: usbauth_notifier.c:116
+#: src/usbauth-notifier.c:116
 msgid "Personal Healthcare"
 msgstr ""
 
-#: usbauth_notifier.c:120
+#: src/usbauth-notifier.c:120
 msgid "AV"
 msgstr ""
 
-#: usbauth_notifier.c:124
+#: src/usbauth-notifier.c:124
 msgid "Billboard"
 msgstr ""
 
-#: usbauth_notifier.c:128
+#: src/usbauth-notifier.c:128
 msgid "Diagnostic Device"
 msgstr ""
 
-#: usbauth_notifier.c:132
+#: src/usbauth-notifier.c:132
 msgid "Wireless Controller"
 msgstr ""
 
-#: usbauth_notifier.c:136
+#: src/usbauth-notifier.c:136
 msgid "Miscellaneous"
 msgstr ""
 
-#: usbauth_notifier.c:140
+#: src/usbauth-notifier.c:140
 msgid "Application Specific"
 msgstr ""
 
-#: usbauth_notifier.c:144
+#: src/usbauth-notifier.c:144
 msgid "Vendor Specific"
 msgstr ""
 
-#: usbauth_notifier.c:148
+#: src/usbauth-notifier.c:148
 msgid "Unknown"
 msgstr ""
 
-#: usbauth_notifier.c:287
-msgid "<b>New USB interface</b>"
+#: src/usbauth-notifier.c:287
+msgid "New USB interface"
 msgstr ""
 
-#: usbauth_notifier.c:299
+#: src/usbauth-notifier.c:299
 msgid "Default"
 msgstr ""
 
-#: usbauth_notifier.c:299 usbauth_notifier.c:305
+#: src/usbauth-notifier.c:299 src/usbauth-notifier.c:305
 msgid "Allow"
 msgstr ""
 
-#: usbauth_notifier.c:299 usbauth_notifier.c:306
+#: src/usbauth-notifier.c:299 src/usbauth-notifier.c:306
 msgid "Deny"
 msgstr ""
 
-#: usbauth_notifier.c:299
+#: src/usbauth-notifier.c:299
 msgid "Type"
 msgstr ""
 
-#: usbauth_notifier.c:299
+#: src/usbauth-notifier.c:299
 msgid "Name"
 msgstr ""
