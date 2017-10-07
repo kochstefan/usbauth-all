@@ -24,7 +24,7 @@
 
 #include "usbauth.h"
 
-#include <usbauth/usbauth_configparser.h>
+#include <usbauth/usbauth-configparser.h>
 
 #include <inttypes.h>
 #include <stdio.h>
