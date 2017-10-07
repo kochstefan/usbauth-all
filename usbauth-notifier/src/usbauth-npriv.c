@@ -2,6 +2,8 @@
  * Copyright (c) 2015 SUSE LLC. All Rights Reserved.
  * Author: Stefan Koch <skoch@suse.de>
  *
+ * Copyright (c) 2017 Stefan Koch <stefan.koch10@gmail.com>
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of version 2 of the GNU General
  * Public License as published by the Free Software Foundation.
@@ -22,6 +24,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <syslog.h>
 #include <sys/wait.h>
 
 #define USBAUTH_PATH "/usr/sbin/usbauth"
@@ -44,10 +47,14 @@
  *
  */
 int main(int argc, char **argv) {
+	int ret = EXIT_FAILURE;
 	char str_proc[BUFSIZE] = {0};
 	char str_path[BUFSIZE] = {0};
 	size_t len_str_path = 0;
 	pid_t ppid = 0;
+
+	// connect to syslog
+	openlog("usbauth-npriv", LOG_PERROR | LOG_PID, LOG_LOCAL0);
 
 	ppid = getppid();
 	snprintf(str_proc, BUFSIZE, "/proc/%d/exe", (int) ppid);
@@ -62,12 +69,22 @@ int main(int argc, char **argv) {
 	if (argc >= 4  && strncmp(NOTIFIER_PATH, str_path, BUFSIZE) == 0) {
 		// /usr/sbin/usbauth allow/deny DEVNUM PATH
 		if (!setuid(0)) {
+			ret = EXIT_SUCCESS;
+
+			syslog(LOG_NOTICE, "execute %s %s %s %s\n", USBAUTH_PATH, argv[1], argv[2], argv[3]);
 			if (fork())
 				wait(NULL);
 			else
 				execl(USBAUTH_PATH, USBAUTH_PATH, argv[1], argv[2], argv[3], NULL);
+		} else {
+			syslog(LOG_ERR, "setuid failed\n");
 		}
+	} else {
+		syslog(LOG_ERR, "call of usbauth-npriv from ppid=%d with unauthorized installation path=%s\n", ppid, str_path);
 	}
 
-	return EXIT_SUCCESS;
+	// disconnect from syslog
+	closelog();
+
+	return ret;
 }

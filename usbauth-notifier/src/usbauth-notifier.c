@@ -34,6 +34,9 @@
 #include <signal.h>
 #include <libintl.h>
 #include <locale.h>
+#include <syslog.h>
+#include <sys/wait.h>
+
 #include <usbauth/generic.h>
 #include <usbauth/usbauth-configparser.h>
 
@@ -152,7 +155,7 @@ const char* get_info_string(unsigned cl, unsigned subcl, unsigned iprot, bool re
 		break;
 	}
 
-	if(returnIcon)
+	if (returnIcon)
 		ret = icon;
 	else
 		ret = str;
@@ -186,9 +189,9 @@ void deinit_dbus() {
 bool no_error_check_dbus(DBusError *error) {
 	bool ret = true;
 
-	if(dbus_error_is_set(error)) {
+	if (dbus_error_is_set(error)) {
 		ret = false;
-		printf("error %s", error->message);
+		syslog(LOG_ERR, "dbus_error: %s\n", error->message);
 		dbus_error_free(error);
 	}
 
@@ -205,7 +208,6 @@ struct Dev* receive_dbus(bool *authorize) {
 	DBusMessage *msg = NULL;
 	dbus_error_init(&error);
 	dbus_connection_flush(bus);
-	ret = calloc(1, sizeof(struct Dev));
 
 	while (work) { // receive dbus message
 		dbus_connection_read_write(bus, 1);
@@ -213,20 +215,24 @@ struct Dev* receive_dbus(bool *authorize) {
 		if (msg) { // get interface udev_device from message path and devnum
 			if (dbus_message_is_signal(msg, "org.opensuse.usbauth.Message", "usbauth")) {
 				dbus_message_get_args(msg, &error, DBUS_TYPE_INT32, &authorize_int, DBUS_TYPE_INT32, &devn_int, DBUS_TYPE_STRING, &path, DBUS_TYPE_INVALID);
-				no_error_check_dbus(&error);
-				udevdev = udev_device_new_from_syspath(udev, path);
+				if (no_error_check_dbus(&error)) {
+					syslog(LOG_NOTICE, "successful received dbus message\n");
+					udevdev = udev_device_new_from_syspath(udev, path);
+					if (udevdev)
+						ret = calloc(1, sizeof(struct Dev));
+
+					if (ret) {
+						*authorize = authorize_int;
+						ret->udevdev = udevdev;
+						ret->devnum = devn_int;
+					}
+				}
 				dbus_message_unref(msg);
 				msg = NULL;
 				break;
 			}
 		}
 		usleep(100000);
-	}
-
-	if (ret) {
-		*authorize = authorize_int;
-		ret->udevdev = udevdev;
-		ret->devnum = devn_int;
 	}
 
 	return ret;
@@ -285,8 +291,10 @@ void notification_create(const struct Dev* dev, bool authorize) {
 
 	dev_heap = calloc(1, sizeof(struct Dev));
 
-	if(!type || !dev_heap)
+	if (!type || !dev_heap) {
+		syslog(LOG_ERR, "error at creating notification\n");
 		return;
+	}
 
 	if (strcmp(type, "usb_interface") == 0) { // values from interface
 		cl = usbauth_get_param_val(bInterfaceClass, udevdev);
@@ -313,6 +321,8 @@ void notification_create(const struct Dev* dev, bool authorize) {
 	notify_notification_add_action(notification, "act_allow", gettext("Allow"), (NotifyActionCallback) notification_action_callback, dev_heap, NULL);
 	notify_notification_add_action(notification, "act_deny", gettext("Deny"), (NotifyActionCallback) notification_action_callback, dev_heap, NULL);
 	notify_notification_show(notification, NULL);
+
+	syslog(LOG_INFO, "show notification for syspath %s\n", udev_device_get_syspath(udevdev));
 }
 
 void* notification_thread_loop(void *arg) {
@@ -335,23 +345,34 @@ int main(int argc, char **argv) {
 	signal(SIGINT, signal_handler);
 	signal(SIGTERM, signal_handler);
 
+	// connect to syslog
+	openlog("usbauth-notifier", LOG_PERROR | LOG_PID, LOG_USER);
+
 	setlocale(LC_ALL, "");
 	textdomain("usbauth-notifier");
 
 	udev = udev_new();
 
-	if(!udev)
+	if (!udev) {
+		syslog(LOG_ERR, "udev error\n");
 		return EXIT_FAILURE;
+	}
 
-	if(!init_dbus())
+	if (!init_dbus()) {
+		syslog(LOG_ERR, "dbus init error\n");
 		return EXIT_FAILURE;
+	}
 
-	if(!notify_init("usbauth"))
+	if (!notify_init("usbauth")) {
+		syslog(LOG_ERR, "notify init error\n");
 		return EXIT_FAILURE;
+	}
 
 	thread = g_thread_new("thread", notification_thread_loop, NULL); // thread for g_main_loop
 
-	// work until SIGING or SIGTERM
+	syslog(LOG_NOTICE, "usbauth-notifier started\n");
+
+	// work until SIGINT or SIGTERM
 	while(work) {
 		bool authorize = false;
 		struct Dev *dev = receive_dbus(&authorize); // receive dbus message from USB firewall
@@ -371,6 +392,11 @@ int main(int argc, char **argv) {
 
 	udev_unref(udev);
 	udev = NULL;
+
+	syslog(LOG_NOTICE, "usbauth-notifier stopped\n");
+
+	// disconnect from syslog
+	closelog();
 
 	return EXIT_SUCCESS;
 }
