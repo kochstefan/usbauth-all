@@ -1,0 +1,5 @@
+#!/bin/sh
+
+if ! getent group usbauth>/dev/null; then
+    addgroup --system --quiet usbauth || true
+fi
