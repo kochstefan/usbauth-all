@@ -26,7 +26,7 @@
 
 %{
 #define YY_FATAL_ERROR(msg) fprintf(stderr, "%s\n", msg)
-#include "usbauth_syn.tab.h"
+#include "syn.usbauth_yy.h"
 %}
 
 %start COMMENT VAL

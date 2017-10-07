@@ -1,4 +1,3 @@
-libusbauth_configparser: Library for USB Firewall including flex/bison parser
+libusbauth-configparser: Library for USB Firewall including flex/bison parser
 
 The library is used to read the usbauth config file into data structures and is used by usbauth and YaST.
-

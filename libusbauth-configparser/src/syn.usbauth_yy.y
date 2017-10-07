@@ -18,12 +18,12 @@
  * you may find current contact information at www.suse.com
  */
 
-%define api.prefix usbauth_yy
+%define api.prefix {usbauth_yy}
 
 %{
 
 #include "generic.h"
-#include "usbauth_configparser.h"
+#include "usbauth-configparser.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

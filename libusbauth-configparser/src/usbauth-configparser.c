@@ -23,8 +23,8 @@
  */
 
 #include "generic.h"
-#include "usbauth_configparser.h"
-#include "usbauth_syn.tab.h"
+#include "usbauth-configparser.h"
+#include "syn.usbauth_yy.h"
 
 #include <stdlib.h>
 #include <stdio.h>
