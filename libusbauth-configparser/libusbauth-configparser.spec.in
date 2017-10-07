@@ -59,6 +59,7 @@ Development part of library to read usbauth config file into data structures
 %setup -n %{name}
 
 %build
+autoreconf -f -i
 %configure
 %make_build
 
