@@ -15,7 +15,7 @@ lib_LTLIBRARIES = libusbauth-configparser.la
 libusbauth_configparser_la_CFLAGS = $(UDEV_CFLAGS)
 libusbauth_configparser_la_SOURCES = lex.usbauth_yy.l syn.usbauth_yy.y usbauth-configparser.c
 libusbauth_configparser_la_LIBADD = $(UDEV_LIBS)
-libusbauth_configparser_la_LDFLAGS = -version-info 0:0:0
+libusbauth_configparser_la_LDFLAGS = -version-info 1:0:0
 usbauthincludedir = $(includedir)/usbauth
 usbauthinclude_HEADERS = generic.h usbauth-configparser.h
 
