@@ -30,8 +30,7 @@ BuildRoot: %{tmppath}/%{name}-build
 Source0: %{name}.tar.bz2
 
 Requires: usbauth
-BuildRequires: autoconf
-BuildRequires: automake
+BuildRequires: libtool
 BuildRequires: libusbauth-configparser-devel
 BuildRequires: libudev-devel
 BuildRequires: dbus-1-devel
