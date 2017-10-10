@@ -29,8 +29,7 @@ Url: https://build.opensuse.org/package/show/home:skoch_suse/libusbauth_configpa
 BuildRoot: %{tmppath}/%{name}-build
 Source0: %{name}.tar.bz2
 
-BuildRequires: autoconf
-BuildRequires: automake
+BuildRequires: libtool
 BuildRequires: libudev-devel
 BuildRequires: bison
 BuildRequires: flex
