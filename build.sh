@@ -18,6 +18,7 @@ if [ -z "$type" ]; then
 	echo "build.sh rpm"
 	echo "build.sh deb"
 	echo "build.sh am"
+	echo "build.sh obs home:repo"
 	exit
 fi
 
@@ -41,6 +42,20 @@ for pkg in *; do
 			cp -f $pkg/$pkg-rpmlintrc ~/rpmbuild/SOURCES
 			cp $pkg/$pkg.spec ~/rpmbuild/SPECS
 			rpmbuild -ba ~/rpmbuild/SPECS/$pkg.spec
+		elif [ $type = obs ]; then
+			osc checkout "$2"
+			osc meta pkg -e "$2" $pkg
+			osc up "$2"
+			tar cvfj $pkg.tar.bz2 $pkg
+			mv $pkg.tar.bz2 "$2"/$pkg/
+			pushd $pkg
+			./autogen.sh
+			./configure
+			cp $pkg.spec ../"$2"/$pkg/
+			cp -f $pkg-rpmlintrc ../"$2"/$pkg/
+			popd
+			osc add "$2"/$pkg/*
+			osc commit "$2"
 		fi
 	fi
 done
