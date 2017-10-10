@@ -32,8 +32,7 @@ Source1: %{name}-rpmlintrc
 
 Requires: udev
 Requires: systemd
-BuildRequires: autoconf
-BuildRequires: automake
+BuildRequires: libtool
 BuildRequires: libusbauth-configparser-devel
 BuildRequires: libudev-devel
 BuildRequires: dbus-1-devel
