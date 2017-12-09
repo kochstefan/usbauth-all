@@ -1,41 +1,43 @@
+#
+# spec file for package usbauth-notifier
+#
+# Copyright (c) 2017 SUSE LINUX GmbH, Nuernberg, Germany.
+# Copyright (c) 2017 Stefan Koch <stefan.koch10@gmail.com>
 # Copyright (c) 2015 SUSE LLC. All Rights Reserved.
 # Author: Stefan Koch <skoch@suse.de>
 #
-# Copyright (c) 2017 Stefan Koch <stefan.koch10@gmail.com>
-#
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of version 2 of the GNU General
-# Public License as published by the Free Software Foundation.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, contact SUSE LLC.
-#
-# To contact SUSE about this file by physical or electronic mail,
-# you may find current contact information at www.suse.com
+# All modifications and additions to the file contributed by third parties
+# remain the property of their copyright owners, unless otherwise agreed
+# upon. The license for this file, and modifications and additions to the
+# file, is the same license as for the pristine package itself (unless the
+# license for the pristine package is not an Open Source License, in which
+# case the license is the MIT License). An "Open Source License" is a
+# license that conforms to the Open Source Definition (Version 1.9)
+# published by the Open Source Initiative.
 
-Name: @PACKAGE@
-Version: @VERSION@
-Release: 1
-Group: System/X11/Utilities
-License: GPL-2.0
-Summary: Notifier for USB Firewall to use with desktop environments
-Url: https://build.opensuse.org/package/show/home:skoch_suse/usbauth_notifier
+# Please submit bugfixes or comments via http://bugs.opensuse.org/
+#
 
-BuildRoot: %{tmppath}/%{name}-build
-Source0: %{name}.tar.bz2
 
-Requires: usbauth
-BuildRequires: libtool
-BuildRequires: libusbauth-configparser-devel
-BuildRequires: libudev-devel
-BuildRequires: dbus-1-devel
-BuildRequires: libnotify-devel
-BuildRequires: gettext-runtime
+Name:           @PACKAGE@
+Version:        @VERSION@
+Release:        0
+Summary:        Notifier for USB Firewall to use with desktop environments
+License:        GPL-2.0
+Group:          System/X11/Utilities
+Url:            https://build.opensuse.org/package/show/home:skoch_suse/usbauth_notifier
+
+BuildRoot:      %{_tmppath}/%{name}-%{version}-build
+Source0:        %{name}.tar.bz2
+
+Requires:       usbauth
+BuildRequires:  pkgconfig(dbus-1)
+BuildRequires:  gettext-runtime
+BuildRequires:  libnotify-devel
+BuildRequires:  libtool
+BuildRequires:  pkg-config
+BuildRequires:  libudev-devel
+BuildRequires:  libusbauth-configparser-devel
 
 %description
 A notifier for the usbauth firewall against BadUSB attacks. The user could manually allow or deny USB devices.
@@ -56,13 +58,19 @@ cp data/90usbauth-notifier %{buildroot}%_sysconfdir/X11/xinit/xinitrc.d
 %files
 %defattr(-,root,root)
 %doc COPYING README
-/*
+%dir /etc/X11/xinit
+%dir /etc/X11/xinit/xinitrc.d
+/etc/X11/xinit/xinitrc.d/90usbauth-notifier
+%verify(not mode) %attr(0755,root,root) %_bindir/usbauth-npriv
+%_bindir/usbauth-notifier
+%_mandir/man1/usbauth-notifier.1*
+%_mandir/man1/usbauth-npriv.1*
+%_datadir/locale/de/LC_MESSAGES/usbauth-notifier.mo
 
 %post
-chmod +s %_bindir/usbauth-npriv
+%set_permissions %_bindir/usbauth-npriv
+
+%verifyscript
+%verify_permissions -e %_bindir/usbauth-npriv
 
 %changelog
-* Wed Oct 4 2017 stefan.koch10@gmail.com
-- using automake for build
-* Tue May 5 2015 skoch@suse.de
-- initial created spec file
