@@ -1,52 +1,51 @@
+#
+# spec file for package libusbauth-configparser
+#
+# Copyright (c) 2017 SUSE LINUX GmbH, Nuernberg, Germany.
+# Copyright (c) 2017 Stefan Koch <stefan.koch10@gmail.com>
 # Copyright (c) 2015 SUSE LLC. All Rights Reserved.
 # Author: Stefan Koch <skoch@suse.de>
 #
-# Copyright (c) 2017 Stefan Koch <stefan.koch10@gmail.com>
-#
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of version 2.1 of the GNU Lesser General
-# Public License as published by the Free Software Foundation.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-# GNU Lesser General Public License for more details.
-#
-# You should have received a copy of the GNU Lesser General Public
-# License along with this program; if not, contact SUSE LLC.
-#
-# To contact SUSE about this file by physical or electronic mail,
-# you may find current contact information at www.suse.com
+# All modifications and additions to the file contributed by third parties
+# remain the property of their copyright owners, unless otherwise agreed
+# upon. The license for this file, and modifications and additions to the
+# file, is the same license as for the pristine package itself (unless the
+# license for the pristine package is not an Open Source License, in which
+# case the license is the MIT License). An "Open Source License" is a
+# license that conforms to the Open Source Definition (Version 1.9)
+# published by the Open Source Initiative.
 
-Name: @PACKAGE@
-Version: @VERSION@
-Release: 1
-Group: System/Libraries
-License: LGPL-2.1
-Summary: Library for USB Firewall including flex/bison parser
-Url: https://build.opensuse.org/package/show/home:skoch_suse/libusbauth_configparser
+# Please submit bugfixes or comments via http://bugs.opensuse.org/
+#
 
-BuildRoot: %{tmppath}/%{name}-build
-Source0: %{name}.tar.bz2
 
-BuildRequires: libtool
-BuildRequires: libudev-devel
-BuildRequires: bison
-BuildRequires: flex
+Name:           @PACKAGE@
+Version:        @VERSION@
+Release:        0
+Summary:        Library for USB Firewall including flex/bison parser
+License:        LGPL-2.1
+Group:          System/Libraries
+Url:            https://build.opensuse.org/package/show/home:skoch_suse/libusbauth_configparser
+
+BuildRoot:      %{_tmppath}/%{name}-%{version}-build
+Source0:        %{name}.tar.bz2
+
+BuildRequires:  bison
+BuildRequires:  flex
+BuildRequires:  libtool
+BuildRequires:  libudev-devel
 
 %description
 Library to read usbauth config file into data structures
 
 %package -n %{name}1
-Group: System/Libraries
-License: LGPL-2.1
-Summary: Library for USB Firewall including flex/bison parser
+Summary:        Library for USB Firewall including flex/bison parser
+Group:          System/Libraries
 
 %package devel
-Group: Development/Libraries
-License: LGPL-2.1
-Summary: Development part of library for USB Firewall including flex/bison parser
-Requires: libusbauth-configparser1 = %{version}
+Summary:        Development part of library for USB Firewall including flex/bison parser
+Group:          Development/Libraries
+Requires:       libusbauth-configparser1 = %{version}
 
 %description -n %{name}1
 Library to read usbauth config file into data structures
@@ -78,14 +77,8 @@ autoreconf -f -i
 %_libdir/lib*.so
 %_libdir/pkgconfig/*
 
-%post -n %{name}1
-%{run_ldconfig}
+%post -n %{name}1 -p /sbin/ldconfig
 
-%postun -n %{name}1
-%{run_ldconfig}
+%postun -n %{name}1 -p /sbin/ldconfig
 
 %changelog
-* Wed Oct 4 2017 stefan.koch10@gmail.com
-- using automake for build
-* Tue May 5 2015 skoch@suse.de
-- initial created spec file
