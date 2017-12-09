@@ -1,41 +1,42 @@
+#
+# spec file for package usbauth
+#
+# Copyright (c) 2017 SUSE LINUX GmbH, Nuernberg, Germany.
+# Copyright (c) 2017 Stefan Koch <stefan.koch10@gmail.com>
 # Copyright (c) 2015 SUSE LLC. All Rights Reserved.
 # Author: Stefan Koch <skoch@suse.de>
 #
-# Copyright (c) 2017 Stefan Koch <stefan.koch10@gmail.com>
-#
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of version 2 of the GNU General
-# Public License as published by the Free Software Foundation.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, contact SUSE LLC.
-#
-# To contact SUSE about this file by physical or electronic mail,
-# you may find current contact information at www.suse.com
+# All modifications and additions to the file contributed by third parties
+# remain the property of their copyright owners, unless otherwise agreed
+# upon. The license for this file, and modifications and additions to the
+# file, is the same license as for the pristine package itself (unless the
+# license for the pristine package is not an Open Source License, in which
+# case the license is the MIT License). An "Open Source License" is a
+# license that conforms to the Open Source Definition (Version 1.9)
+# published by the Open Source Initiative.
 
-Name: @PACKAGE@
-Version: @VERSION@
-Release: 1
-Group: System/Security
-License: GPL-2.0
-Summary: USB firewall against BadUSB attacks
-Url: https://build.opensuse.org/package/show/home:skoch_suse/usbauth
+# Please submit bugfixes or comments via http://bugs.opensuse.org/
+#
 
-BuildRoot: %{tmppath}/%{name}-build
-Source0: %{name}.tar.bz2
-Source1: %{name}-rpmlintrc
 
-Requires: udev
-Requires: systemd
-BuildRequires: libtool
-BuildRequires: libusbauth-configparser-devel
-BuildRequires: libudev-devel
-BuildRequires: dbus-1-devel
+Name:           @PACKAGE@
+Version:        @VERSION@
+Release:        0
+Summary:        USB firewall against BadUSB attacks
+License:        GPL-2.0
+Group:          System/Security
+Url:            https://build.opensuse.org/package/show/home:skoch_suse/usbauth
+
+BuildRoot:      %{_tmppath}/%{name}-%{version}-build
+Source0:        %{name}.tar.bz2
+Source1:        %{name}-rpmlintrc
+
+Requires:       systemd
+Requires:       udev
+BuildRequires:  dbus-1-devel
+BuildRequires:  libtool
+BuildRequires:  libudev-devel
+BuildRequires:  libusbauth-configparser-devel
 
 %description
 It is a firewall against BadUSB attacks. A config file descibes in which way devices would be accepted.
@@ -54,7 +55,12 @@ autoreconf -f -i
 %files
 %defattr(-,root,root)
 %doc COPYING README
-/*
+%_sbindir/usbauth
+%_sysconfdir/dbus-1/system.d/org.opensuse.usbauth.conf
+%_sysconfdir/usbauth.conf
+/lib/udev/rules.d/20-usbauth.rules
+%_mandir/man1/usbauth.1.*
+
 
 %post
 %{?udev_rules_update:%udev_rules_update}
@@ -65,7 +71,3 @@ if ! getent group usbauth>/dev/null; then groupadd -r usbauth; fi
 groupdel usbauth
 
 %changelog
-* Wed Oct 4 2017 stefan.koch10@gmail.com
-- using automake to build
-* Tue May 5 2015 skoch@suse.de
-- initial created spec file
