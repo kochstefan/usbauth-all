@@ -25,7 +25,7 @@ Release:        0
 Summary:        Library for USB Firewall including flex/bison parser
 License:        LGPL-2.1
 Group:          System/Libraries
-Url:            https://build.opensuse.org/package/show/home:skoch_suse/libusbauth_configparser
+Url:            https://github.com/kochstefan/usbauth-all/tree/master/libusbauth-configparser
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Source0:        %{name}.tar.bz2
