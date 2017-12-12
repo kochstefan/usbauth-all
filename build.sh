@@ -22,14 +22,16 @@ if [ -z "$type" ]; then
 	exit
 fi
 
-for pkg in *; do
+for pkg in libusbauth-configparser usbauth usbauth-notifier; do
 	if [ -d $pkg ]; then
 		pushd $pkg
 		if [ $type = rpm ]; then
 			./autogen.sh
 			./configure
 		elif [ $type = deb ]; then
+			ln -s ../packages/$pkg/debian
 			dpkg-buildpackage -us -uc
+			rm debian
 		elif [ $type = am ]; then
 			./autogen.sh
 		fi
