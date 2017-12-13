@@ -28,7 +28,7 @@ init mode, does apply rules for all available devices
 .SH DESCRIPTION
 It is a firewall against BadUSB attacks.
 .br
-A config file descibes in which way USB interfaces would be accepted or denied.
+A config file describes in which way USB interfaces would be accepted or denied.
 .br
 To the kernel an interface authorization was developed with this firewall.
 .br
@@ -61,7 +61,7 @@ A rule describes all interfaces with the HID class 0x03.
 .br
 condition Attribute+ case Attribute+
 .br
-The first section describes the condition that must fullfilled.
+The first section describes the condition that must fulfilled.
 .br
 The second section with the keyword case defines for what interfaces the condition should apply.
 .br
@@ -70,7 +70,7 @@ Example:
 .br
 All rules that describes HID interfaces should apply for two devices at maximum.
 .br
-Then the device counter must be fullfilled. The second section describes the interface class 0x03.
+Then the device counter must be fulfilled. The second section describes the interface class 0x03.
 .LP
 
 .B There are default rules
@@ -244,7 +244,7 @@ allow bInterfaceClass==03 anyChild bInterfaceProtocol==01 devcount<=1
 allow bInterfaceClass==03 bInterfaceProtocol==02 devcount<=1
 .br
 .br
-→ The parent device childs of the interface would enumerated to check for the attribute. If one matches the attribute then the rule will enforced.
+→ The parent device children of the interface would enumerated to check for the attribute. If one matches the attribute then the rule will enforced.
 .br
 A keyboard should have two interfaces. The bInterfaceProtocol of the first interface is "1", from the second "0".
 br
