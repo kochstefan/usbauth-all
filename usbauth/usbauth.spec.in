@@ -58,8 +58,8 @@ autoreconf -f -i
 %_sbindir/usbauth
 %_sysconfdir/dbus-1/system.d/org.opensuse.usbauth.conf
 %_sysconfdir/usbauth.conf
-/lib/udev
-/lib/udev/rules.d
+%dir /lib/udev
+%dir /lib/udev/rules.d
 /lib/udev/rules.d/20-usbauth.rules
 %_mandir/man1/usbauth.1.*
 
