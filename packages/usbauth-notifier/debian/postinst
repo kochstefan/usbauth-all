@@ -1,3 +1,9 @@
 #!/bin/sh
+NPRIV_PATH=/usr/bin/usbauth-npriv
+NOTIFIER_PATH=/usr/bin/usbauth-notifier
 
-chmod +s /usr/bin/usbauth-npriv
+chown root:usbauth $NPRIV_PATH
+chmod 04750 $NPRIV_PATH
+
+chown root:usbauth $NOTIFIER_PATH
+chmod 02750 $NOTIFIER_PATH

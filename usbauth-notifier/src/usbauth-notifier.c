@@ -36,6 +36,7 @@
 #include <locale.h>
 #include <syslog.h>
 #include <sys/wait.h>
+#include <grp.h>
 
 #include <usbauth/generic.h>
 #include <usbauth/usbauth-configparser.h>
@@ -339,6 +340,7 @@ void signal_handler(int sig) {
 }
 
 int main(int argc, char **argv) {
+	struct group *gr = NULL;
 	GThread *thread = NULL;
 
 	// set signal handler for SIGINT and SIGTERM, the handler sets work to false
@@ -347,6 +349,19 @@ int main(int argc, char **argv) {
 
 	// connect to syslog
 	openlog("usbauth-notifier", LOG_PERROR | LOG_PID, LOG_USER);
+
+	// set GID to usbauth
+	gr = getgrnam("usbauth");
+
+	if (!gr || !gr->gr_gid) {
+		syslog(LOG_ERR, "getgrnam error");
+		return EXIT_FAILURE;
+	}
+
+	if (setgid(gr->gr_gid)) {
+		syslog(LOG_ERR, "setgid error");
+		return EXIT_FAILURE;
+	}
 
 	setlocale(LC_ALL, "");
 	textdomain("usbauth-notifier");
