@@ -29,6 +29,7 @@ Url:            https://github.com/kochstefan/usbauth-all/tree/master/usbauth-no
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Source0:        %{name}.tar.bz2
+Source1:        %{name}-rpmlintrc
 
 Requires:       usbauth
 BuildRequires:  pkgconfig(dbus-1)
