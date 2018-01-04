@@ -1,9 +1,12 @@
 #!/bin/sh
 NPRIV_PATH=/usr/bin/usbauth-npriv
-NOTIFIER_PATH=/usr/bin/usbauth-notifier
+NOTIFIER_DIR=/usr/lib/usbauth-notifier
+NOTIFIER_PATH=$NOTIFIER_DIR/usbauth-notifier
 
 chown root:usbauth $NPRIV_PATH
 chmod 04750 $NPRIV_PATH
 
+chown root:usbauth-notifier $NOTIFIER_DIR
+chmod 00750 $NOTIFIER_DIR
 chown root:usbauth $NOTIFIER_PATH
-chmod 02750 $NOTIFIER_PATH
+chmod 02755 $NOTIFIER_PATH

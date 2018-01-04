@@ -3,3 +3,7 @@
 if ! getent group usbauth>/dev/null; then
     addgroup --system --quiet usbauth || true
 fi
+
+if ! getent group usbauth-notifier>/dev/null; then
+    addgroup --system --quiet usbauth-notifier || true
+fi

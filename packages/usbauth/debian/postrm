@@ -2,4 +2,5 @@
 
 if [ "$1" = "purge" ]; then
     delgroup --system --quiet usbauth || true
+    delgroup --system --quiet usbauth-notifier || true
 fi

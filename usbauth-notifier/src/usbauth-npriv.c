@@ -28,7 +28,7 @@
 #include <sys/wait.h>
 
 #define USBAUTH_PATH "/usr/sbin/usbauth"
-#define NOTIFIER_PATH "/usr/bin/usbauth-notifier"
+#define NOTIFIER_PATH "/usr/lib/usbauth-notifier/usbauth-notifier"
 #define BUFSIZE 128
 
 /*
@@ -37,13 +37,13 @@
  * with superuser rights
  *
  * Example call:
- * usbauth_npriv allow/deny DEVNUM PATH
+ * usbauth-npriv allow/deny DEVNUM PATH
  *
  * This program calls then:
  * /usr/sbin/usbauth allow/deny DEVNUM PATH
  *
  * but only if the caller is
- * /usr/bin/usbauth_notifier
+ * /usr/lib/usbauth-notifier/usbauth-notifier
  *
  */
 int main(int argc, char **argv) {
