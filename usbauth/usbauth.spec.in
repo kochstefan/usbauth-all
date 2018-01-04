@@ -63,15 +63,10 @@ autoreconf -f -i
 /lib/udev/rules.d/20-usbauth.rules
 %_mandir/man1/usbauth.1.*
 
-
 %post
 %{?udev_rules_update:%udev_rules_update}
-if ! getent group usbauth>/dev/null; then groupadd -r usbauth; fi
-if ! getent group usbauth-notifier>/dev/null; then groupadd -r usbauth-notifier; fi
 
 %postun
 %{?udev_rules_update:%udev_rules_update}
-groupdel usbauth
-groupdel usbauth-notifier
 
 %changelog

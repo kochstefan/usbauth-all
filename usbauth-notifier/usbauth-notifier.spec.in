@@ -51,6 +51,10 @@ autoreconf -f -i
 %configure
 %make_build
 
+%pre
+if ! getent group usbauth>/dev/null; then groupadd -r usbauth; fi
+if ! getent group usbauth-notifier>/dev/null; then groupadd -r usbauth-notifier; fi
+
 %install
 %make_install
 mkdir -p %{buildroot}%_sysconfdir/X11/xinit/xinitrc.d
@@ -73,6 +77,10 @@ cp data/90usbauth-notifier %{buildroot}%_sysconfdir/X11/xinit/xinitrc.d
 %set_permissions %_bindir/usbauth-npriv
 %set_permissions /usr/lib/usbauth-notifier
 %set_permissions /usr/lib/usbauth-notifier/usbauth-notifier
+
+%postun
+groupdel usbauth
+groupdel usbauth-notifier
 
 %verifyscript
 %verify_permissions -e %_bindir/usbauth-npriv
