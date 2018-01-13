@@ -39,6 +39,7 @@ BuildRequires:  libtool
 BuildRequires:  pkg-config
 BuildRequires:  libudev-devel
 BuildRequires:  libusbauth-configparser-devel
+#!BuildIgnore:  post-build-checks
 
 %description
 A notifier for the usbauth firewall against BadUSB attacks. The user could manually allow or deny USB devices.
