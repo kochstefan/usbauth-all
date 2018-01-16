@@ -67,10 +67,13 @@ int main(int argc, char **argv) {
 
 	// three params must be given and the caller must be the notifier
 	if (argc >= 4  && strncmp(NOTIFIER_PATH, str_path, BUFSIZE) == 0) {
-		// /usr/sbin/usbauth allow/deny DEVNUM PATH
-		if (!setuid(0)) {
-			ret = EXIT_SUCCESS;
+		ret = setuid(0);
 
+		if (!ret)
+			ret = clearenv();
+
+		if (!ret) {
+			// /usr/sbin/usbauth allow/deny DEVNUM PATH
 			syslog(LOG_NOTICE, "execute %s %s %s %s\n", USBAUTH_PATH, argv[1], argv[2], argv[3]);
 			if (fork())
 				wait(NULL);
