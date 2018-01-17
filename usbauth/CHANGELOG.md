@@ -1,2 +1,2 @@
-usbauth 1.0 (2017-10-04)
+usbauth 1.0 (2018-01-17)
   * Initial Release
