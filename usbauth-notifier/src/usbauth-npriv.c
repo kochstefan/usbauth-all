@@ -32,7 +32,7 @@
 #define BUFSIZE 128
 
 /*
- * This programm will installed with SUID bit setted
+ * This program will installed with SUID bit setted
  * The usbauth_notifier will call it to call usbauth firewall
  * with superuser rights
  *
