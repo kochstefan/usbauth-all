@@ -1,7 +1,7 @@
 #
 # spec file for package libusbauth-configparser
 #
-# Copyright (c) 2017 SUSE LINUX GmbH, Nuernberg, Germany.
+# Copyright (c) 2018 SUSE LINUX GmbH, Nuernberg, Germany.
 # Copyright (c) 2017 Stefan Koch <stefan.koch10@gmail.com>
 # Copyright (c) 2015 SUSE LLC. All Rights Reserved.
 # Author: Stefan Koch <skoch@suse.de>
@@ -24,7 +24,7 @@ Version:        @VERSION@
 Release:        0
 Summary:        Library for USB Firewall including flex/bison parser
 License:        LGPL-2.1
-Group:          System/Libraries
+Group:          Development/Languages/C and C++
 Url:            https://github.com/kochstefan/usbauth-all/tree/master/libusbauth-configparser
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
@@ -44,7 +44,7 @@ Group:          System/Libraries
 
 %package devel
 Summary:        Development part of library for USB Firewall including flex/bison parser
-Group:          Development/Libraries
+Group:          Development/Languages/C and C++
 Requires:       libusbauth-configparser1 = %{version}
 
 %description -n %{name}1
@@ -72,7 +72,7 @@ autoreconf -f -i
 %files devel
 %defattr(-,root,root)
 %doc COPYING README
-%doc %_mandir/*
+%doc %_mandir/*/*
 %_includedir/*
 %_libdir/lib*.so
 %_libdir/pkgconfig/*
