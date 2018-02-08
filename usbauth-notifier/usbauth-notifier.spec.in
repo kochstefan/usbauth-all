@@ -29,17 +29,17 @@ Url:            https://github.com/kochstefan/usbauth-all/tree/master/usbauth-no
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Source0:        %{name}.tar.bz2
-Source1:        %{name}-rpmlintrc
 
+Requires(pre):  permissions
 Requires:       usbauth
 BuildRequires:  pkgconfig(dbus-1)
 BuildRequires:  gettext-runtime
 BuildRequires:  libnotify-devel
 BuildRequires:  libtool
+BuildRequires:  permissions
 BuildRequires:  pkg-config
 BuildRequires:  libudev-devel
 BuildRequires:  libusbauth-configparser-devel
-#!BuildIgnore:  post-build-checks
 
 %description
 A notifier for the usbauth firewall against BadUSB attacks. The user could manually allow or deny USB devices.
@@ -75,15 +75,9 @@ cp data/90usbauth-notifier %{buildroot}%_sysconfdir/X11/xinit/xinitrc.d
 %_datadir/locale/de/LC_MESSAGES/usbauth-notifier.mo
 
 %post
-%set_permissions %_bindir/usbauth-npriv
-%set_permissions /usr/lib/usbauth-notifier
-%set_permissions /usr/lib/usbauth-notifier/usbauth-notifier
-
-%postun
-groupdel usbauth
-groupdel usbauth-notifier
+%set_permissions %_bindir/usbauth-npriv /usr/lib/usbauth-notifier /usr/lib/usbauth-notifier/usbauth-notifier
 
 %verifyscript
-%verify_permissions -e %_bindir/usbauth-npriv
+%verify_permissions -e %_bindir/usbauth-npriv /usr/lib/usbauth-notifier /usr/lib/usbauth-notifier/usbauth-notifier
 
 %changelog
