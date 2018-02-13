@@ -54,6 +54,7 @@ for pkg in libusbauth-configparser usbauth usbauth-notifier; do
 			./autogen.sh
 			./configure
 			cp $pkg.spec ../"$2"/$pkg/
+			cp $pkg.changes ../"$2"/$pkg/
 			cp -f $pkg-rpmlintrc ../"$2"/$pkg/
 			popd
 			osc add "$2"/$pkg/*
