@@ -1,0 +1,10 @@
+-------------------------------------------------------------------
+Thu Feb  1 23:12:01 UTC 2018 - jengelh@inai.de
+
+- Fix RPM groups.
+
+-------------------------------------------------------------------
+Thu Oct 12 06:45:40 UTC 2017 - meissner@suse.com
+
+- initial package, used for parsing usbauth global config files.
+
