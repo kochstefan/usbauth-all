@@ -1,0 +1,16 @@
+-------------------------------------------------------------------
+Mon Feb  5 08:19:29 UTC 2018 - meissner@suse.com
+
+- updated to current git
+
+-------------------------------------------------------------------
+Thu Feb  1 06:41:46 UTC 2018 - meissner@suse.com
+
+- do not do groupdel
+
+-------------------------------------------------------------------
+Thu Oct 12 06:56:57 UTC 2017 - meissner@suse.com
+
+- initial package, a USB device authentication tool that avoids
+  BadUSB style attacks.
+
