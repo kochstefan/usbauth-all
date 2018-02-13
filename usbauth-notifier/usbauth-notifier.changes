@@ -1,0 +1,10 @@
+-------------------------------------------------------------------
+Thu Oct 12 14:37:00 UTC 2017 - meissner@suse.com
+
+- susefied spec file. correct permission handling added.
+
+-------------------------------------------------------------------
+Thu Oct 12 06:58:07 UTC 2017 - meissner@suse.com
+
+- UI notifications for new USB devices to be authenticated
+
