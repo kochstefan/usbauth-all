@@ -72,7 +72,7 @@ cp data/90usbauth-notifier %{buildroot}%_sysconfdir/X11/xinit/xinitrc.d
 %verify(not mode) %attr(02755,root,usbauth) /usr/lib/usbauth-notifier/usbauth-notifier
 %_mandir/man1/usbauth-notifier.1*
 %_mandir/man1/usbauth-npriv.1*
-%_datadir/locale/de/LC_MESSAGES/usbauth-notifier.mo
+%_datadir/locale/*/LC_MESSAGES/usbauth-notifier.mo
 
 %post
 %set_permissions %_bindir/usbauth-npriv /usr/lib/usbauth-notifier /usr/lib/usbauth-notifier/usbauth-notifier
