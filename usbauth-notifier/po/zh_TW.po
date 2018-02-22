@@ -1,0 +1,137 @@
+# usbauth_notifier language template
+# This file is distributed under the same license as the usbauth-notifier package.
+# SZ Lin (林上智) <szlin@debian.org>, 2018.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: usbauth-notifier 1.0\n"
+"Report-Msgid-Bugs-To: szlin@debian.org\n"
+"POT-Creation-Date: 2015-05-20 19:20+0200\n"
+"PO-Revision-Date: 2018-02-21 21:37+0800\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Last-Translator: SZ Lin (林上智) <szlin@debian.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Language: zh_TW\n"
+
+#: src/usbauth-notifier.c:56
+msgid "Per Interface"
+msgstr "每個介面"
+
+#: src/usbauth-notifier.c:60
+msgid "Audio"
+msgstr "音訊裝置"
+
+#: src/usbauth-notifier.c:64
+msgid "Communication"
+msgstr "通訊"
+
+#: src/usbauth-notifier.c:68
+msgid "HID"
+msgstr "人機介面裝置"
+
+#: src/usbauth-notifier.c:71
+msgid "Keyboard"
+msgstr "鍵盤"
+
+#: src/usbauth-notifier.c:75
+msgid "Mouse"
+msgstr "滑鼠"
+
+#: src/usbauth-notifier.c:80
+msgid "Physical"
+msgstr "物理介面裝置"
+
+#: src/usbauth-notifier.c:84
+msgid "Image"
+msgstr "靜止圖像裝置"
+
+#: src/usbauth-notifier.c:88
+msgid "Printer"
+msgstr "列印裝置"
+
+#: src/usbauth-notifier.c:92
+msgid "Mass Storage"
+msgstr "大容量儲存裝置"
+
+#: src/usbauth-notifier.c:96
+msgid "Hub"
+msgstr "集線器"
+
+#: src/usbauth-notifier.c:100
+msgid "CDC data"
+msgstr "CDC 資料"
+
+#: src/usbauth-notifier.c:104
+msgid "Smart Card"
+msgstr "智慧卡"
+
+#: src/usbauth-notifier.c:108
+msgid "Content Security"
+msgstr "內容安全裝置"
+
+#: src/usbauth-notifier.c:112
+msgid "Video"
+msgstr "影像"
+
+#: src/usbauth-notifier.c:116
+msgid "Personal Healthcare"
+msgstr "個人保健"
+
+#: src/usbauth-notifier.c:120
+msgid "AV"
+msgstr "影音裝置"
+
+#: src/usbauth-notifier.c:124
+msgid "Billboard"
+msgstr "告示板"
+
+#: src/usbauth-notifier.c:128
+msgid "Diagnostic Device"
+msgstr "診斷裝置"
+
+#: src/usbauth-notifier.c:132
+msgid "Wireless Controller"
+msgstr "無線傳輸裝置"
+
+#: src/usbauth-notifier.c:136
+msgid "Miscellaneous"
+msgstr "其他"
+
+#: src/usbauth-notifier.c:140
+msgid "Application Specific"
+msgstr "特殊應用裝置"
+
+#: src/usbauth-notifier.c:144
+msgid "Vendor Specific"
+msgstr "廠商自定裝置"
+
+#: src/usbauth-notifier.c:148
+msgid "Unknown"
+msgstr "未知裝置"
+
+#: src/usbauth-notifier.c:287
+msgid "New USB interface"
+msgstr "新的 USB 介面"
+
+#: src/usbauth-notifier.c:299
+msgid "Default"
+msgstr "預設"
+
+#: src/usbauth-notifier.c:299 src/usbauth-notifier.c:305
+msgid "Allow"
+msgstr "允許"
+
+#: src/usbauth-notifier.c:299 src/usbauth-notifier.c:306
+msgid "Deny"
+msgstr "拒絕"
+
+#: src/usbauth-notifier.c:299
+msgid "Type"
+msgstr "屬性"
+
+#: src/usbauth-notifier.c:299
+msgid "Name"
+msgstr "名字"
