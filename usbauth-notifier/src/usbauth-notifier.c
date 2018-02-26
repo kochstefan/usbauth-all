@@ -274,7 +274,7 @@ void notification_action_callback(NotifyNotification *callback, char* action, gp
 void notification_create(const struct Dev* dev, bool authorize) {
 	struct udev_device *udevdev = dev->udevdev;
 	int32_t devn = dev->devnum;
-	char titleMsg[32];
+	char titleMsg[48];
 	char detailedMsg[128];
 	unsigned cl = 255;
 	unsigned subcl = 255;
@@ -312,8 +312,8 @@ void notification_create(const struct Dev* dev, bool authorize) {
 	conf = usbauth_get_param_valStr(bConfigurationValue, udevdev);
 	intf = usbauth_get_param_valStr(bInterfaceNumber, udevdev);
 
-	snprintf(titleMsg, sizeof(titleMsg), "%s", titleStr);
-	snprintf(detailedMsg, sizeof(detailedMsg), "<b>%s:</b> %s<br/><b>%s:</b> %s<br/><b>%s:</b> %04x:%04x<br/><b>%s:</b> %s-%s:%s.%s", gettext("Default"), authorize ? gettext("Allow") : gettext("Deny"), gettext("Type"), get_info_string(cl, subcl, iprot, false), "ID", vId, pId, gettext("Name"), busn, devp, conf, intf);
+	snprintf(titleMsg, sizeof(titleMsg), "%s (%s-%s:%s.%s)", titleStr, busn, devp, conf, intf);
+	snprintf(detailedMsg, sizeof(detailedMsg), "<b>%s:</b> %s\n<b>%s:</b> %s\n<b>%s:</b> %04x:%04x\n<b>%s:</b> %s-%s:%s.%s", gettext("Default"), authorize ? gettext("Allow") : gettext("Deny"), gettext("Type"), get_info_string(cl, subcl, iprot, false), "ID", vId, pId, gettext("Name"), busn, devp, conf, intf);
 
 	// pointer of dev heap gets back at callback so stack would be then out of context
 	dev_heap->udevdev = udevdev;
