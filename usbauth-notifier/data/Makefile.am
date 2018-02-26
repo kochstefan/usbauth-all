@@ -10,3 +10,5 @@
 # GNU General Public License for more details.
 
 man_MANS = usbauth-notifier.1 usbauth-npriv.1
+xdgautostartdir = $(sysconfdir)/xdg/autostart
+dist_xdgautostart_DATA = usbauth-notifier.desktop
