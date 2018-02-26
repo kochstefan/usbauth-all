@@ -58,15 +58,12 @@ if ! getent group usbauth-notifier>/dev/null; then groupadd -r usbauth-notifier;
 
 %install
 %make_install
-mkdir -p %{buildroot}%_sysconfdir/X11/xinit/xinitrc.d
-cp data/90usbauth-notifier %{buildroot}%_sysconfdir/X11/xinit/xinitrc.d
 
 %files
 %defattr(-,root,root)
 %doc COPYING README
-%dir /etc/X11/xinit
-%dir /etc/X11/xinit/xinitrc.d
-/etc/X11/xinit/xinitrc.d/90usbauth-notifier
+%dir /etc/xdg/autostart
+/etc/xdg/autostart/usbauth-notifier.desktop
 %verify(not mode) %attr(04750,root,usbauth) %_bindir/usbauth-npriv
 %dir %verify(not mode) %attr(00750,root,usbauth-notifier) /usr/lib/usbauth-notifier
 %verify(not mode) %attr(02755,root,usbauth) /usr/lib/usbauth-notifier/usbauth-notifier
