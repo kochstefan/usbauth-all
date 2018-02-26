@@ -1,4 +1,5 @@
 usbauth-notifier: Notifier for USB Firewall to use with desktop environments
 
-A notifier for the usbauth firewall against BadUSB attacks. The user could manually allow or deny USB devices.
-Every user that wants use the notifier must be added to the usbauth group.
+A notifier for the usbauth firewall against BadUSB attacks. The user could manually allow or deny interfaces of USB devices.
+Every user that wants use the notifier must be added to the usbauth-notifier group.
+To get notifications, at least one usbauth rule must be specified.
