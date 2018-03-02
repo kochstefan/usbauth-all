@@ -1,7 +1,7 @@
 #
 # spec file for package usbauth
 #
-# Copyright (c) 2017 SUSE LINUX GmbH, Nuernberg, Germany.
+# Copyright (c) 2018 SUSE LINUX GmbH, Nuernberg, Germany.
 # Copyright (c) 2017 Stefan Koch <stefan.koch10@gmail.com>
 # Copyright (c) 2015 SUSE LLC. All Rights Reserved.
 # Author: Stefan Koch <skoch@suse.de>
@@ -24,7 +24,7 @@ Version:        @VERSION@
 Release:        0
 Summary:        USB firewall against BadUSB attacks
 License:        GPL-2.0
-Group:          System/Security
+Group:          Productivity/Security
 Url:            https://github.com/kochstefan/usbauth-all/tree/master/usbauth
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
@@ -33,10 +33,10 @@ Source0:        %{name}.tar.bz2
 Requires:       systemd
 Requires:       udev
 BuildRequires:  dbus-1-devel
-BuildRequires:  systemd-rpm-macros
 BuildRequires:  libtool
 BuildRequires:  libudev-devel
 BuildRequires:  libusbauth-configparser-devel
+BuildRequires:  systemd-rpm-macros
 %{!?_udevrulesdir: %global _udevrulesdir %(pkg-config --variable=udevdir udev)/rules.d }
 
 %description
