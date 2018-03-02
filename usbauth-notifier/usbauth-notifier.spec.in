@@ -1,7 +1,7 @@
 #
 # spec file for package usbauth-notifier
 #
-# Copyright (c) 2017 SUSE LINUX GmbH, Nuernberg, Germany.
+# Copyright (c) 2018 SUSE LINUX GmbH, Nuernberg, Germany.
 # Copyright (c) 2017-2018 Stefan Koch <stefan.koch10@gmail.com>
 # Copyright (c) 2015 SUSE LLC. All Rights Reserved.
 # Author: Stefan Koch <skoch@suse.de>
@@ -32,14 +32,14 @@ Source0:        %{name}.tar.bz2
 
 Requires(pre):  permissions
 Requires:       usbauth
-BuildRequires:  pkgconfig(dbus-1)
 BuildRequires:  gettext-runtime
 BuildRequires:  libnotify-devel
 BuildRequires:  libtool
-BuildRequires:  permissions
-BuildRequires:  pkg-config
 BuildRequires:  libudev-devel
 BuildRequires:  libusbauth-configparser-devel
+BuildRequires:  permissions
+BuildRequires:  pkg-config
+BuildRequires:  pkgconfig(dbus-1)
 
 %description
 A notifier for the usbauth firewall against BadUSB attacks. The user could manually allow or deny USB devices.
