@@ -32,11 +32,17 @@ Source0:        %{name}.tar.bz2
 
 Requires:       systemd
 Requires:       udev
-BuildRequires:  dbus-1-devel
 BuildRequires:  libtool
 BuildRequires:  libudev-devel
 BuildRequires:  libusbauth-configparser-devel
+
+%if 0%{?suse_version}
+BuildRequires:  dbus-1-devel
 BuildRequires:  systemd-rpm-macros
+%else
+BuildRequires:  dbus-devel
+%endif
+
 %{!?_udevrulesdir: %global _udevrulesdir %(pkg-config --variable=udevdir udev)/rules.d }
 
 %description
