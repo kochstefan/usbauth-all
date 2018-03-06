@@ -30,16 +30,21 @@ Url:            https://github.com/kochstefan/usbauth-all/tree/master/usbauth-no
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Source0:        %{name}.tar.bz2
 
-Requires(pre):  permissions
 Requires:       usbauth
-BuildRequires:  gettext-runtime
 BuildRequires:  libnotify-devel
 BuildRequires:  libtool
 BuildRequires:  libudev-devel
 BuildRequires:  libusbauth-configparser-devel
-BuildRequires:  permissions
 BuildRequires:  pkg-config
 BuildRequires:  pkgconfig(dbus-1)
+
+%if 0%{?suse_version}
+Requires(pre):  permissions
+BuildRequires:  permissions
+BuildRequires:  gettext-runtime
+%else
+BuildRequires:  gettext-devel
+%endif
 
 %description
 A notifier for the usbauth firewall against BadUSB attacks. The user could manually allow or deny USB devices.
@@ -62,19 +67,21 @@ if ! getent group usbauth-notifier>/dev/null; then groupadd -r usbauth-notifier;
 %files
 %defattr(-,root,root)
 %doc COPYING README
-%dir /etc/xdg/autostart
-/etc/xdg/autostart/usbauth-notifier.desktop
+%dir %_sysconfdir/xdg/autostart
+%_sysconfdir/xdg/autostart/usbauth-notifier.desktop
 %verify(not mode) %attr(04750,root,usbauth) %_bindir/usbauth-npriv
-%dir %verify(not mode) %attr(00750,root,usbauth-notifier) /usr/lib/usbauth-notifier
-%verify(not mode) %attr(02755,root,usbauth) /usr/lib/usbauth-notifier/usbauth-notifier
+%dir %verify(not mode) %attr(00750,root,usbauth-notifier) %_usr/lib/usbauth-notifier
+%verify(not mode) %attr(02755,root,usbauth) %_usr/lib/usbauth-notifier/usbauth-notifier
 %_mandir/man1/usbauth-notifier.1*
 %_mandir/man1/usbauth-npriv.1*
 %_datadir/locale/*/LC_MESSAGES/usbauth-notifier.mo
 
+%if 0%{?suse_version}
 %post
-%set_permissions %_bindir/usbauth-npriv /usr/lib/usbauth-notifier /usr/lib/usbauth-notifier/usbauth-notifier
+%set_permissions %_bindir/usbauth-npriv %_usr/lib/usbauth-notifier %_usr/lib/usbauth-notifier/usbauth-notifier
 
 %verifyscript
-%verify_permissions -e %_bindir/usbauth-npriv /usr/lib/usbauth-notifier /usr/lib/usbauth-notifier/usbauth-notifier
+%verify_permissions -e %_bindir/usbauth-npriv %_usr/lib/usbauth-notifier %_usr/lib/usbauth-notifier/usbauth-notifier
+%endif
 
 %changelog
