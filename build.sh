@@ -24,6 +24,11 @@ fi
 
 for pkg in libusbauth-configparser usbauth usbauth-notifier; do
 	if [ -d $pkg ]; then
+
+		if [ $type = rpm ]; then
+			tar cvfj $pkg.tar.bz2 $pkg
+		fi
+
 		pushd $pkg
 		if [ $type = rpm ]; then
 			./autogen.sh
@@ -38,7 +43,6 @@ for pkg in libusbauth-configparser usbauth usbauth-notifier; do
 		popd
 
 		if [ $type = rpm ]; then
-			tar cvfj $pkg.tar.bz2 $pkg
 			mkdir -p ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
 			mv $pkg.tar.bz2 ~/rpmbuild/SOURCES
 			cp -f $pkg/$pkg-rpmlintrc ~/rpmbuild/SOURCES
