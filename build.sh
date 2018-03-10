@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (C) 2017 Stefan Koch <stefan.koch10@gmail.com>
+# Copyright (C) 2017-2018 Stefan Koch <stefan.koch10@gmail.com>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of version 2.1 of the GNU Lesser General
@@ -12,6 +12,7 @@
 # Lesser General Public License for more details.
 
 type="$1"
+vsuffix="-1.0"
 
 if [ -z "$type" ]; then
 	echo "Usage:"
@@ -25,8 +26,8 @@ fi
 for pkg in libusbauth-configparser usbauth usbauth-notifier; do
 	if [ -d $pkg ]; then
 
-		if [ $type = rpm ]; then
-			tar cvfj $pkg.tar.bz2 $pkg
+		if [ $type = rpm ] || [ $type = obs ]; then
+			tar cvfj ${pkg}${vsuffix}.tar.bz2 $pkg
 		fi
 
 		pushd $pkg
@@ -44,16 +45,16 @@ for pkg in libusbauth-configparser usbauth usbauth-notifier; do
 
 		if [ $type = rpm ]; then
 			mkdir -p ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
-			mv $pkg.tar.bz2 ~/rpmbuild/SOURCES
+			mv ${pkg}${vsuffix}.tar.bz2 ~/rpmbuild/SOURCES
 			cp -f $pkg/$pkg-rpmlintrc ~/rpmbuild/SOURCES
 			cp $pkg/$pkg.spec ~/rpmbuild/SPECS
+			/usr/lib/build/changelog2spec $pkg/$pkg.changes >> ~/rpmbuild/SPECS/$pkg.spec
 			rpmbuild -ba ~/rpmbuild/SPECS/$pkg.spec
 		elif [ $type = obs ]; then
 			osc checkout "$2"
 			osc meta pkg -e "$2" $pkg
 			osc up "$2"
-			tar cvfj $pkg.tar.bz2 $pkg
-			mv $pkg.tar.bz2 "$2"/$pkg/
+			mv ${pkg}${vsuffix}.tar.bz2 "$2"/$pkg/
 			pushd $pkg
 			./autogen.sh
 			./configure
