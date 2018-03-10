@@ -21,14 +21,25 @@
 
 Name:           @PACKAGE@
 Version:        @VERSION@
-Release:        0
 Summary:        Notifier for USB Firewall to use with desktop environments
-License:        GPL-2.0
-Group:          System/X11/Utilities
 Url:            https://github.com/kochstefan/usbauth-all/tree/master/usbauth-notifier
 
+%if 0%{?suse_version}
+Release:        0
+License:        GPL-2.0
+Group:          System/X11/Utilities
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
-Source0:        %{name}.tar.bz2
+%else
+Release:        1%{?dist}
+License:        GPLv2
+%endif
+
+# Generate a source tarball:
+# git clone https://github.com/kochstefan/usbauth-all.git
+# cd usbauth-all
+# git checkout vVERSION
+# tar cvfj usbauth-notifier-VERSION.tar.bz2 usbauth-notifier
+Source0:        %{name}-%{version}.tar.bz2
 
 Requires:       usbauth
 BuildRequires:  libnotify-devel
@@ -58,14 +69,17 @@ autoreconf -f -i
 %make_build
 
 %pre
-if ! getent group usbauth>/dev/null; then groupadd -r usbauth; fi
-if ! getent group usbauth-notifier>/dev/null; then groupadd -r usbauth-notifier; fi
+getent group usbauth >/dev/null || groupadd -r usbauth
+getent group usbauth-notifier >/dev/null || groupadd -r usbauth-notifier
+exit 0
 
 %install
 %make_install
 
 %files
+%if 0%{?suse_version}
 %defattr(-,root,root)
+%endif
 %doc COPYING README
 %dir %_sysconfdir/xdg/autostart
 %_sysconfdir/xdg/autostart/usbauth-notifier.desktop
