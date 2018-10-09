@@ -139,7 +139,8 @@ bool match_vals_interface(struct Auth *rule, struct Data *d, struct udev_device 
 			ret = match_valsInt(rule->devcount + 1, d->op, rval);
 	} else {
 		lvalStr = usbauth_get_param_valStr(d->param, interface); // get parameter from sysfs
-		ret = match_vals(lvalStr, d->op, rvalStr);
+		if (lvalStr)
+			ret = match_vals(lvalStr, d->op, rvalStr);
 	}
 
 	return ret;
