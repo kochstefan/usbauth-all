@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (C) 2017-2018 Stefan Koch <stefan.koch10@gmail.com>
+# Copyright (C) 2017-2019 Stefan Koch <stefan.koch10@gmail.com>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of version 2.1 of the GNU Lesser General
@@ -48,7 +48,7 @@ for pkg in libusbauth-configparser usbauth usbauth-notifier; do
 			mv ${pkg}${vsuffix}.tar.bz2 ~/rpmbuild/SOURCES
 			cp -f $pkg/$pkg-rpmlintrc ~/rpmbuild/SOURCES
 			cp $pkg/$pkg.spec ~/rpmbuild/SPECS
-			/usr/lib/build/changelog2spec $pkg/$pkg.changes >> ~/rpmbuild/SPECS/$pkg.spec
+			/usr/lib/build/changelog2spec $pkg/$pkg.changelog >> ~/rpmbuild/SPECS/$pkg.spec
 			rpmbuild -ba ~/rpmbuild/SPECS/$pkg.spec
 		elif [ $type = obs ]; then
 			osc checkout "$2"
