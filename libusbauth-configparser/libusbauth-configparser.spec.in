@@ -41,6 +41,7 @@ License:        LGPLv2
 # tar cvfj libusbauth-configparser-VERSION.tar.bz2 libusbauth-configparser
 Source0:        %{name}-%{version}.tar.bz2
 
+BuildRequires:  gcc
 BuildRequires:  bison
 BuildRequires:  flex
 BuildRequires:  libtool
@@ -60,7 +61,11 @@ Library to read usbauth config file into data structures
 
 %package devel
 Summary:        Development part of library for USB Firewall including flex/bison parser
+%if 0%{?suse_version}
 Requires:       libusbauth-configparser%{?suse_version:1}
+%else
+Requires:       libusbauth-configparser%{?_isa} = %{version}-%{release}
+%endif
 %if 0%{?suse_version}
 Group:          Development/Languages/C and C++
 %endif
@@ -69,7 +74,7 @@ Group:          Development/Languages/C and C++
 Development part of library to read usbauth config file into data structures
 
 %prep
-%setup -n %{name}
+%setup -q -n %{name}
 
 %build
 autoreconf -f -i
@@ -83,12 +88,16 @@ autoreconf -f -i
 %if 0%{?suse_version}
 %defattr(-,root,root)
 %endif
-%doc COPYING README
-%_libdir/*lib*.so.*
+%license COPYING
+%doc README
+%_libdir/*lib*.so.1
 
 %files devel
+%if 0%{?suse_version}
 %defattr(-,root,root)
-%doc COPYING README
+%endif
+%license COPYING
+%doc README
 %doc %_mandir/*/*
 %_includedir/*
 %_libdir/lib*.so
