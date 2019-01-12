@@ -1,6 +1,6 @@
 usbauth: USB firewall against BadUSB attacks
 
-It is a firewall against BadUSB attacks. A config file descibes in which way USB interfaces would be accepted or denied.
+It is a firewall against BadUSB attacks. A config file describes in which way USB interfaces would be accepted or denied.
 To the kernel an interface authorization was developed with this firewall.
 The firewall sets the authorization mask according to the rules.
 
