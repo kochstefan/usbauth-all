@@ -42,12 +42,13 @@ License:        GPLv2
 Source0:        %{name}-%{version}.tar.bz2
 
 Requires:       usbauth
+BuildRequires:  gcc
+BuildRequires:  pkg-config
+BuildRequires:  pkgconfig(dbus-1)
 BuildRequires:  libnotify-devel
 BuildRequires:  libtool
 BuildRequires:  libudev-devel
 BuildRequires:  libusbauth-configparser-devel
-BuildRequires:  pkg-config
-BuildRequires:  pkgconfig(dbus-1)
 
 %if 0%{?suse_version}
 Requires(pre):  permissions
@@ -58,10 +59,11 @@ BuildRequires:  gettext-devel
 %endif
 
 %description
-A notifier for the usbauth firewall against BadUSB attacks. The user could manually allow or deny USB devices.
+A notifier for the usbauth firewall against BadUSB attacks.
+The user could manually allow or deny USB devices.
 
 %prep
-%setup -n %{name}
+%setup -q -n %{name}
 
 %build
 autoreconf -f -i
@@ -75,12 +77,15 @@ exit 0
 
 %install
 %make_install
+%find_lang %name
+%files -f %name.lang
 
 %files
 %if 0%{?suse_version}
 %defattr(-,root,root)
 %endif
-%doc COPYING README
+%license COPYING
+%doc README
 %dir %_sysconfdir/xdg/autostart
 %_sysconfdir/xdg/autostart/usbauth-notifier.desktop
 %verify(not mode) %attr(04750,root,usbauth) %_bindir/usbauth-npriv
