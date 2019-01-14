@@ -47,8 +47,9 @@ for pkg in libusbauth-configparser usbauth usbauth-notifier; do
 			mkdir -p ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
 			mv ${pkg}${vsuffix}.tar.bz2 ~/rpmbuild/SOURCES
 			cp -f $pkg/$pkg-rpmlintrc ~/rpmbuild/SOURCES
-			cp $pkg/$pkg.spec ~/rpmbuild/SPECS
-			/usr/lib/build/changelog2spec $pkg/$pkg.changelog >> ~/rpmbuild/SPECS/$pkg.spec
+			#cp $pkg/$pkg.spec ~/rpmbuild/SPECS
+			sed -e '/%if.*suse_version/,/%else\|%endif/d' -e '/%endif/d' -e 's/%{?suse_version:\(.*\)}//' $pkg/$pkg.spec > ~/rpmbuild/SPECS/$pkg.spec
+			cat $pkg/$pkg.changelog >> ~/rpmbuild/SPECS/$pkg.spec
 			rpmbuild -ba ~/rpmbuild/SPECS/$pkg.spec
 		elif [ $type = obs ]; then
 			osc checkout "$2"
@@ -58,7 +59,8 @@ for pkg in libusbauth-configparser usbauth usbauth-notifier; do
 			pushd $pkg
 			./autogen.sh
 			./configure
-			cp $pkg.spec ../"$2"/$pkg/
+			#cp $pkg.spec ../"$2"/$pkg/
+			sed -e '/%else/,/%endif/d' -e '/%if.*suse_version/d' -e '/%endif/d' -e 's/%{?suse_version:\(.*\)}/\1/' $pkg.spec > ../"$2"/$pkg/$pkg.spec
 			cp $pkg.changes ../"$2"/$pkg/
 			popd
 			osc add "$2"/$pkg/*
