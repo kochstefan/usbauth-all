@@ -33,7 +33,7 @@
 
 %%
 <COMMENT>.* {BEGIN 0; return t_comment;}
-<VAL>[^\n \t]+ {BEGIN 0; return t_val;}
+<VAL>([^ \n\t]+|\"[^"\n\t]*\") {BEGIN 0; return t_val;}
 
 [ \t] {;}
 "#" {BEGIN COMMENT;}
