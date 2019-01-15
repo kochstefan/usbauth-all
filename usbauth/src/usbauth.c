@@ -114,14 +114,26 @@ bool match_vals(const char *lvalStr, enum Operator op, const char *rvalStr) {
 
 bool match_vals_interface(struct Auth *rule, struct Data *d, struct udev_device *interface) {
 	bool ret = false;
+	char* tmpStr = NULL;
 	const char* lvalStr = NULL;
 	const char* rvalStr = d->val;
-	const char *type = udev_device_get_devtype(interface);
+	int rvalLen = 0;
+	const char* type = udev_device_get_devtype(interface);
 	char cntStr[16];
 	strcpy(cntStr, "");
 
-	if (!type || strcmp(type, "usb_interface") != 0)
+	if (!type || !rvalStr || strcmp(type, "usb_interface") != 0)
 		return false;
+
+	rvalLen = strlen(rvalStr);
+	if (rvalLen >= 2 && rvalStr[0] == '"' && rvalStr[rvalLen-1] == '"')
+	{
+		rvalLen -= 2;
+		tmpStr = calloc(rvalLen + 1, sizeof(char));
+		strncpy(tmpStr, rvalStr + 1, rvalLen);
+		tmpStr[rvalLen] = '\0';
+		rvalStr = tmpStr;
+	}
 
 	if (intfcount == d->param) { // intfcount parameter is not in sysfs
 		char* rend = NULL;
@@ -142,6 +154,9 @@ bool match_vals_interface(struct Auth *rule, struct Data *d, struct udev_device 
 		if (lvalStr)
 			ret = match_vals(lvalStr, d->op, rvalStr);
 	}
+
+	if (tmpStr)
+		free(tmpStr);
 
 	return ret;
 }
