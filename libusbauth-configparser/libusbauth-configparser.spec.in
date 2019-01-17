@@ -90,7 +90,7 @@ autoreconf -f -i
 %endif
 %license COPYING
 %doc README
-%_libdir/*lib*.so.1
+%_libdir/lib*.so.1*
 
 %files devel
 %if 0%{?suse_version}
