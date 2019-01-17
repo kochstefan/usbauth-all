@@ -10,6 +10,6 @@
 # GNU General Public License for more details.
 
 sbin_PROGRAMS = usbauth
-usbauth_CFLAGS = $(USBAUTH_CFLAGS) $(UDEV_CFLAGS) $(DBUS_CFLAGS)
+usbauth_CFLAGS = -include config.h $(USBAUTH_CFLAGS) $(UDEV_CFLAGS) $(DBUS_CFLAGS)
 usbauth_SOURCES = usbauth.c
 usbauth_LDADD = $(USBAUTH_LIBS) $(UDEV_LIBS) $(DBUS_LIBS)
