@@ -12,7 +12,7 @@
 # Lesser General Public License for more details.
 
 type="$1"
-vsuffix="-1.0"
+vsuffix=-$(grep -e AC_INIT usbauth/configure.ac | sed -e 's/.*\[\([0-9].[0-9][\.]*[0-9]*\)*\].*/\1/')
 
 if [ -z "$type" ]; then
 	echo "Usage:"
@@ -25,6 +25,7 @@ fi
 
 for pkg in libusbauth-configparser usbauth usbauth-notifier; do
 	if [ -d $pkg ]; then
+		vsuffix=-$(grep -e AC_INIT ${pkg}/configure.ac | sed -e 's/.*\[\([0-9].[0-9][\.]*[0-9]*\)*\].*/\1/')
 
 		if [ $type = rpm ] || [ $type = obs ]; then
 			tar cvfj ${pkg}${vsuffix}.tar.bz2 $pkg
