@@ -97,6 +97,7 @@ Values
 ----------
 Values are strings in the data strucures of the firewall.
 At first a numeric compare is attempt. If failed a string comparement will used.
+When using double quotes it is possible to specify strings containing spaces.
 
 
 Exampels
