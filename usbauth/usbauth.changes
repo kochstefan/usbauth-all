@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Tue Jan 22 22:00:00 UTC 2019 - Stefan Koch <stefan.koch10@gmail.com>
+
+- Fix string comparing
+- Support string quoting
+
+-------------------------------------------------------------------
 Tue Feb 13 22:30:00 UTC 2018 - stefan.koch10@gmail.com
 
 - update outdated source (fix dbus group)
