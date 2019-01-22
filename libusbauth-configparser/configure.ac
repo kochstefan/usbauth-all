@@ -13,7 +13,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([libusbauth-configparser], [1.0], [stefan.koch10@gmail.com])
+AC_INIT([libusbauth-configparser], [1.0.1], [stefan.koch10@gmail.com])
 AM_INIT_AUTOMAKE([-Wall foreign])
 AC_CONFIG_SRCDIR([config.h.in])
 AC_CONFIG_HEADERS([config.h])

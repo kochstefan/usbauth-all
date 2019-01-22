@@ -1,3 +1,9 @@
+libusbauth-configparser (1.0.1) unstable; urgency=medium
+
+  * Support string quoting
+
+ -- Stefan Koch <stefan.koch10@gmail.com>  Tue, 22 Jan 2019 23:00:00 +0200
+
 libusbauth-configparser (1.0) unstable; urgency=medium
 
   * Initial Release.
