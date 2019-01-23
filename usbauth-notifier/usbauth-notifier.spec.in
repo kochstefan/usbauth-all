@@ -43,7 +43,6 @@ Source0:        %{name}-%{version}.tar.bz2
 
 Requires:       usbauth
 BuildRequires:  gcc
-BuildRequires:  pkg-config
 BuildRequires:  pkgconfig(dbus-1)
 BuildRequires:  libnotify-devel
 BuildRequires:  libtool
@@ -54,8 +53,10 @@ BuildRequires:  libusbauth-configparser-devel
 Requires(pre):  permissions
 BuildRequires:  permissions
 BuildRequires:  gettext-runtime
+BuildRequires:  pkg-config
 %else
 BuildRequires:  gettext-devel
+BuildRequires:  pkgconfig
 %endif
 
 %description
