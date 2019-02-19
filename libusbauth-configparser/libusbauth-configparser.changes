@@ -1,7 +1,8 @@
 -------------------------------------------------------------------
 Tue Jan 22 22:00:00 UTC 2019 - Stefan Koch <stefan.koch10@gmail.com>
 
-- Support string quoting
+- update to 1.0.1:
+  * Support string quoting
 
 -------------------------------------------------------------------
 Thu Feb  1 23:12:01 UTC 2018 - jengelh@inai.de
