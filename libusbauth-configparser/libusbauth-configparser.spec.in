@@ -84,9 +84,11 @@ autoreconf -f -i
 %install
 %make_install
 
-%files -n %{name}%{?suse_version:1}
 %if 0%{?suse_version}
+%files -n %{name}%{?suse_version:1}
 %defattr(-,root,root)
+%else
+%files
 %endif
 %license COPYING
 %doc README
@@ -98,10 +100,10 @@ autoreconf -f -i
 %endif
 %license COPYING
 %doc README
-%doc %_mandir/*/*
 %_includedir/*
 %_libdir/lib*.so
 %_libdir/pkgconfig/*
+%_mandir/*/*
 
 %if 0%{?suse_version}
 %post -n %{name}%{?suse_version:1} -p /sbin/ldconfig
