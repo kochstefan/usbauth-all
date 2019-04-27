@@ -55,6 +55,7 @@ BuildRequires:  permissions
 BuildRequires:  gettext-runtime
 BuildRequires:  pkg-config
 %else
+Requires(pre):  shadow-utils
 BuildRequires:  gettext-devel
 BuildRequires:  pkgconfig
 %endif
@@ -79,9 +80,8 @@ exit 0
 %install
 %make_install
 %find_lang %name
-%files -f %name.lang
 
-%files
+%files -f %name.lang
 %if 0%{?suse_version}
 %defattr(-,root,root)
 %endif
@@ -89,19 +89,24 @@ exit 0
 %doc README
 %dir %_sysconfdir/xdg/autostart
 %_sysconfdir/xdg/autostart/usbauth-notifier.desktop
+%if 0%{?suse_version}
 %verify(not mode) %attr(04750,root,usbauth) %_bindir/usbauth-npriv
-%dir %verify(not mode) %attr(00750,root,usbauth-notifier) %_usr/lib/usbauth-notifier
-%verify(not mode) %attr(02755,root,usbauth) %_usr/lib/usbauth-notifier/usbauth-notifier
+%dir %verify(not mode) %attr(00750,root,usbauth-notifier) %{_prefix}/lib/usbauth-notifier
+%verify(not mode) %attr(02755,root,usbauth) %{_prefix}/lib/usbauth-notifier/usbauth-notifier
+%else
+%attr(04750,root,usbauth) %_bindir/usbauth-npriv
+%dir %attr(00750,root,usbauth-notifier) %{_prefix}/lib/usbauth-notifier
+%attr(02755,root,usbauth) %{_prefix}/lib/usbauth-notifier/usbauth-notifier
+%endif
 %_mandir/man1/usbauth-notifier.1*
 %_mandir/man1/usbauth-npriv.1*
-%_datadir/locale/*/LC_MESSAGES/usbauth-notifier.mo
 
 %if 0%{?suse_version}
 %post
-%set_permissions %_bindir/usbauth-npriv %_usr/lib/usbauth-notifier %_usr/lib/usbauth-notifier/usbauth-notifier
+%set_permissions %_bindir/usbauth-npriv %{_prefix}/lib/usbauth-notifier %{_prefix}/lib/usbauth-notifier/usbauth-notifier
 
 %verifyscript
-%verify_permissions -e %_bindir/usbauth-npriv %_usr/lib/usbauth-notifier %_usr/lib/usbauth-notifier/usbauth-notifier
+%verify_permissions -e %_bindir/usbauth-npriv %{_prefix}/lib/usbauth-notifier %{_prefix}/lib/usbauth-notifier/usbauth-notifier
 %endif
 
 %changelog
