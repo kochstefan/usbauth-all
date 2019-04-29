@@ -12,5 +12,5 @@
 [Desktop Entry]
 Type=Application
 Name=usbauth-notifier
-Exec=/usr/lib/usbauth-notifier/usbauth-notifier
+Exec=@libexecdir@/usbauth-notifier/usbauth-notifier
 

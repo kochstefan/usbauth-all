@@ -58,5 +58,6 @@ AC_CONFIG_FILES([Makefile
                  data/Makefile
                  src/Makefile
                  po/Makefile.in
-                 usbauth-notifier.spec])
+                 usbauth-notifier.spec
+                 data/usbauth-notifier.desktop])
 AC_OUTPUT

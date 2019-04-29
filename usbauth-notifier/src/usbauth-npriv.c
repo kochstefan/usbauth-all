@@ -27,8 +27,8 @@
 #include <syslog.h>
 #include <sys/wait.h>
 
-#define USBAUTH_PATH "/usr/sbin/usbauth"
-#define NOTIFIER_PATH "/usr/lib/usbauth-notifier/usbauth-notifier"
+#define USBAUTH_PATH SBINDIR "/usbauth"
+#define NOTIFIER_PATH LIBEXECDIR "/usbauth-notifier/usbauth-notifier"
 #define BUFSIZE 128
 
 /*
