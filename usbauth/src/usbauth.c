@@ -36,8 +36,6 @@
 #include <syslog.h>
 #include <sys/file.h>
 
-#define LOCK_FILE "/var/run/usbauth.pid"
-
 static FILE *logfile = NULL;
 
 static struct udev *udev = NULL;
