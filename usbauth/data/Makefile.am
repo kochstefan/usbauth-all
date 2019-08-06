@@ -9,7 +9,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 
-man_MANS = usbauth.1
+man_MANS = usbauth.8
 sysconf_DATA = usbauth.conf
 udevrulesdir = /lib/udev/rules.d
 dist_udevrules_DATA=20-usbauth.rules
