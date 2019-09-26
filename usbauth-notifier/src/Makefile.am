@@ -11,8 +11,8 @@
 
 notifier_installdir = $(libexecdir)/$(PACKAGE)
 notifier_install_PROGRAMS = usbauth-notifier
-bin_PROGRAMS = usbauth-npriv
-usbauth_notifier_CFLAGS = -include config.h -DBINDIR=\""$(bindir)"\" $(USBAUTH_CFLAGS) $(NOTIFY_CFLAGS) $(UDEV_CFLAGS) $(DBUS_CFLAGS)
+libexec_PROGRAMS = usbauth-npriv
+usbauth_notifier_CFLAGS = -include config.h -DLIBEXECDIR=\""$(libexecdir)"\" $(USBAUTH_CFLAGS) $(NOTIFY_CFLAGS) $(UDEV_CFLAGS) $(DBUS_CFLAGS)
 usbauth_notifier_SOURCES = usbauth-notifier.c
 usbauth_notifier_LDADD = $(USBAUTH_LIBS) $(NOTIFY_LIBS) $(UDEV_LIBS) $(DBUS_LIBS)
 usbauth_npriv_CFLAGS = -include config.h -DSBINDIR=\""$(sbindir)"\" -DLIBEXECDIR=\""$(libexecdir)"\"

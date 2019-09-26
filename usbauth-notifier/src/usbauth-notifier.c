@@ -43,7 +43,7 @@
 
 #include "usbauth-notifier.h"
 
-#define NPRIV_PATH BINDIR "/usbauth-npriv"
+#define NPRIV_PATH LIBEXECDIR "/usbauth-npriv"
 
 static bool work = true;
 static struct udev *udev = NULL;

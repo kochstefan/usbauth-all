@@ -90,11 +90,11 @@ exit 0
 %dir %_sysconfdir/xdg/autostart
 %_sysconfdir/xdg/autostart/usbauth-notifier.desktop
 %if 0%{?suse_version}
-%verify(not mode) %attr(04750,root,usbauth) %_bindir/usbauth-npriv
+%verify(not mode) %attr(04750,root,usbauth) %_libexecdir/usbauth-npriv
 %dir %verify(not mode) %attr(00750,root,usbauth-notifier) %_libexecdir/usbauth-notifier
 %verify(not mode) %attr(02755,root,usbauth) %_libexecdir/usbauth-notifier/usbauth-notifier
 %else
-%attr(04750,root,usbauth) %_bindir/usbauth-npriv
+%attr(04750,root,usbauth) %_libexecdir/usbauth-npriv
 %dir %attr(00750,root,usbauth-notifier) %_libexecdir/usbauth-notifier
 %attr(02755,root,usbauth) %_libexecdir/usbauth-notifier/usbauth-notifier
 %endif
@@ -103,10 +103,10 @@ exit 0
 
 %if 0%{?suse_version}
 %post
-%set_permissions %_bindir/usbauth-npriv %_libexecdir/usbauth-notifier %_libexecdir/usbauth-notifier/usbauth-notifier
+%set_permissions %_libexecdir/usbauth-npriv %_libexecdir/usbauth-notifier %_libexecdir/usbauth-notifier/usbauth-notifier
 
 %verifyscript
-%verify_permissions -e %_bindir/usbauth-npriv %_libexecdir/usbauth-notifier %_libexecdir/usbauth-notifier/usbauth-notifier
+%verify_permissions -e %_libexecdir/usbauth-npriv %_libexecdir/usbauth-notifier %_libexecdir/usbauth-notifier/usbauth-notifier
 %endif
 
 %changelog
