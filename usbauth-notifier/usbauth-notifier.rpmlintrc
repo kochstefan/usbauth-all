@@ -1,0 +1,4 @@
+addFilter(r'setuid-binary')
+addFilter(r'setgid-binary')
+addFilter(r'non-standard-dir-perm')
+addFilter(r'non-standard-executable-perm')

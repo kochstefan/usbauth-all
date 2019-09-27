@@ -47,7 +47,7 @@ for pkg in libusbauth-configparser usbauth usbauth-notifier; do
 		if [ $type = rpm ]; then
 			mkdir -p ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
 			mv ${pkg}${vsuffix}.tar.bz2 ~/rpmbuild/SOURCES
-			cp -f $pkg/$pkg-rpmlintrc ~/rpmbuild/SOURCES
+			cp -f $pkg/$pkg.rpmlintrc ~/rpmbuild/SOURCES
 			#cp $pkg/$pkg.spec ~/rpmbuild/SPECS
 			sed -e '/%if.*suse_version/,/%else\|%endif/d' -e '/%endif/d' -e 's/%{?suse_version:\(.*\)}//' $pkg/$pkg.spec > ~/rpmbuild/SPECS/$pkg.spec
 			cat $pkg/$pkg.changelog >> ~/rpmbuild/SPECS/$pkg.spec
