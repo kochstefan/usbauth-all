@@ -1,4 +1,7 @@
-usbauth 1.0.1 (2018-01-19)
+usbauth 1.0.2 (2019-09-30)
+  * Fix manpage location
+
+usbauth 1.0.1 (2019-01-19)
   * Fix string comparing
   * Support string quoting
 
