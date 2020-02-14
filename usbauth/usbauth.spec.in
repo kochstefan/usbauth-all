@@ -84,7 +84,7 @@ autoreconf -f -i
 %config %_sysconfdir/dbus-1/system.d/org.opensuse.usbauth.conf
 %config(noreplace) %_sysconfdir/usbauth.conf
 %_udevrulesdir/20-usbauth.rules
-%_mandir/man8/usbauth.8.*
+%_mandir/man1/usbauth.1.*
 
 %if 0%{?suse_version}
 %post
