@@ -1,6 +1,8 @@
 #
 # spec file for package usbauth-notifier
 #
+# Copyright (c) 2020 SUSE LLC
+# Copyright (c) 2019 SUSE LLC
 # Copyright (c) 2018 SUSE LINUX GmbH, Nuernberg, Germany.
 # Copyright (c) 2017-2018 Stefan Koch <stefan.koch10@gmail.com>
 # Copyright (c) 2015 SUSE LLC. All Rights Reserved.
@@ -15,78 +17,77 @@
 # license that conforms to the Open Source Definition (Version 1.9)
 # published by the Open Source Initiative.
 
-# Please submit bugfixes or comments via http://bugs.opensuse.org/
+# Please submit bugfixes or comments via https://bugs.opensuse.org/
 #
 
 
 Name:           @PACKAGE@
 Version:        @VERSION@
 Summary:        Notifier for USB Firewall to use with desktop environments
-Url:            https://github.com/kochstefan/usbauth-all/tree/master/usbauth-notifier
+URL:            https://github.com/kochstefan/usbauth-all/tree/master/usbauth-notifier
+Source:         https://github.com/kochstefan/usbauth-all/archive/v%{version}.tar.gz
 
 %if 0%{?suse_version}
 Release:        0
-License:        GPL-2.0
+License:        GPL-2.0-only
 Group:          System/X11/Utilities
-BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 %else
 Release:        1%{?dist}
 License:        GPLv2
 %endif
 
-# Generate a source tarball:
-# git clone https://github.com/kochstefan/usbauth-all.git
-# cd usbauth-all
-# git checkout vVERSION
-# tar cvfj usbauth-notifier-VERSION.tar.bz2 usbauth-notifier
-Source0:        %{name}-%{version}.tar.bz2
-
-Requires:       usbauth
-BuildRequires:  gcc
-BuildRequires:  pkgconfig(dbus-1)
-BuildRequires:  libnotify-devel
-BuildRequires:  libtool
-BuildRequires:  libudev-devel
-BuildRequires:  libusbauth-configparser-devel
-
 %if 0%{?suse_version}
 Requires(pre):  permissions
+%else
+Requires(pre):  shadow-utils
+%endif
+Requires:       usbauth
+BuildRequires:  pkgconfig(dbus-1)
+BuildRequires:  pkgconfig(libudev)
+BuildRequires:  libusbauth-configparser-devel
+BuildRequires:  gcc
+BuildRequires:  libnotify-devel
+BuildRequires:  libtool
+%if 0%{?suse_version}
 BuildRequires:  permissions
 BuildRequires:  gettext-runtime
 BuildRequires:  pkg-config
 %else
-Requires(pre):  shadow-utils
 BuildRequires:  gettext-devel
 BuildRequires:  pkgconfig
 %endif
 
 %description
-A notifier for the usbauth firewall against BadUSB attacks.
-The user could manually allow or deny USB devices.
+A notifier for the usbauth firewall against BadUSB attacks. The user could manually allow or deny USB devices.
 
 %prep
-%setup -q -n %{name}
+%autosetup -n usbauth-all-%{version} -p1
 
 %build
+pushd %{name}/
 autoreconf -f -i
 %configure
 %make_build
+popd
 
 %pre
-getent group usbauth >/dev/null || groupadd -r usbauth
-getent group usbauth-notifier >/dev/null || groupadd -r usbauth-notifier
-exit 0
+if ! getent group usbauth>/dev/null; then groupadd -r usbauth; fi
+if ! getent group usbauth-notifier>/dev/null; then groupadd -r usbauth-notifier; fi
 
 %install
+pushd %{name}/
 %make_install
 %find_lang %name
+popd
 
 %files -f %name.lang
 %if 0%{?suse_version}
 %defattr(-,root,root)
 %endif
-%license COPYING
-%doc README
+%license %{name}/COPYING
+%doc %{name}/README
+doc %_mandir/man1/usbauth-notifier.1*
+doc %_mandir/man1/usbauth-npriv.1*
 %dir %_sysconfdir/xdg/autostart
 %_sysconfdir/xdg/autostart/usbauth-notifier.desktop
 %if 0%{?suse_version}
@@ -98,8 +99,6 @@ exit 0
 %dir %attr(00750,root,usbauth-notifier) %_libexecdir/usbauth-notifier
 %attr(02755,root,usbauth) %_libexecdir/usbauth-notifier/usbauth-notifier
 %endif
-%_mandir/man1/usbauth-notifier.1*
-%_mandir/man1/usbauth-npriv.1*
 
 %if 0%{?suse_version}
 %post
