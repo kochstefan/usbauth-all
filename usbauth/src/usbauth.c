@@ -226,7 +226,10 @@ bool no_error_check_dbus(DBusError *error) {
 
 	if (dbus_error_is_set(error)) {
 		ret = false;
-		syslog(LOG_ERR, "dbus_error: %s\n", error->message);
+
+		if (debuglog)
+			syslog(LOG_DEBUG, "dbus_error: %s\n", error->message);
+
 		dbus_error_free(error);
 	}
 
