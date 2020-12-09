@@ -1,3 +1,6 @@
+usbauth 1.0.3 (2020-12-09)
+  * Improve logging of dbus errors
+
 usbauth 1.0.2 (2019-09-30)
   * Fix manpage location
 
