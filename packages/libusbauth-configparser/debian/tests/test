@@ -1,0 +1,15 @@
+#!/bin/dash
+# autopkgtest check: Build and run a program against glib, to verify that the
+# headers and pkg-config file are installed correctly
+# Author: Kun-Hung Tsai (蔡昆宏) <moonape1226@gmail.com>
+
+set -e
+
+echo "run: Check if library file exist"
+if /sbin/ldconfig -p | grep libusbauth-configparser
+then
+    echo "run: Found libary"
+else
+    echo "run: Fail"
+    exit 1
+fi

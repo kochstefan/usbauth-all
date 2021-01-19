@@ -1,6 +1,6 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: libusbauth-configparser
-Source: <https://github.com/kochstefan/usbauth-all.git>
+Source: https://github.com/kochstefan/usbauth-all.git
 
 Files: *
 Copyright: 2015 SUSE LLC. Author: Stefan Koch <skoch@suse.de>
@@ -8,26 +8,24 @@ Copyright: 2015 SUSE LLC. Author: Stefan Koch <skoch@suse.de>
 License: LGPL-2.1
 
 Files: debian/*
-Copyright: 2017 Stefan Koch <stefan.koch10@gmail.com>
+Copyright: 2017-2018 Stefan Koch <stefan.koch10@gmail.com>
+           2017-2019 SZ Lin (林上智) <szlin@debian.org>
+           2019 Kun-Hung Tsai (蔡昆宏) <moonape1226@gmail.com>
 License: LGPL-2.1
 
 License: LGPL-2.1
- This package is free software; you can redistribute it and/or
- modify it under the terms of version 2.1 of the GNU Lesser
- General Public License as published by the Free Software Foundation.
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of version 2.1 of the GNU Lesser General
+ Public License as published by the Free Software Foundation.
  .
- This package is distributed in the hope that it will be useful,
+ This library is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  Lesser General Public License for more details.
  .
- You should have received a copy of the GNU Lesser General Public License
- along with this program. If not, see <https://www.gnu.org/licenses/>.
+ You should have received a copy of the GNU Lesser General Public
+ License along with this library; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  .
- On Debian systems, the complete text of the GNU Lesser General
- Public License can be found in "/usr/share/common-licenses/LGPL-2.1".
-
-# Please also look if there are files or directories which have a
-# different copyright/license attached and list them here.
-# Please avoid picking licenses with terms that are more restrictive than the
-# packaged work, as it may make Debian's contributions unacceptable upstream.
+ On Debian systems, the complete text of the GNU Lesser General Public License
+ Version 2.1 can be found in `/usr/share/common-licenses/LGPL-2.1'.

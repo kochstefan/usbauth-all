@@ -1,14 +1,26 @@
 Source: usbauth-notifier
-Section: unknown
+Section: utils
 Priority: optional
-Maintainer: Stefan Koch <stefan.koch10@gmail.com>
-Build-Depends: debhelper (>= 9)
-Standards-Version: 3.9.8
-Homepage: https://github.com/kochstefan/usbauth-all
-#Vcs-Git: https://github.com/kochstefan/usbauth-all.git
-#Vcs-Browser: https://github.com/kochstefan/usbauth-all/usbauth-notifier
+Maintainer: Kun-Hung Tsai (蔡昆宏) <moonape1226@gmail.com>
+Uploaders: SZ Lin (林上智) <szlin@debian.org>
+Build-Depends: debhelper-compat (= 13),
+               libnotify-dev,
+               libusbauth-configparser-dev,
+               libudev-dev,
+               libdbus-1-dev,
+               pkg-config,
+               po-debconf
+Standards-Version: 4.5.1
+Homepage: https://github.com/kochstefan/usbauth-all/tree/master/usbauth-notifier
+Vcs-Git: https://salsa.debian.org/debian/usbauth-notifier.git
+Vcs-Browser: https://salsa.debian.org/debian/usbauth-notifier
+Rules-Requires-Root: no
 
 Package: usbauth-notifier
-Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Architecture: linux-any
+Pre-Depends: debconf
+Depends: ${shlibs:Depends}, ${misc:Depends}, usbauth
 Description: Notifier for USB Firewall to use with desktop environments
+ A notifier for the usbauth firewall against BadUSB attacks. The user could
+ manually allow or deny USB devices. Every user that wants use the notifier must
+ be added to the usbauth group.

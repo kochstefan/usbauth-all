@@ -1,20 +1,46 @@
 Source: libusbauth-configparser
-Priority: optional
-Maintainer: Stefan Koch <stefan.koch10@gmail.com>
-Build-Depends: debhelper (>= 9)
-Standards-Version: 3.9.8
 Section: libs
-Homepage: https://github.com/kochstefan/usbauth-all
-#Vcs-Git: https://github.com/kochstefan/usbauth-all.git
-#Vcs-Browser: https://github.com/kochstefan/usbauth-all/libusbauth-configparser
+Priority: optional
+Maintainer: Kun-Hung Tsai (蔡昆宏) <moonape1226@gmail.com>
+Uploaders: SZ Lin (林上智) <szlin@debian.org>
+Build-Depends: debhelper-compat (= 13),
+               pkg-config,
+               automake,
+               flex,
+               bison,
+               libudev-dev,
+               m4
+Standards-Version: 4.5.1
+Homepage: https://github.com/kochstefan/usbauth-all/tree/master/libusbauth-configparser
+Vcs-Git: https://salsa.debian.org/debian/libusbauth-configparser.git
+Vcs-Browser: https://salsa.debian.org/debian/libusbauth-configparser
+Rules-Requires-Root: no
 
 Package: libusbauth-configparser-dev
 Section: libdevel
-Architecture: any
+Architecture: linux-any
 Depends: libusbauth-configparser1 (= ${binary:Version}), ${misc:Depends}
 Description: Development package of library for USB Firewall including flex/bison parser
+ It is a firewall against BadUSB attacks. A config file describes in which way
+ USB interfaces would be accepted or denied. To the kernel an interface
+ authorization was developed with this firewall. The firewall sets the
+ authorization mask according to the rules.
+ .
+ The library is used to read the usbauth config file into data structures and is
+ used by usbauth and YaST
+ .
+ This package contains the required libraries, headers
 
 Package: libusbauth-configparser1
-Architecture: any
+Architecture: linux-any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: Library for USB Firewall including flex/bison parser
+ It is a firewall against BadUSB attacks. A config file describes in which way
+ USB interfaces would be accepted or denied. To the kernel an interface
+ authorization was developed with this firewall. The firewall sets the
+ authorization mask according to the rules.
+ .
+ The library is used to read the usbauth config file into data structures and is
+ used by usbauth and YaST
+ .
+ This package contains the shared library

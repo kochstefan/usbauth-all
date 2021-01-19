@@ -1,12 +1,115 @@
-usbauth (1.0.1) unstable; urgency=medium
+usbauth (1.0.3-1) unstable; urgency=medium
 
-  * Fix string comparing
-  * Support string quoting
+  * Import new upstream release
+  * d/control:
+    - Bump Standards-Version to 4.5.1
 
- -- Stefan Koch <stefan.koch10@gmail.com>  Tue, 22 Jan 2019 23:00:00 +0200
+ -- SZ Lin (林上智) <szlin@debian.org>  Fri, 08 Jan 2021 15:46:15 +0800
 
-usbauth (1.0) unstable; urgency=medium
+usbauth (1.0.2-3) UNRELEASED; urgency=medium
 
-  * Initial Release.
+  [Alvin Chenw]
+  * d/tests/:
+    - Add condition check to check if systemd are used.
 
- -- Stefan Koch <stefan.koch10@gmail.com>  Wed, 17 Jan 2018 23:50:00 +0200
+ -- Alvin Chen <sonoma001@gmail.com>  Sun, 19 Jul 2020 23:15:12 -0400
+
+usbauth (1.0.2-2) unstable; urgency=medium
+
+  [ Alvin Chen ]
+  * d/control:
+    - Bump debhelper-compat version to 13
+    - Bump Standards-Version to 4.5.0
+  * d/rules:
+    - Fix Lintian error
+      remove -wl,--as-needed since the flag is set by default now.
+  * d/tests/:
+    - Add condition check to start/stop dbus only if it is not started.
+      (Closes: #960564)
+  * d/salsa-ci.yml:
+    - add salsa-ci script
+
+ -- SZ Lin (林上智) <szlin@debian.org>  Tue, 02 Jun 2020 10:56:42 +0800
+
+usbauth (1.0.2-1) unstable; urgency=low
+
+  [ Kun-Hung Tsai (蔡昆宏) ]
+  * Import new upstream release
+  * d/control:
+    - Bump Standards-Version to 4.4.1
+    - Set Rules-Requires-Root: no
+  * d/tests/:
+    - Enable dbus service to solve error
+
+  * d/t/control:
+    - Add allow-stderr attribute
+
+ -- SZ Lin (林上智) <szlin@debian.org>  Wed, 11 Dec 2019 10:18:38 +0800
+
+usbauth (1.0.1+git20190123.5004f7d-3) unstable; urgency=low
+
+  [ Kun-Hung Tsai (蔡昆宏) ]
+  * d/tests/control: Add root restriction for debian test
+
+ -- Kun-Hung Tsai (蔡昆宏) <moonape1226@gmail.com>  Tue, 30 Apr 2019 22:48:27 +0800
+
+usbauth (1.0.1+git20190123.5004f7d-2) unstable; urgency=low
+
+  [ Kun-Hung Tsai (蔡昆宏) ]
+  * d/test: Update debian test script
+  * d/watch: Update watch file to fix lintian warning
+
+  [ SZ Lin (林上智) ]
+  * d/control:
+    - Update package maintainer
+
+ -- SZ Lin (林上智) <szlin@debian.org>  Fri, 26 Apr 2019 09:48:27 +0800
+
+usbauth (1.0.1+git20190123.5004f7d-1) unstable; urgency=medium
+
+  [ Kun-Hung Tsai (蔡昆宏) ]
+  * Import new upstream release
+  * d/upstream: Add upstream metadata
+  * d/control: Bump debhelper version to 12
+  * d/control: Bump standard version to 4.3.0
+  * d/compat: Bump compat version to 12
+  * d/test: Add test files
+  * d/.git-dpm: Remove unused .git-dpm
+
+  [ SZ Lin (林上智) ]
+  * d/copyright:
+    - Update copyright information
+
+ -- SZ Lin (林上智) <szlin@debian.org>  Tue, 12 Feb 2019 23:36:56 +0800
+
+usbauth (1.0~git20180214-1) unstable; urgency=medium
+
+  * Import new upstream release
+
+ -- SZ Lin (林上智) <szlin@debian.org>  Mon, 26 Feb 2018 22:04:49 +0800
+
+usbauth (1.0~git20180119-1) unstable; urgency=medium
+
+  * Import new upstream release (Closes: #880983)
+  * Move the d/post* scripts to usbauth-notifier
+  * Move VCS to salsa
+
+ -- SZ Lin (林上智) <szlin@debian.org>  Thu, 22 Feb 2018 11:42:52 +0800
+
+usbauth (1.0~git20180118-1) UNRELEASED; urgency=medium
+
+  * Import new upstream release
+  * d/control: Bump standard version to 4.1.3
+  * d/copyright: Update copyright
+
+ -- SZ Lin (林上智) <szlin@debian.org>  Sun, 21 Jan 2018 22:22:51 +0800
+
+usbauth (1.0~git20171209-1) unstable; urgency=medium
+
+  [ Stefan Koch ]
+  * Initial Release
+
+  [ SZ Lin (林上智) ]
+  * Tidy debian/* files
+
+ -- SZ Lin (林上智) <szlin@debian.org>  Wed, 13 Dec 2017 13:36:02 +0800

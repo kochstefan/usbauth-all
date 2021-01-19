@@ -1,0 +1,3 @@
+Tests: test
+Depends: @, libc-bin, usbauth-notifier, dbus
+Restrictions: needs-root, allow-stderr

@@ -1,0 +1,5 @@
+version=4
+
+opts=\
+    "filenamemangle=s/(?:.*)?v?(\d[\d\.]*)\.tar\.gz/usbauth-all-$1.tar.gz/" \
+    https://github.com/kochstefan/usbauth-all/releases (?:.*/)?v?(\d[\d\.]*)\.tar\.gz

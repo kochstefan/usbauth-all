@@ -1,0 +1,29 @@
+#!/bin/dash
+# autopkgtest check: Build and run a program against glib, to verify that the
+# headers and pkg-config file are installed correctly
+# Author: Kun-Hung Tsai (蔡昆宏) <moonape1226@gmail.com>
+
+set -e
+echo "run: Test"
+dbus_manual_start=0
+if ! test -x "/var/run/dbus/system_bus_socket"; then
+    if [ -d /run/systemd/system ] && \
+        which systemctl >/dev/null 2>&1; then
+            systemctl start dbus.socket
+    else
+            service dbus start
+    fi
+    dbus_manual_start=1
+fi
+echo "allow all" | tee /etc/usbauth.conf
+usbauth init
+if test ${dbus_manual_start} = 1; then
+    if [ -d /run/systemd/system ] && \
+        which systemctl >/dev/null 2>&1; then
+            systemctl stop dbus.socket
+    else
+            service dbus stop
+    fi
+fi
+echo "run: Successful"
+exit 0

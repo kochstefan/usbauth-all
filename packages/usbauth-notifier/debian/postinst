@@ -1,6 +1,12 @@
 #!/bin/sh
-NPRIV_PATH=/usr/bin/usbauth-npriv
-NOTIFIER_DIR=/usr/lib/usbauth-notifier
+
+set -e
+
+# source debconf library
+. /usr/share/debconf/confmodule
+
+NPRIV_PATH=/usr/libexec/usbauth-npriv
+NOTIFIER_DIR=/usr/libexec/usbauth-notifier
 NOTIFIER_PATH=$NOTIFIER_DIR/usbauth-notifier
 
 chown root:usbauth $NPRIV_PATH
@@ -10,3 +16,9 @@ chown root:usbauth-notifier $NOTIFIER_DIR
 chmod 00750 $NOTIFIER_DIR
 chown root:usbauth $NOTIFIER_PATH
 chmod 02755 $NOTIFIER_PATH
+
+#DEBHELPER#
+
+db_stop
+
+exit 0

@@ -1,5 +1,10 @@
 #!/bin/sh
 
+set -e
+
+# source debconf library
+. /usr/share/debconf/confmodule
+
 if ! getent group usbauth>/dev/null; then
     addgroup --system --quiet usbauth || true
 fi
@@ -7,3 +12,9 @@ fi
 if ! getent group usbauth-notifier>/dev/null; then
     addgroup --system --quiet usbauth-notifier || true
 fi
+
+#DEBHELPER#
+
+db_stop
+
+exit 0

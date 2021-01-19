@@ -1,11 +1,113 @@
-libusbauth-configparser (1.0.1) unstable; urgency=medium
+libusbauth-configparser (1.0.3-1) unstable; urgency=medium
 
-  * Support string quoting
+  * Import new upstream release
+  * Add yml to enable salsa CI
+  * d/control:
+    - Bump Standards-Version to 4.5.1
+    - Bump debhelper-compat to 13
+  * d/rules:
+    - Remove unneeded linker flag
 
- -- Stefan Koch <stefan.koch10@gmail.com>  Tue, 22 Jan 2019 23:00:00 +0200
+ -- SZ Lin (林上智) <szlin@debian.org>  Fri, 08 Jan 2021 16:02:29 +0800
 
-libusbauth-configparser (1.0) unstable; urgency=medium
+libusbauth-configparser (1.0.2-1) unstable; urgency=low
 
-  * Initial Release.
+  [ Kun-Hung Tsai (蔡昆宏) ]
+  * Import new upstream release
+  * d/control:
+    - Replace debian/compat with debhelper-compat build dependency
+    - Bump Standards-Version to 4.5.0
 
- -- Stefan Koch <stefan.koch10@gmail.com>  Wed, 17 Jan 2018 23:50:00 +0200
+ -- Kun-Hung Tsai (蔡昆宏) <moonape1226@gmail.com>  Sun, 8 Mar 2020 10:00:10 +0800
+
+libusbauth-configparser (1.0.1+git20190123.0e6393b-4) unstable; urgency=low
+
+  [ Kun-Hung Tsai (蔡昆宏) ]
+  * d/test: Fix debian test script sudo error
+
+  [ SZ Lin (林上智) ]
+  * d/control:
+    - Bump Standards-Version to 4.4.0
+
+ -- SZ Lin (林上智) <szlin@debian.org>  Tue, 06 Aug 2019 14:39:01 +0800
+
+libusbauth-configparser (1.0.1+git20190123.0e6393b-3) unstable; urgency=low
+
+  [ Kun-Hung Tsai (蔡昆宏) ]
+  * d/test: Update debian test script
+  * d/watch: Update watch file to fix lintian warning
+
+  [ SZ Lin (林上智) ]
+  * d/control:
+    - Update package maintainer
+
+ -- SZ Lin (林上智) <szlin@debian.org>  Fri, 26 Apr 2019 09:51:49 +0800
+
+libusbauth-configparser (1.0.1+git20190123.0e6393b-2) unstable; urgency=medium
+
+  [ Kun-Hung Tsai (蔡昆宏) ]
+  * d/.git-dpm: Remove unused .git-dpm file
+
+  [ SZ Lin (林上智) ]
+  * d/copyright:
+    - Update copyright information
+
+ -- SZ Lin (林上智) <szlin@debian.org>  Tue, 12 Feb 2019 23:14:35 +0800
+
+libusbauth-configparser (1.0.1+git20190123.0e6393b-1) unstable; urgency=medium
+
+  * Import new upstream release
+
+ -- Kun-Hung Tsai (蔡昆宏) <moonape1226@gmail.com>  Tue, 29 Jan 2019 16:01:02 +0800
+
+libusbauth-configparser (1.0+git20190118.15c218a-1) unstable; urgency=medium
+
+  * Import new upstream release
+  * d/upstream: Add upstream metadata
+  * d/control: Bump debhelper version to 12
+  * d/control: Bump standard version to 4.3.0
+  * d/compat: Bump compat version to 12
+  * d/libusbauth-configparser1.symbols: Add build depends package field
+  * d/test: Add test files
+
+ -- Kun-Hung Tsai (蔡昆宏) <moonape1226@gmail.com>  Thu, 10 Jan 2019 19:51:03 +0800
+
+libusbauth-configparser (1.0~git20180214-1) unstable; urgency=medium
+
+  * Import new upstream release
+
+ -- SZ Lin (林上智) <szlin@debian.org>  Mon, 26 Feb 2018 21:54:25 +0800
+
+libusbauth-configparser (1.0~git20180119-1) unstable; urgency=medium
+
+  * Import new upstream release
+  * Move VCS to salsa
+
+ -- SZ Lin (林上智) <szlin@debian.org>  Thu, 22 Feb 2018 10:44:37 +0800
+
+libusbauth-configparser (1.0~git20180118-2) UNRELEASED; urgency=medium
+
+  * Import new upstream release
+  * d/control: Bump debhelper version to 11
+  * d/control: Bump standard version to 4.1.3
+  * d/compat: Bump compat version to 11
+  * d/copyright: Update copyright
+
+ -- SZ Lin (林上智) <szlin@debian.org>  Sun, 21 Jan 2018 22:16:51 +0800
+
+libusbauth-configparser (1.0~git20171209-2) unstable; urgency=medium
+
+  * d/copyright: make license type consistent with source files
+  * d/control: Update information of Vcs and homepage URL
+
+ -- SZ Lin (林上智) <szlin@debian.org>  Tue, 19 Dec 2017 11:26:48 +0800
+
+libusbauth-configparser (1.0~git20171209-1) unstable; urgency=medium
+
+  [ Stefan Koch ]
+  * Initial Release (Closes: 879714)
+
+  [ SZ Lin (林上智) ]
+  * Correct the copyright
+
+ -- SZ Lin (林上智) <szlin@debian.org>  Tue, 12 Dec 2017 15:26:47 +0800

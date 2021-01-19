@@ -1,17 +1,19 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: usbauth
-Source: <https://github.com/kochstefan/usbauth-all.git>
+Source: https://github.com/kochstefan/usbauth-all.git
 
 Files: *
 Copyright: 2015 SUSE LLC. Author: Stefan Koch <skoch@suse.de>
            2017 Stefan Koch <stefan.koch10@gmail.com>
-License: GPL-2.0
+License: GPL-2
 
 Files: debian/*
-Copyright: 2017 Stefan Koch <stefan.koch10@gmail.com>
-License: GPL-2.0
+Copyright: 2017-2018 Stefan Koch <stefan.koch10@gmail.com>
+           2017-2019 SZ Lin (林上智) <szlin@debian.org>
+           2019 Kun-Hung Tsai (蔡昆宏) <moonape1226@gmail.com>
+License: GPL-2
 
-License: GPL-2.0
+License: GPL-2
  This package is free software; you can redistribute it and/or modify
  it under the terms version 2 of the GNU General Public License
  as published by the Free Software Foundation.
@@ -22,12 +24,7 @@ License: GPL-2.0
  GNU General Public License for more details.
  .
  You should have received a copy of the GNU General Public License
- along with this program. If not, see <https://www.gnu.org/licenses/>
+ along with this program. If not, see <http://www.gnu.org/licenses/>.
  .
  On Debian systems, the complete text of the GNU General
  Public License version 2 can be found in "/usr/share/common-licenses/GPL-2".
-
-# Please also look if there are files or directories which have a
-# different copyright/license attached and list them here.
-# Please avoid picking licenses with terms that are more restrictive than the
-# packaged work, as it may make Debian's contributions unacceptable upstream.

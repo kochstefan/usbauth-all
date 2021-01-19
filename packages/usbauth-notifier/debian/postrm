@@ -1,6 +1,18 @@
 #!/bin/sh
 
+set -e
+
+# source debconf library
+. /usr/share/debconf/confmodule
+
 if [ "$1" = "purge" ]; then
     delgroup --system --quiet usbauth || true
     delgroup --system --quiet usbauth-notifier || true
+    db_purge
 fi
+
+#DEBHELPER#
+
+db_stop
+
+exit 0
