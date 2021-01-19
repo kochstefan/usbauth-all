@@ -12,3 +12,6 @@
 man_MANS = usbauth-notifier.1 usbauth-npriv.1
 xdgautostartdir = $(sysconfdir)/xdg/autostart
 dist_xdgautostart_DATA = usbauth-notifier.desktop
+
+$(dist_xdgautostart_DATA):
+	$(SED) "s#LIBEXECDIR#$(libexecdir)#g" $(srcdir)/$@.tmpl > $@
