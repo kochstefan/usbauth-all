@@ -86,7 +86,7 @@ bool match_valsInt(int lval, enum Operator op, int rval) {
 	return ret;
 }
 
-bool match_vals_devpath(const char *lvalStr, enum Operator op, const char *rvalStr, enum Valuetype valtype) {
+bool match_vals_devpath(const char *lvalStr, enum Operator op, const char *rvalStr, enum Valuetype lvalType, enum Valuetype rvalType) {
 	bool ret = false;
 	int comp = 0;
 
@@ -106,10 +106,10 @@ bool match_vals_devpath(const char *lvalStr, enum Operator op, const char *rvalS
 		// compare devnum like a software version number using sub version (e. g. major, minor, patch version)
 		while ((lStr = strsep(&lval, ".")) && (rStr = strsep(&rval, ".")))
 		{
-			if (match_vals(lStr, g, rStr, valtype)) {
+			if (match_vals(lStr, g, rStr, lvalType, rvalType)) {
 				comp = 1;
 				break;
-			} else if (match_vals(lStr, l, rStr, valtype)) {
+			} else if (match_vals(lStr, l, rStr, lvalType, rvalType)) {
 				comp = -1;
 				break;
 			}
@@ -125,56 +125,65 @@ bool match_vals_devpath(const char *lvalStr, enum Operator op, const char *rvalS
 	return ret;
 }
 
-bool match_vals_devpath_autotype(const char *lvalStr, enum Operator op, const char *rvalStr) {
-	return match_vals_devpath(lvalStr, op, rvalStr, UNKNOWN);
+bool match_vals_devpath_autotype(const char *lvalStr, enum Operator op, const char *rvalStr, enum Valuetype lvalType) {
+	return match_vals_devpath(lvalStr, op, rvalStr, lvalType, UNKNOWN);
 }
 
-bool match_vals(const char *lvalStr, enum Operator op, const char *rvalStr, enum Valuetype valtype) {
-	enum Valuetype type = UNKNOWN;
+bool match_vals(const char *lvalStr, enum Operator op, const char *rvalStr, enum Valuetype lvalType, enum Valuetype rvalType) {
 	bool ret = false;
 	bool useDevpathMatching = false;
 	char* lend = NULL;
 	char* rend = NULL;
 	char* tmpStr = NULL;
-	int base = 16;
+	int lbase = 16;
+	int rbase = 16;
 	int lval = -1;
 	int rval = -1;
 	int rvalLen = strlen(rvalStr);
 
-	if (valtype != UNKNOWN)
-		type = valtype;
-	else if (rvalLen >= 2 && rvalStr[0] == '"' && rvalStr[rvalLen-1] == '"') { // right value type is STRING
-		type = STRING;
-		rvalLen -= 2;
-
-		tmpStr = calloc(rvalLen + 1, sizeof(char));
-		strncpy(tmpStr, rvalStr + 1, rvalLen);
-		tmpStr[rvalLen] = '\0';
-		rvalStr = tmpStr;
-	} else if (rvalLen >= 2 && rvalStr[0] == '\\') { // right value type is HEX, DEC or UNKNOWN
-		if (rvalStr[1] == 'x') {
-			type = HEX;
-			base = 16;
-		} else if (rvalStr[1] == 'd') {
-			type = DEC;
-			base = 10;
-		}
-
-		if (type != UNKNOWN) { // right value type is HEX or DEC
+	if (rvalType == UNKNOWN) {
+		if (rvalLen >= 2 && rvalStr[0] == '"' && rvalStr[rvalLen-1] == '"') { // right value type is STRING
+			rvalType = STRING;
 			rvalLen -= 2;
+
 			tmpStr = calloc(rvalLen + 1, sizeof(char));
 			strncpy(tmpStr, rvalStr + 2, rvalLen);
 			tmpStr[rvalLen] = '\0';
 			rvalStr = tmpStr;
+		} else if (rvalLen >= 2 && rvalStr[0] == '\\') { // right value type is HEX, DEC or UNKNOWN
+			if (rvalStr[1] == 'x') {
+				rvalType = HEX;
+				rbase = 16;
+			} else if (rvalStr[1] == 'd') {
+				rvalType = DEC;
+				rbase = 10;
+			}
+
+			if (rvalType != UNKNOWN) { // right value type is HEX or DEC
+				rvalLen -= 2;
+				tmpStr = calloc(rvalLen + 1, sizeof(char));
+				strncpy(tmpStr, rvalStr + 2, rvalLen);
+				tmpStr[rvalLen] = '\0';
+				rvalStr = tmpStr;
+			}
 		}
 	}
 
-	if (type != STRING) {
+	// use (determined) rbase for lbase as default
+	// will be overwritten if proper lbase is given
+	lbase = rbase;
+
+	if (lvalType == HEX)
+		lbase = 16;
+	else if (lvalType == DEC)
+		lbase = 10;
+
+	if (rvalType != STRING) {
 		if (strchr(rvalStr, '.')) // right value type contains '.'
 			useDevpathMatching = true;
 		else { // right value type is HEX, DEC or UNKNOWN
-			lval = strtol(lvalStr, &lend, base);
-			rval = strtol(rvalStr, &rend, base);
+			lval = strtol(lvalStr, &lend, lbase);
+			rval = strtol(rvalStr, &rend, rbase);
 
 			if (lend && *lend != 0)
 				lval = -1;
@@ -185,7 +194,7 @@ bool match_vals(const char *lvalStr, enum Operator op, const char *rvalStr, enum
 	}
 
 	if (useDevpathMatching) // use devpath match mode for right value type
-		ret = match_vals_devpath(lvalStr, op, rvalStr, type);
+		ret = match_vals_devpath(lvalStr, op, rvalStr, lvalType, rvalType);
 	else if (lval != -1 && rval != -1) // integer match of right value type
 		ret = match_valsInt(lval, op, rval);
 	else if (rvalType == STRING || rvalType == UNKNOWN) // string match of right value type
@@ -200,8 +209,8 @@ bool match_vals(const char *lvalStr, enum Operator op, const char *rvalStr, enum
 	return ret;
 }
 
-bool match_vals_autotype(const char *lvalStr, enum Operator op, const char *rvalStr) {
-	return match_vals(lvalStr, op, rvalStr, UNKNOWN);
+bool match_vals_autotype(const char *lvalStr, enum Operator op, const char *rvalStr, enum Valuetype lvalType) {
+	return match_vals(lvalStr, op, rvalStr, lvalType, UNKNOWN);
 }
 
 bool match_vals_interface(struct Auth *rule, struct Data *d, struct udev_device *interface) {
@@ -231,8 +240,9 @@ bool match_vals_interface(struct Auth *rule, struct Data *d, struct udev_device 
 			ret = match_valsInt(rule->devcount + 1, d->op, rval);
 	} else {
 		lvalStr = usbauth_get_param_valStr(d->param, interface); // get parameter from sysfs
+		enum Valuetype lvalType = usbauth_get_param_type(d->param);
 		if (lvalStr)
-			ret = match_vals_autotype(lvalStr, d->op, rvalStr);
+			ret = match_vals_autotype(lvalStr, d->op, rvalStr, lvalType);
 	}
 
 	return ret;

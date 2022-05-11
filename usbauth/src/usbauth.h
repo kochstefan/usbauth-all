@@ -71,13 +71,14 @@ bool match_valsInt(int lval, enum Operator op, int rval);
  * @lvalStr: left value
  * @op: operator
  * @rvalStr: right value
- * @valType: optional type of values
+ * @lvalType: type of left value
+ * @lvalType: type of right value
  *           when UNKNOWN tries first to convert strings to integer
  *           if failed a string compare is processed
  *
  * return: true if constraint is matched
  */
-bool match_vals_devpath(const char *lvalStr, enum Operator op, const char *rvalStr, enum Valuetype valtype);
+bool match_vals_devpath(const char *lvalStr, enum Operator op, const char *rvalStr, enum Valuetype lvalType, enum Valuetype rvalType);
 
 /**
  * checks constraint with multi-separated values
@@ -89,10 +90,11 @@ bool match_vals_devpath(const char *lvalStr, enum Operator op, const char *rvalS
  * @lvalStr: left value
  * @op: operator
  * @rvalStr: right value
+ * @lvalType: type of left value
  *
  * return: true if constraint is matched
  */
-bool match_vals_devpath_autotype(const char *lvalStr, enum Operator op, const char *rvalStr);
+bool match_vals_devpath_autotype(const char *lvalStr, enum Operator op, const char *rvalStr, enum Valuetype lvalType);
 
 /**
  * checks constraint
@@ -103,13 +105,14 @@ bool match_vals_devpath_autotype(const char *lvalStr, enum Operator op, const ch
  * @lvalStr: left value
  * @op: operator
  * @rvalStr: right value
- * @valType: optional type of values
+ * @lvalType: type of left value
+ * @rvalType: type of right value
  *           when UNKNOWN tries first to convert strings to integer
  *           if failed a string compare is processed
  *
  * return: true if constraint is matched
  */
-bool match_vals(const char *lvalStr, enum Operator op, const char *rvalStr, enum Valuetype valtype);
+bool match_vals(const char *lvalStr, enum Operator op, const char *rvalStr, enum Valuetype lvalType, enum Valuetype rvalType);
 
 /**
  * checks constraint
@@ -121,10 +124,11 @@ bool match_vals(const char *lvalStr, enum Operator op, const char *rvalStr, enum
  * @lvalStr: left value
  * @op: operator
  * @rvalStr: right value
+ * @lvalType: type of left value
  *
  * return: true if constraint is matched
  */
-bool match_vals_autotype(const char *lvalStr, enum Operator op, const char *rvalStr);
+bool match_vals_autotype(const char *lvalStr, enum Operator op, const char *rvalStr, enum Valuetype lvalType);
 
 /**
  * checks if constraint from rule and data matches for an interface
