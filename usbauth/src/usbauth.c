@@ -184,11 +184,11 @@ bool match_vals(const char *lvalStr, enum Operator op, const char *rvalStr, enum
 		}
 	}
 
-	if (useDevpathMatching)
+	if (useDevpathMatching) // use devpath match mode for right value type
 		ret = match_vals_devpath(lvalStr, op, rvalStr, type);
-	else if (lval != -1 && rval != -1)
+	else if (lval != -1 && rval != -1) // integer match of right value type
 		ret = match_valsInt(lval, op, rval);
-	else if (type == STRING || type == UNKNOWN)
+	else if (rvalType == STRING || rvalType == UNKNOWN) // string match of right value type
 		ret = match_valsStr(lvalStr, op, rvalStr);
 
 	if (debuglog)
