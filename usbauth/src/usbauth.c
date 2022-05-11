@@ -90,48 +90,73 @@ bool match_vals(const char *lvalStr, enum Operator op, const char *rvalStr) {
 	bool ret = false;
 	char* lend = NULL;
 	char* rend = NULL;
-	int lval = strtol(lvalStr, &lend, 16);
-	int rval = strtol(rvalStr, &rend, 16);
+	char* tmpStr = NULL;
+	int base = 16;
+	int lval = -1;
+	int rval = -1;
+	int rvalLen = 0;
 
-	if (lend && *lend != 0)
-		lval = -1;
+	rvalLen = strlen(rvalStr);
+	if (rvalLen >= 2 && rvalStr[0] == '"' && rvalStr[rvalLen-1] == '"') {
+		type = STRING;
+		rvalLen -= 2;
 
-	if (rend && *rend != 0)
-		rval = -1;
+		tmpStr = calloc(rvalLen + 1, sizeof(char));
+		strncpy(tmpStr, rvalStr + 1, rvalLen);
+		tmpStr[rvalLen] = '\0';
+		rvalStr = tmpStr;
+	} else if (rvalLen >= 2 && rvalStr[0] == '\\') {
+		if (rvalStr[1] == 'x') {
+			type = HEX;
+			base = 16;
+		} else if (rvalStr[1] == 'd') {
+			type = DEC;
+			base = 10;
+		}
+
+		if (type != UNKNOWN) {
+			rvalLen -= 2;
+			tmpStr = calloc(rvalLen + 1, sizeof(char));
+			strncpy(tmpStr, rvalStr + 2, rvalLen);
+			rvalStr = tmpStr;
+		}
+	}
+
+	if (type != STRING) {
+		lval = strtol(lvalStr, &lend, base);
+		rval = strtol(rvalStr, &rend, base);
+
+		if (lend && *lend != 0)
+			lval = -1;
+
+		if (rend && *rend != 0)
+			rval = -1;
+	}
 
 	if (lval != -1 && rval != -1)
 		ret = match_valsInt(lval, op, rval);
-	else
+	else if (type == STRING || type == UNKNOWN)
 		ret = match_valsStr(lvalStr, op, rvalStr);
 
 	if (debuglog)
 		syslog(LOG_DEBUG, "match_vals:%i (%s %s %s), (%i %s %i)\n", ret, lvalStr, usbauth_op_to_str(op), rvalStr, lval, usbauth_op_to_str(op), rval);
+
+	if (tmpStr)
+		free(tmpStr);
 
 	return ret;
 }
 
 bool match_vals_interface(struct Auth *rule, struct Data *d, struct udev_device *interface) {
 	bool ret = false;
-	char* tmpStr = NULL;
 	const char* lvalStr = NULL;
 	const char* rvalStr = d->val;
-	int rvalLen = 0;
 	const char* type = udev_device_get_devtype(interface);
 	char cntStr[16];
 	strcpy(cntStr, "");
 
 	if (!type || !rvalStr || strcmp(type, "usb_interface") != 0)
 		return false;
-
-	rvalLen = strlen(rvalStr);
-	if (rvalLen >= 2 && rvalStr[0] == '"' && rvalStr[rvalLen-1] == '"')
-	{
-		rvalLen -= 2;
-		tmpStr = calloc(rvalLen + 1, sizeof(char));
-		strncpy(tmpStr, rvalStr + 1, rvalLen);
-		tmpStr[rvalLen] = '\0';
-		rvalStr = tmpStr;
-	}
 
 	if (intfcount == d->param) { // intfcount parameter is not in sysfs
 		char* rend = NULL;
@@ -152,9 +177,6 @@ bool match_vals_interface(struct Auth *rule, struct Data *d, struct udev_device 
 		if (lvalStr)
 			ret = match_vals(lvalStr, d->op, rvalStr);
 	}
-
-	if (tmpStr)
-		free(tmpStr);
 
 	return ret;
 }
