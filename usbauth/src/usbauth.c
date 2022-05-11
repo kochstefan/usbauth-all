@@ -52,9 +52,9 @@ bool match_valsStr(const char *lval, enum Operator op, const char *rval) {
 		ret = true;
 	else if (op == neq && cmp != 0)
 		ret = true;
-	else if (op == lt && cmp <= 0)
+	else if (op == le && cmp <= 0)
 		ret = true;
-	else if (op == gt && cmp >= 0)
+	else if (op == ge && cmp >= 0)
 		ret = true;
 	else if (op == l && cmp < 0)
 		ret = true;
@@ -74,9 +74,9 @@ bool match_valsInt(int lval, enum Operator op, int rval) {
 		ret = true;
 	else if (op == neq && lval != rval)
 		ret = true;
-	else if (op == lt && lval <= rval)
+	else if (op == le && lval <= rval)
 		ret = true;
-	else if (op == gt && lval >= rval)
+	else if (op == ge && lval >= rval)
 		ret = true;
 	else if (op == l && lval < rval)
 		ret = true;
