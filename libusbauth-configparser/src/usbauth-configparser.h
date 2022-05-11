@@ -50,6 +50,15 @@ const char* usbauth_get_param_valStr(enum Parameter param, struct udev_device *u
 int usbauth_get_param_val(enum Parameter param, struct udev_device *udevdev);
 
 /**
+ * get parameter type as ValueType enum
+ *
+ * @param: parameter as enum
+ *
+ * Return: parameter type as ValueType enum
+ */
+enum Valuetype usbauth_get_param_type(enum Parameter param);
+
+/**
  * convert string to enum
  *
  * @string: string to convert

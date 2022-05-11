@@ -80,6 +80,11 @@ int usbauth_get_param_val(enum Parameter param, struct udev_device *udevdev) {
 	return val;
 }
 
+enum Valuetype usbauth_get_param_type(enum Parameter param) {
+	size_t maplen = sizeof(value_map)/sizeof(enum Valuetype);
+	return param < maplen ? value_map[param] : UNKNOWN;
+}
+
 int usbauth_str_to_enum(const char *string, const char** string_array, unsigned array_len) {
 	enum Parameter ret = INVALID;
 
