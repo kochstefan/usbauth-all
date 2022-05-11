@@ -30,6 +30,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+enum Valuetype {UNKNOWN, STRING, DEC, HEX};
+
 enum Parameter {
 	INVALID, busnum, devpath, idVendor, idProduct, bDeviceClass, bDeviceSubClass, bDeviceProtocol, bConfigurationValue, bNumInterfaces, bInterfaceNumber, bInterfaceClass, bInterfaceSubClass, bInterfaceProtocol, bNumEndpoints, bcdDevice, speed, devnum, serial, manufacturer, product, connectType, intfcount, devcount, PARAM_NUM_ITEMS
 };
