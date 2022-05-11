@@ -41,6 +41,11 @@ extern FILE *usbauth_yyin;
 const char* parameter_strings[] = {"INVALID", "busnum", "devpath", "idVendor", "idProduct", "bDeviceClass", "bDeviceSubClass", "bDeviceProtocol", "bConfigurationValue", "bNumInterfaces", "bInterfaceNumber", "bInterfaceClass", "bInterfaceSubClass", "bInterfaceProtocol", "bNumEndpoints", "bcdDevice", "speed", "devnum", "serial", "manufacturer", "product", "connectType", "intfcount", "devcount", "PARAM_NUM_ITEMS"};
 const char* operator_strings[] = {"==", "!=", "<=", ">=", "<", ">", "OP_NUM_ITEMS"};
 
+// mapping table for value types of parameters (maps with parameter_strings array)
+enum Valuetype value_map[] = {
+	INVALID, DEC,    DEC,     HEX,      HEX,       HEX,          HEX,             HEX,             DEC,                 DEC,            HEX,              HEX,             HEX,                HEX,                HEX,           HEX,       STRING, DEC,   STRING, STRING,       STRING,  STRING,      HEX,       HEX,      PARAM_NUM_ITEMS
+};
+
 const char* usbauth_get_param_valStr(enum Parameter param, struct udev_device *udevdev) {
 	struct udev_device *parent = NULL;
 	const char* paramStr = usbauth_param_to_str(param);
