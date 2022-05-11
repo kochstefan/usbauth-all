@@ -86,18 +86,64 @@ bool match_valsInt(int lval, enum Operator op, int rval) {
 	return ret;
 }
 
-bool match_vals(const char *lvalStr, enum Operator op, const char *rvalStr) {
+bool match_vals_devpath(const char *lvalStr, enum Operator op, const char *rvalStr, enum Valuetype valtype) {
 	bool ret = false;
+	int comp = 0;
+
+	int lvalLen = strlen(lvalStr);
+	int rvalLen = strlen(rvalStr);
+	char *lval = calloc(lvalLen, sizeof(char));
+	char *rval = calloc(rvalLen, sizeof(char));
+
+		if(lval && rval) {
+		char *lStr = NULL;
+		char *rStr = NULL;
+		char *lvalAllocPtr = lval;
+		char *rvalAllocPtr = rval;
+		strcpy(lval, lvalStr);
+		strcpy(rval, rvalStr);
+
+		// compare devnum like a software version number using sub version (e. g. major, minor, patch version)
+		while ((lStr = strsep(&lval, ".")) && (rStr = strsep(&rval, ".")))
+		{
+			if (match_vals(lStr, g, rStr, valtype)) {
+				comp = 1;
+				break;
+			} else if (match_vals(lStr, l, rStr, valtype)) {
+				comp = -1;
+				break;
+			}
+		}
+
+		// compare result -1, 0, 1 with given operator
+		ret = match_valsInt(comp, op, 0);
+
+		free(lvalAllocPtr);
+		free(rvalAllocPtr);
+	}
+
+	return ret;
+}
+
+bool match_vals_devpath_autotype(const char *lvalStr, enum Operator op, const char *rvalStr) {
+	return match_vals_devpath(lvalStr, op, rvalStr, UNKNOWN);
+}
+
+bool match_vals(const char *lvalStr, enum Operator op, const char *rvalStr, enum Valuetype valtype) {
+	enum Valuetype type = UNKNOWN;
+	bool ret = false;
+	bool useDevpathMatching = false;
 	char* lend = NULL;
 	char* rend = NULL;
 	char* tmpStr = NULL;
 	int base = 16;
 	int lval = -1;
 	int rval = -1;
-	int rvalLen = 0;
+	int rvalLen = strlen(rvalStr);
 
-	rvalLen = strlen(rvalStr);
-	if (rvalLen >= 2 && rvalStr[0] == '"' && rvalStr[rvalLen-1] == '"') {
+	if (valtype != UNKNOWN)
+		type = valtype;
+	else if (rvalLen >= 2 && rvalStr[0] == '"' && rvalStr[rvalLen-1] == '"') { // right value type is STRING
 		type = STRING;
 		rvalLen -= 2;
 
@@ -105,7 +151,7 @@ bool match_vals(const char *lvalStr, enum Operator op, const char *rvalStr) {
 		strncpy(tmpStr, rvalStr + 1, rvalLen);
 		tmpStr[rvalLen] = '\0';
 		rvalStr = tmpStr;
-	} else if (rvalLen >= 2 && rvalStr[0] == '\\') {
+	} else if (rvalLen >= 2 && rvalStr[0] == '\\') { // right value type is HEX, DEC or UNKNOWN
 		if (rvalStr[1] == 'x') {
 			type = HEX;
 			base = 16;
@@ -114,26 +160,33 @@ bool match_vals(const char *lvalStr, enum Operator op, const char *rvalStr) {
 			base = 10;
 		}
 
-		if (type != UNKNOWN) {
+		if (type != UNKNOWN) { // right value type is HEX or DEC
 			rvalLen -= 2;
 			tmpStr = calloc(rvalLen + 1, sizeof(char));
 			strncpy(tmpStr, rvalStr + 2, rvalLen);
+			tmpStr[rvalLen] = '\0';
 			rvalStr = tmpStr;
 		}
 	}
 
 	if (type != STRING) {
-		lval = strtol(lvalStr, &lend, base);
-		rval = strtol(rvalStr, &rend, base);
+		if (strchr(rvalStr, '.')) // right value type contains '.'
+			useDevpathMatching = true;
+		else { // right value type is HEX, DEC or UNKNOWN
+			lval = strtol(lvalStr, &lend, base);
+			rval = strtol(rvalStr, &rend, base);
 
-		if (lend && *lend != 0)
-			lval = -1;
+			if (lend && *lend != 0)
+				lval = -1;
 
-		if (rend && *rend != 0)
-			rval = -1;
+			if (rend && *rend != 0)
+				rval = -1;
+		}
 	}
 
-	if (lval != -1 && rval != -1)
+	if (useDevpathMatching)
+		ret = match_vals_devpath(lvalStr, op, rvalStr, type);
+	else if (lval != -1 && rval != -1)
 		ret = match_valsInt(lval, op, rval);
 	else if (type == STRING || type == UNKNOWN)
 		ret = match_valsStr(lvalStr, op, rvalStr);
@@ -145,6 +198,10 @@ bool match_vals(const char *lvalStr, enum Operator op, const char *rvalStr) {
 		free(tmpStr);
 
 	return ret;
+}
+
+bool match_vals_autotype(const char *lvalStr, enum Operator op, const char *rvalStr) {
+	return match_vals(lvalStr, op, rvalStr, UNKNOWN);
 }
 
 bool match_vals_interface(struct Auth *rule, struct Data *d, struct udev_device *interface) {
@@ -175,7 +232,7 @@ bool match_vals_interface(struct Auth *rule, struct Data *d, struct udev_device 
 	} else {
 		lvalStr = usbauth_get_param_valStr(d->param, interface); // get parameter from sysfs
 		if (lvalStr)
-			ret = match_vals(lvalStr, d->op, rvalStr);
+			ret = match_vals_autotype(lvalStr, d->op, rvalStr);
 	}
 
 	return ret;

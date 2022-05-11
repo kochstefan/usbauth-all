@@ -62,6 +62,56 @@ bool match_valsStr(const char *lval, enum Operator op, const char *rval);
 bool match_valsInt(int lval, enum Operator op, int rval);
 
 /**
+ * checks constraint with multi-separated values
+ * tries first to convert strings to integer, if failed a string compare is processed
+ *
+ * lval op rval
+ * examlpe: 1.2.1 <= 1.2.2 : return true
+ *
+ * @lvalStr: left value
+ * @op: operator
+ * @rvalStr: right value
+ * @valType: optional type of values
+ *           when UNKNOWN tries first to convert strings to integer
+ *           if failed a string compare is processed
+ *
+ * return: true if constraint is matched
+ */
+bool match_vals_devpath(const char *lvalStr, enum Operator op, const char *rvalStr, enum Valuetype valtype);
+
+/**
+ * checks constraint with multi-separated values
+ * tries first to convert strings to integer, if failed a string compare is processed
+ *
+ * lval op rval
+ * examlpe: 1.2.1 <= 1.2.2 : return true
+ *
+ * @lvalStr: left value
+ * @op: operator
+ * @rvalStr: right value
+ *
+ * return: true if constraint is matched
+ */
+bool match_vals_devpath_autotype(const char *lvalStr, enum Operator op, const char *rvalStr);
+
+/**
+ * checks constraint
+ *
+ * lval op rval
+ * examlpe: 01 <= 02 : return true
+ *
+ * @lvalStr: left value
+ * @op: operator
+ * @rvalStr: right value
+ * @valType: optional type of values
+ *           when UNKNOWN tries first to convert strings to integer
+ *           if failed a string compare is processed
+ *
+ * return: true if constraint is matched
+ */
+bool match_vals(const char *lvalStr, enum Operator op, const char *rvalStr, enum Valuetype valtype);
+
+/**
  * checks constraint
  * tries first to convert strings to integer, if failed a string compare is processed
  *
@@ -71,11 +121,10 @@ bool match_valsInt(int lval, enum Operator op, int rval);
  * @lvalStr: left value
  * @op: operator
  * @rvalStr: right value
- * @parent: if not NULL parent will matched, too
  *
  * return: true if constraint is matched
  */
-bool match_vals(const char *lvalStr, enum Operator op, const char *rvalStr);
+bool match_vals_autotype(const char *lvalStr, enum Operator op, const char *rvalStr);
 
 /**
  * checks if constraint from rule and data matches for an interface
