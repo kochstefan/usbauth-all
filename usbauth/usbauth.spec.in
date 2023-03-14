@@ -1,8 +1,7 @@
 #
 # spec file for package usbauth
 #
-# Copyright (c) 2019 SUSE LLC
-# Copyright (c) 2018 SUSE LINUX GmbH, Nuernberg, Germany.
+# Copyright (c) 2023 SUSE LLC
 # Copyright (c) 2017 Stefan Koch <stefan.koch10@gmail.com>
 # Copyright (c) 2015 SUSE LLC. All Rights Reserved.
 # Author: Stefan Koch <skoch@suse.de>
@@ -16,15 +15,16 @@
 # license that conforms to the Open Source Definition (Version 1.9)
 # published by the Open Source Initiative.
 
-# Please submit bugfixes or comments via http://bugs.opensuse.org/
+# Please submit bugfixes or comments via https://bugs.opensuse.org/
 #
 
 
+%define _name   usbauth-all
 Name:           @PACKAGE@
 Version:        @VERSION@
 Summary:        USB firewall against BadUSB attacks
-URL:            https://github.com/kochstefan/usbauth-all/tree/master/usbauth
-Source:         https://github.com/kochstefan/usbauth-all/archive/v%{version}.tar.gz
+URL:            https://github.com/kochstefan/usbauth-all/
+Source:         %{url}/archive/refs/tags/v%{version}.tar.gz#/%{_name}-%{version}.tar.gz
 
 %if 0%{?suse_version}
 Release:        0
@@ -37,12 +37,11 @@ License:        GPLv2
 
 Requires:       systemd
 Requires:       udev
-BuildRequires:  pkgconfig(libudev)
-BuildRequires:  pkgconfig(dbus-1)
-BuildRequires:  libusbauth-configparser-devel
 BuildRequires:  gcc
 BuildRequires:  libtool
-BuildRequires:  libudev-devel
+BuildRequires:  pkgconfig(libudev)
+BuildRequires:  pkgconfig(dbus-1)
+BuildRequires:  pkgconfig(libusbauth-configparser)
 %if 0%{?suse_version}
 BuildRequires:  systemd-rpm-macros
 %endif
@@ -56,7 +55,7 @@ It is a firewall against BadUSB attacks.
 A config file describes in which way devices would be accepted.
 
 %prep
-%autosetup -n usbauth-all-%{version} -p1
+%autosetup -n %{_name}-%{version}
 
 %build
 pushd %{name}/
@@ -71,9 +70,6 @@ pushd %{name}/
 popd
 
 %files
-%if 0%{?suse_version}
-%defattr(-,root,root)
-%endif
 %license %{name}/COPYING
 %doc %{name}/README
 %doc %_mandir/*/*
