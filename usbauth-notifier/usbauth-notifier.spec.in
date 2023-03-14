@@ -1,9 +1,7 @@
 #
 # spec file for package usbauth-notifier
 #
-# Copyright (c) 2020 SUSE LLC
-# Copyright (c) 2019 SUSE LLC
-# Copyright (c) 2018 SUSE LINUX GmbH, Nuernberg, Germany.
+# Copyright (c) 2023 SUSE LLC
 # Copyright (c) 2017-2018 Stefan Koch <stefan.koch10@gmail.com>
 # Copyright (c) 2015 SUSE LLC. All Rights Reserved.
 # Author: Stefan Koch <skoch@suse.de>
@@ -21,11 +19,12 @@
 #
 
 
+%define _name   usbauth-all
 Name:           @PACKAGE@
 Version:        @VERSION@
 Summary:        Notifier for USB Firewall to use with desktop environments
-URL:            https://github.com/kochstefan/usbauth-all/tree/master/usbauth-notifier
-Source:         https://github.com/kochstefan/usbauth-all/archive/v%{version}.tar.gz
+URL:            https://github.com/kochstefan/usbauth-all/
+Source:         %{url}/archive/refs/tags/v%{version}.tar.gz#/%{_name}-%{version}.tar.gz
 
 %if 0%{?suse_version}
 Release:        0
@@ -42,26 +41,28 @@ Requires(pre):  permissions
 Requires(pre):  shadow-utils
 %endif
 Requires:       usbauth
-BuildRequires:  pkgconfig(dbus-1)
-BuildRequires:  pkgconfig(libudev)
-BuildRequires:  libusbauth-configparser-devel
 BuildRequires:  gcc
 BuildRequires:  libnotify-devel
 BuildRequires:  libtool
+BuildRequires:  pkgconfig(dbus-1)
+BuildRequires:  pkgconfig(libudev)
+BuildRequires:  pkgconfig(libusbauth-configparser)
 %if 0%{?suse_version}
 BuildRequires:  permissions
-BuildRequires:  gettext-runtime
 BuildRequires:  pkg-config
+BuildRequires:  gettext-runtime
 %else
-BuildRequires:  gettext-devel
 BuildRequires:  pkgconfig
+BuildRequires:  gettext-devel
 %endif
 
 %description
 A notifier for the usbauth firewall against BadUSB attacks. The user could manually allow or deny USB devices.
 
+%lang_package
+
 %prep
-%autosetup -n usbauth-all-%{version} -p1
+%autosetup -n %{_name}-%{version}
 
 %build
 pushd %{name}/
@@ -81,9 +82,6 @@ pushd %{name}/
 popd
 
 %files -f %{name}/%name.lang
-%if 0%{?suse_version}
-%defattr(-,root,root)
-%endif
 %license %{name}/COPYING
 %doc %{name}/README
 %doc %_mandir/*/*
