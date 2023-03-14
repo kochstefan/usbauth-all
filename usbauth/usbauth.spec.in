@@ -76,7 +76,7 @@ popd
 %endif
 %license %{name}/COPYING
 %doc %{name}/README
-doc %_mandir/man1/usbauth.1.*
+%doc %_mandir/*/*
 %_sbindir/usbauth
 %config %_sysconfdir/dbus-1/system.d/org.opensuse.usbauth.conf
 %config(noreplace) %_sysconfdir/usbauth.conf
