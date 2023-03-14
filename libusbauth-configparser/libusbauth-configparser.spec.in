@@ -88,16 +88,16 @@ popd
 %else
 %files
 %endif
-%license COPYING
-%doc README
+%license %{name}/COPYING
+%doc %{name}/README
 %_libdir/lib*.so.1*
 
 %files devel
 %if 0%{?suse_version}
 %defattr(-,root,root)
 %endif
-%license libusbauth-configparser/COPYING
-%doc libusbauth-configparser/README
+%license %{name}/COPYING
+%doc %{name}/README
 %doc %_mandir/*/*
 %_includedir/*
 %_libdir/lib*.so
